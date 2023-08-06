@@ -1,0 +1,6 @@
+transformers
+fschat>=0.2.18
+dataclass_wizard
+jsonlines
+tensorboard
+openai

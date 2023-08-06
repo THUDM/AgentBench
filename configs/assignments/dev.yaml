@@ -1,0 +1,29 @@
+# Warning: Before using this file without modification, you should:
+#   1. deploy a fastchat server (see https://github.com/lm-sys/FastChat)
+#   2. Complete the URL in configs/agents/fastchat_client.yaml
+
+default:
+  agent: 
+    - from: configs/agents/fastchat_client.yaml
+      parameters:
+        name: vicuna-13b
+        model_name: vicuna-13b
+  task:
+    parameters:
+      workers: 15
+assignments:
+  - task: "configs/tasks/os_interaction/dev.yaml"
+  - task:
+      from: "configs/tasks/dbbench/dev.yaml"
+      parameters:
+        workers: 10
+  - task: "configs/tasks/lateralthinkingpuzzle/dev.yaml"
+  - task: "configs/tasks/lateralthinkingpuzzle_zh/dev.yaml"
+  - task: "configs/tasks/knowledgegraph/dev.yaml"
+  - task: "configs/tasks/alfworld/dev.yaml"
+  - task: "configs/tasks/mind2web/dev.yaml"
+  - task:
+      from: "configs/tasks/webshop/dev.yaml"
+      parameters:
+        workers: 6
+  - task: "configs/tasks/card_game/dev.yaml"

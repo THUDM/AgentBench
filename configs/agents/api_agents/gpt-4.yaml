@@ -1,0 +1,8 @@
+module: "src.agents.OpenAIChatCompletion"
+parameters:
+    name: "gpt-4"
+    api_args:
+        model: "gpt-4"
+        # key: <assign your openai key here>
+        # base: <assign your openai base here>
+        timeout: 120

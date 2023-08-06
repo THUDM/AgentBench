@@ -1,0 +1,20 @@
+default:
+  task: 
+    from: /home/yuhao/yh/AgentBench-Public/configs/tasks/example.yaml
+    parameters:
+      count: 20
+assignments:
+  - agent:
+      module: src.agents.HTTPAgent
+      parameters:
+        name: gpt-3.5-turbo
+        url: https://api.openai.com/v1/chat/completions
+        headers:
+          Content-Type: application/json
+          Authorization: Bearer <%% PUT-YOUR-OPENAI-KEY-HERE %%>
+        body:
+          model: gpt-3.5-turbo
+        prompter:
+          name: role_content_dict
+          args:
+            agent_role: assistant

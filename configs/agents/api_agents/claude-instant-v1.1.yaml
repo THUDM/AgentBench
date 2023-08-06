@@ -1,0 +1,7 @@
+module: "src.agents.Claude"
+parameters:
+    name: "claude-instant-v1.1"
+    api_args:
+        model: "claude-instant-v1.1"
+        # key: <assign your key here>
+        max_tokens_to_sample: 256

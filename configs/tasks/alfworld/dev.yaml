@@ -1,0 +1,9 @@
+module: "src.tasks.alfworld.ALFWorld"
+parameters:
+    name: "ALFWorld-dev"
+    data_path: "/AgentBench/data/alfworld" # TODO replace it with your own data path
+    config_path: "src/tasks/alfworld/configs/base_config.yaml"
+    prompts_path: "src/tasks/alfworld/prompts/alfworld_multiturn_plan_first.json"
+    split: "dev"
+    max_step: 35
+

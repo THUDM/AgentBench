@@ -1,0 +1,8 @@
+# Refer to https://github.com/lm-sys/FastChat to know how to deploy FastChat service
+
+module: "src.agents.FastChatAgent"
+parameters:
+    controller_address: <%% Put Your Controller Address Here %%>
+    max_new_tokens: 128
+    temperature: 0
+    top_p: 0

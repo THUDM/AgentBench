@@ -1,0 +1,6 @@
+module: "src.tasks.ExampleTask"
+parameters:
+    name: "Example-Evaluation"
+    count: 10
+    range_min: 2
+    range_max: 10000000

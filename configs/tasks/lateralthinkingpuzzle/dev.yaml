@@ -1,0 +1,6 @@
+module: "src.tasks.LateralThinkingPuzzle"
+parameters:
+    name: "LateralThinkingPuzzle-dev"
+    round: 25
+    filepath: "data/lateralthinkingpuzzle/dev.xlsx"
+    eval_yaml: "configs/agents/local/turbo.yaml"

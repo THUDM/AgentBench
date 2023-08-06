@@ -1,0 +1,8 @@
+module: "src.agents.OpenAICompletion"
+parameters:
+    name: "text-davinci-002"
+    api_args:
+        model: "text-davinci-002"
+        # key: <assign your openai key here>
+        timeout: 120
+        max_tokens: 256
