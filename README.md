@@ -9,6 +9,12 @@
 
 # AgentBench: Evaluating LLMs as Agents
 
+
+
+https://github.com/THUDM/AgentBench/assets/129033897/656eed6e-d9d9-4d07-b568-f43f5a451f04
+
+
+
 **AgentBench** is the first benchmark designed to evaluate **LLM-as-Agent** across a diverse spectrum of different environments. It encompasses 8 distinct environments to provide a more comprehensive evaluation of the LLMs' ability to operate as autonomous agents in various scenarios. These environments include 5 freshly created domains, namely 
 
 - Operating System (OS)
