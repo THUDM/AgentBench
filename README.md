@@ -104,5 +104,10 @@ For more detailed instructions and advanced usage, please refer to our [tutorial
 ## Citation
 
 ```
-Coming Soon!
+@article{liu2023agentbench,
+  title   = {AgentBench: Evaluating LLMs as Agents},
+  author  = {Xiao Liu and Hao Yu and Hanchen Zhang and Yifan Xu and Xuanyu Lei and Hanyu Lai and Yu Gu and Hangliang Ding and Kaiwen Men and Kejuan Yang and Shudan Zhang and Xiang Deng and Aohan Zeng and Zhengxiao Du and Chenhui Zhang and Sheng Shen and Tianjun Zhang and Yu Su and Huan Sun and Minlie Huang and Yuxiao Dong and Jie Tang},
+  year    = {2023},
+  journal = {arXiv preprint arXiv: 2308.03688}
+}
 ```
