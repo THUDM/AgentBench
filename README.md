@@ -57,6 +57,7 @@ While LLMs begin to manifest their proficiency in LLM-as-Agent, gaps between mod
 
 ![](./assets/intro.png)
 
+Xlsx-format leaderboard data is available [here](https://github.com/THUDM/AgentBench/blob/main/assets/agentbench_leaderboard-230808.xlsx).
 
 ## Quick Start
 
