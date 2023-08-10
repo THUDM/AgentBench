@@ -37,7 +37,7 @@ as well as 3 recompiled from published datasets:
 - [Dataset Summary](#dataset-summary)
 - [Leaderboard](#leaderboard)
 - [Quick Start](#quick-start)
-- [Turorial](#turorial)
+- [Tutorial](#tutorial)
 - [Citation](#citation)
 
 
@@ -104,7 +104,7 @@ And you can see the target assignment bash script from the output like this:
 
 Finally, run the assignment bash script that displayed in the output to start evaluation. After that, you can check your output in the `outputs` folder.
 
-## Turorial
+## Tutorial
 
 For more detailed instructions and advanced usage, please refer to our [tutorial](./docs/tutorial.md).
 
