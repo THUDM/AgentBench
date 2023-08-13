@@ -1,6 +1,6 @@
 default:
   task: 
-    from: /home/yuhao/yh/AgentBench-Public/configs/tasks/example.yaml
+    from: configs/tasks/example.yaml
     parameters:
       count: 20
 assignments:

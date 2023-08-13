@@ -19,7 +19,7 @@ from os.path import join, isdir, isfile, relpath
 from glob import glob
 
 from src import YAMLConfig, print_rank_0, Task, Agent, serialize
-from assignment import InstanceFactory, Assigment, deep_merge
+from create_assignment import InstanceFactory, Assigment, deep_merge
 from src.utils import ColorMessage
 
 def parse_args_to_assignment() -> Assigment:

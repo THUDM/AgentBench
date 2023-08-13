@@ -3,4 +3,4 @@ parameters:
     name: "LateralThinkingPuzzle-dev"
     round: 25
     filepath: "data/lateralthinkingpuzzle/dev.xlsx"
-    eval_yaml: "configs/agents/local/turbo.yaml"
+    eval_yaml: "configs/agents/api_agents/gpt-3.5-turbo.yaml"
