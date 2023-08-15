@@ -27,9 +27,10 @@ class OpenAIChatCompletion(Agent):
         api_args["model"] = api_args.pop("model", None)
         if not api_key:
             raise ValueError("OpenAI API key is required, please assign api_args.key or set OPENAI_API_KEY environment variable.")
+        api_args["api_key"] = api_key
         os.environ['OPENAI_API_KEY'] = api_key
         print("OpenAI API key={}".format(openai.api_key))
-        api_base = api_args.pop("base", None) or os.getenv('OPENAI_API_BASE')
+        api_base = api_args.pop("base", None) or os.getenv('OPENAI_API_BASE') or 'None'  # Can't be a Nonetype
         os.environ['OPENAI_API_BASE'] = api_base
         print("openai.api_base={}".format(openai.api_base))
         if not api_args["model"]:
