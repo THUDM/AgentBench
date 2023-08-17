@@ -393,12 +393,6 @@ python evaluate.py \
     --workers 30
 ```
 
-### Step 4. Prepare the Docker Images for Each Task
-
-```bash
-bash scripts/build_docker.sh
-```
-
 ## 2. Implement Your Agent
 
 You can refer to [How to Create Your Agent](#how-to-create-your-agent) for detailed information.
