@@ -55,7 +55,6 @@ class Prompter:
         return {"prompt": prompt}
 
 class FastChatAgent(Agent):
-    """This agent is a test agent, which does nothing. (return empty string for each action)"""
 
     def __init__(self, model_name, controller_address=None, worker_address=None, temperature=0, max_new_tokens=32, top_p=0, prompter=None, args=None, **kwargs) -> None:
         if controller_address is None and worker_address is None:
