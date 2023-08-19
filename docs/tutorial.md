@@ -340,7 +340,7 @@ pip install -r src/tasks/os_interaction/requirements.txt
 Create local images. This process may takes 5 ~ 10 minutes.
 
 ```bash
-python src/tasks/os_interaction/images.py build -c configs/tasks/os_interaction/std.yaml -r .
+python src/tasks/os_interaction/images.py build -c configs/tasks/os_interaction/dev.yaml -r .
 ```
 
 Run the following command to verify that you have successfully prepared the requirements.
