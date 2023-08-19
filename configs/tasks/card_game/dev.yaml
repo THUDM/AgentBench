@@ -1,5 +1,5 @@
+docker_image: "localhost/task:card_game"
 module: "src.tasks.CardGame"
-
 parameters:
     name: "CardGame-dev"
     port: 12347

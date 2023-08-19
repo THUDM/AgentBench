@@ -1,6 +1,7 @@
+docker_image: "localhost/task:ltp"
 module: "src.tasks.LateralThinkingPuzzle_zh"
 parameters:
-    name: "LateralThinkingPuzzle-dev"
+    name: "LateralThinkingPuzzle_zh-dev"
     round: 25
     filepath: "data/lateralthinkingpuzzle_zh/dev.xlsx"
     eval_yaml: "configs/agents/api_agents/gpt-3.5-turbo.yaml"

@@ -1,4 +1,4 @@
-module: "src.agents.OpenAICompletion"
+module: "src.agents.api_agents.OpenAICompletion"
 parameters:
     name: "text-davinci-002"
     api_args:

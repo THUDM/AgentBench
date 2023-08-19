@@ -1,4 +1,4 @@
-module: "src.agents.Claude"
+module: "src.agents.api_agents.Claude"
 parameters:
     name: "claude-instant-v1.1"
     api_args:

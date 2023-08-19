@@ -1,4 +1,4 @@
-module: "src.agents.OpenAIChatCompletion"
+module: "src.agents.api_agents.OpenAIChatCompletion"
 parameters:
     name: "gpt-4"
     api_args:

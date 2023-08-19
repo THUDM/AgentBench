@@ -1,3 +1,4 @@
+docker_image: "localhost/task:alfworld"
 module: "src.tasks.alfworld.ALFWorld"
 parameters:
     name: "ALFWorld-dev"

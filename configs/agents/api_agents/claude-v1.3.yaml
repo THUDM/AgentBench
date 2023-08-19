@@ -1,4 +1,4 @@
-module: "src.agents.Claude"
+module: "src.agents.api_agents.Claude"
 parameters:
     name: "claude-v1.3"
     api_args:

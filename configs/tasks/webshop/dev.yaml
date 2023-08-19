@@ -1,5 +1,5 @@
+docker_image: "localhost/task:webshop"
 module: src.tasks.WebShop
-
 parameters:
   name: "WebShop-dev"
   start: 200

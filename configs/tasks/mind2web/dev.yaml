@@ -1,3 +1,4 @@
+docker_image: "localhost/task:mind2web"
 module: "src.tasks.Mind2Web"
 parameters:
     name: "Mind2Web-dev"
