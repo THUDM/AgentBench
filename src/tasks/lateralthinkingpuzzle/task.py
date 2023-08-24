@@ -69,7 +69,7 @@ class LateralThinkingPuzzle(Task):
         finish_round = self.round
         for i in range(self.round):
             solver = session.action({"role": "user", "content": host})
-            solver = solver.split('\n')[0].strip()
+            solver = solver.strip().split('\n')[0].strip()
             logs.append(f'Round {i+1}: {solver}')
             if 'new story' in solver or 'other story' in solver or 'new game' in solver or 'other game' in solver or 'new question' in solver or 'other question' in solver or 'other round' in solver or 'new round' in solver or 'Great job' in solver or 'further question' in solver:
                 abort += 2

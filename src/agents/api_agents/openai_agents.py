@@ -24,14 +24,17 @@ class OpenAIChatCompletion(Agent):
         
         api_args = deepcopy(api_args)
         api_key = api_args.pop("key", None) or os.getenv('OPENAI_API_KEY')
-        api_args["model"] = api_args.pop("model", None)
         if not api_key:
             raise ValueError("OpenAI API key is required, please assign api_args.key or set OPENAI_API_KEY environment variable.")
         os.environ['OPENAI_API_KEY'] = api_key
+        openai.api_key = api_key
         print("OpenAI API key={}".format(openai.api_key))
         api_base = api_args.pop("base", None) or os.getenv('OPENAI_API_BASE')
-        os.environ['OPENAI_API_BASE'] = api_base
+        if api_base:
+            os.environ['OPENAI_API_BASE'] = api_base
+            openai.api_base = api_base
         print("openai.api_base={}".format(openai.api_base))
+        api_args["model"] = api_args.pop("model", None)
         if not api_args["model"]:
             raise ValueError("OpenAI model is required, please assign api_args.model.")
         self.api_args = api_args
@@ -56,6 +59,17 @@ class OpenAICompletion(Agent):
         if not api_args:
             api_args = {}
         api_args = deepcopy(api_args)
+        api_key = api_args.pop("key", None) or os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OpenAI API key is required, please assign api_args.key or set OPENAI_API_KEY environment variable.")
+        os.environ['OPENAI_API_KEY'] = api_key
+        openai.api_key = api_key
+        print("OpenAI API key={}".format(openai.api_key))
+        api_base = api_args.pop("base", None) or os.getenv('OPENAI_API_BASE')
+        if api_base:
+            os.environ['OPENAI_API_BASE'] = api_base
+            openai.api_base = api_base
+        print("openai.api_base={}".format(openai.api_base))
         api_args["model"] = api_args.pop("model", None)
         if not api_args["model"]:
             raise ValueError("OpenAI model is required, please assign api_args.model.")

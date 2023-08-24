@@ -69,7 +69,7 @@ class LateralThinkingPuzzle_zh(Task):
         finish_round = self.round
         for i in range(self.round):
             solver = session.action({"role": "user", "content": host})
-            solver = solver.split('\n')[0].strip()
+            solver = solver.strip().split('\n')[0].strip()
             logs.append(f'第{i+1}轮：{solver}')
             if '感谢' in solver or '谢谢' in solver or '再见' in solver:
                 abort += 2

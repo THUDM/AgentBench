@@ -4,5 +4,6 @@ parameters:
     api_args:
         model: "text-davinci-002"
         # key: <assign your openai key here>
+        # base: <assign your openai base here>
         timeout: 120
         max_tokens: 256

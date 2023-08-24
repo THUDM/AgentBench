@@ -4,4 +4,5 @@ parameters:
     api_args:
         model: "gpt-3.5-turbo"
         # key: <assign your openai key here>
+        # base: <assign your openai base here>
         timeout: 120
