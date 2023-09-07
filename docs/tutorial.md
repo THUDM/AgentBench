@@ -301,7 +301,7 @@ parameters:
 Run the following command to test your task:
 
 ```
-python evaluate.py --task configs/tasks/<your_task>.yaml --agent configs/agents/do_nothing.yaml --workers 30
+python eval.py --task configs/tasks/<your_task>.yaml --agent configs/agents/do_nothing.yaml --workers 30
 ```
 
 Check your output in `output/<timestamp>/<your_task>`.
@@ -387,9 +387,9 @@ pip install -r src/tasks/knowledgegraph/requirements.txt
 Run the following command to verify that you have successfully prepared the requirements.
 
 ```bash
-python evaluate.py \
+python eval.py \
     --task configs/tasks/knowledgegraph/dev.yaml \
-    --agent configs/agents/local/do_nothing_agent.yaml \
+    --agent configs/agents/do_nothing.yaml \
     --workers 30
 ```
 
