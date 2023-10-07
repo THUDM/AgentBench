@@ -1,0 +1,6 @@
+module: src.tasks.DBBench
+
+parameters:
+  name: "DBBench"
+  data_file: data/dbbench/standard.jsonl
+  max_round: 15

@@ -1,0 +1,33 @@
+module: "src.tasks.OSInteraction"
+parameters:
+    name: "OS-Interaction"
+    match_problem: true
+    check_problem: true
+    round_limit: 8
+
+    docker_config:
+        localhost: local-os
+        directory: data/os_interaction/res/dockerfiles
+
+    scripts:
+        directory: data/os_interaction/res/scripts
+
+    data_config:
+        files:
+            - problem_file: data/os_interaction/data/1/*.json
+              script_dir: data/os_interaction/scripts/1/
+            - problem_file: data/os_interaction/data/2/*.json
+              script_dir: data/os_interaction/scripts/2/
+            - problem_file: data/os_interaction/data/3/*.json
+              script_dir: data/os_interaction/scripts/3/
+            - problem_file: data/os_interaction/data/4/*.json
+              script_dir: data/os_interaction/scripts/4/
+            - problem_file: data/os_interaction/data/5/*.json
+              script_dir: data/os_interaction/scripts/5/
+            - problem_file: data/os_interaction/data/6/*.json
+              script_dir: data/os_interaction/scripts/6/
+            - problem_file: data/os_interaction/data/7/*.json
+              script_dir: data/os_interaction/scripts/7/
+
+        bk: []
+        ignore: []
