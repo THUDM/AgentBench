@@ -112,7 +112,7 @@ configs
 `assignments`目录下存放了所有的任务配置文件。
 其中`definition.yaml`集合了所有的任务定义和模型定义。
 
-单个任务配置文件主要需要一下字段：
+单个任务配置文件主要需要以下字段：
 
 - `definition`: 通常import自`definition.yaml`，用于定义任务和模型。
 - `concurrency`: 用于定义模型的最大并行数。
