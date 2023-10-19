@@ -126,7 +126,7 @@ The assumption for this step is that ports from 5000 to 5015 are available.
 python -m src.start_task -a
 ```
 
-This will launch five task_workers each for `dbbench-std`, `os-std`, and `kg-std` tasks and automatically connect them
+This will launch five task_workers each for `dbbench-std` and `os-std` tasks and automatically connect them
 to the controller on port 5000. **After executing this command, please allow approximately 1 minute for the task setup to complete.**
 
 ### Step 4. Start the assigner
