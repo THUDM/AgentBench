@@ -245,7 +245,7 @@ class TaskController:
                             worker.status = WorkerStatus.DEAD
                     else:
                         worker.status = WorkerStatus.DEAD
-                raise HTTPException(400, "Error: Worker not responding")
+                raise HTTPException(400, "Error: Worker not responding\n" + str(e))
             if response.status != 200:
                 raise HTTPException(
                     response.status,
