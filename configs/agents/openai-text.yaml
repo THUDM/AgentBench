@@ -1,7 +1,7 @@
 module: src.client.agents.HTTPAgent
 parameters:
   name: <% NAME %>
-  url: https://api.openai.com/v1/chat/completions
+  url: https://api.openai.com/v1/completions
   headers:
     Content-Type: application/json
     Authorization: Bearer <% PUT-YOUR-OPENAI-KEY-HERE %>
