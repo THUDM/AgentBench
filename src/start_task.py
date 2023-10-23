@@ -67,6 +67,7 @@ if __name__ == "__main__":
         nargs="*",
         help="name num_worker name num_worker ...",
     )
+    parser.add_argument("--controller", "-l", dest="controller_addr", default="")
     parser.add_argument(
         "--auto-controller", "-a", dest="controller", action="store_true"
     )
@@ -110,7 +111,9 @@ if __name__ == "__main__":
 
     base_port = args.port
 
-    if "controller" in config:
+    if args.controller_addr:
+        controller_addr = args.controller_addr
+    elif "controller" in config:
         controller_addr = config["controller"]
     else:
         controller_addr = "http://localhost:5000/api"
