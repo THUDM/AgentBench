@@ -5,7 +5,7 @@ from src.server.task import Task, Session
 from src.server.tasks.alfworld.environment import SingleAlfredTWEnv
 from src.server.tasks.alfworld.utils import *
 from src.typings import TaskOutput, TaskSampleExecutionResult, SampleStatus, AgentOutputStatus
-
+from copy import deepcopy
 import traceback
 
 
@@ -133,7 +133,7 @@ class ALFWorld(Task):
         for k, v in self.prefixes.items():
             if filename.startswith(k):
                 example = self.prompts[v]
-                return example
+                return deepcopy(example)
         raise Exception(f"unsupported name: {filename}")
         # return self.prompts["naive_example"]
 
