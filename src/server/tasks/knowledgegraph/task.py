@@ -113,7 +113,7 @@ class KnowledgeGraph(Task):
                 recall = TP / (TP + FN)
                 F1 = 2 * precision * recall / (precision + recall)
                 F1_sum += F1
-            return F1_sum / count
+            return F1_sum / len(outputs)
 
         def EM():
             em_sum = 0
@@ -128,7 +128,7 @@ class KnowledgeGraph(Task):
                         gold_answer.intersection(predicted_answer)) == len(predicted_answer):
                     em_sum += 1
 
-            return em_sum / count
+            return em_sum / len(outputs)
 
         def executability():
             count = 0
@@ -140,7 +140,7 @@ class KnowledgeGraph(Task):
                 if outputs[i]['predict'] is not None and len(outputs[i]['predict']) > 0:
                     executability_sum += 1
 
-            return executability_sum / count
+            return executability_sum / len(outputs)
 
         # TODO: complete this function
 
