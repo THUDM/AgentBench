@@ -1,0 +1,9 @@
+default:
+  module: "src.server.tasks.avalon.AvalonBench"
+  parameters:
+    num_games: 10
+    num_players: 5
+
+avalon-dev:
+  parameters:
+    name: "AvalonBench-dev"

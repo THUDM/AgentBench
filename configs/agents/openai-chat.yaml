@@ -3,7 +3,7 @@ parameters:
   url: https://api.openai.com/v1/chat/completions
   headers:
     Content-Type: application/json
-    Authorization: Bearer <% PUT-YOUR-OPENAI-KEY-HERE %>
+    Authorization: Bearer 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
   body:
     temperature: 0
   prompter:
