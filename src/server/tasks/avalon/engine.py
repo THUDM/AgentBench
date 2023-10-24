@@ -1,79 +1,162 @@
-# import random
+from typing import ClassVar, List, Optional, Dict
 import numpy as np
+from pydantic import BaseModel
 
-class AvalonConfig():
-    '''
-    Avalon game configuration
-    '''
+class AgentConfig(BaseModel):
+    r"""Avalon game configuration
 
-    # usage: creationAndQuests[num_players][[num_good, num_evil], [num_players_for_quest], [num_fails_for_quest]]
-    QUEST_PRESET      = {5 : [[3,2] , [2,3,2,3,3], [1,1,1,1,1], ] , 
-                         6 : [[4,2] , [2,3,4,3,4], [1,1,1,1,1],] , 
-                         7 : [[4,3] , [2,3,3,4,4], [1,1,1,2,1],] , 
-                         8 : [[5,3] , [3,4,4,5,5], [1,1,1,2,1],] , 
-                         9 : [[6,3] , [3,4,4,5,5], [1,1,1,2,1],] , 
-                         10 : [[6,4] , [3,4,4,5,5], [1,1,1,2,1],]}
+    Class Variables:
+        QUEST_PRESET:
+            - Detail: Presets for each quest under various game settings (number of players)
+            - Typing: Dict[num_players: List[List[num_good, num_evil], List[num_players_for_quest], List[num_fails_for_quest]]]
+        MAX_ROUNDS: Number of the maximum rounds
+        PHASES: Map from id to different phases
+        ROLES: Map from id to different roles
+
+    Args:
+        merlin (bool): Whether Merlin is in the game
+        percival (bool): Whether Percival is in the game
+        morgana (bool): Whether Morgana is in the game
+        mordred (bool): Whether Mordred is in the game
+        oberon (bool): Whether Oberon is in the game
     
-    MAX_ROUNDS = 5
-    PHASES = {0 : "Team Selection", 1 : "Team Voting", 2 : "Quest Voting", 3 : "Assassination"}
-    ROLES = {0 : "Merlin", 1 : "Percival", 2 : "Morgana", 3 : "Mordred", 4 : "Oberon", 5 : "Servant", 6 : "Minion", 7 : "Assassin"}
+        num_players (int): Number of players in the game
+        num_good (int): Number of good players in the game
+        num_evil (int): Number of evil players in the game
+        num_players_for_quest (list): Number of players for each quest
+        num_fails_for_quest (list): Number of rejects required for the failure of each quest
 
-    def __init__(self, num_players, merlin = True, percival = False, morgana = False, mordred = False, oberon = False) -> None:
-        '''
-        num_players: number of players in the game
-        merlin: whether Merlin is in the game
-        percival: whether Percival is in the game
-        morgana: whether Morgana is in the game
-        mordred: whether Mordred is in the game
-        oberon: whether Oberon is in the game
-        '''
-        self.num_players = num_players
-        self.merlin = merlin
-        self.percival = percival
-        self.morgana = morgana
-        self.mordred = mordred
-        self.oberon = oberon
+        roles (List[int]): List of roles for each player (Optional)
 
-        # load game presets
-        self.num_evil = self.QUEST_PRESET[num_players][0][1]
-        self.num_good = num_players - self.num_evil
-        self.num_players_for_quest = self.QUEST_PRESET[num_players][1]
-        self.num_fails_for_quest = self.QUEST_PRESET[num_players][2]
+    Method:
+        :method:`from_num_players` (@classmethod): instantiate the class from number of players
+    """
 
-        np.random.seed(0)
+    QUEST_PRESET: ClassVar =   {5 : [[3,2] , [2,3,2,3,3], [1,1,1,1,1], ] , 
+                                6 : [[4,2] , [2,3,4,3,4], [1,1,1,1,1],] , 
+                                7 : [[4,3] , [2,3,3,4,4], [1,1,1,2,1],] , 
+                                8 : [[5,3] , [3,4,4,5,5], [1,1,1,2,1],] , 
+                                9 : [[6,3] , [3,4,4,5,5], [1,1,1,2,1],] , 
+                                10 : [[6,4] , [3,4,4,5,5], [1,1,1,2,1],]}
+    
+    MAX_ROUNDS: ClassVar = 5
+    PHASES: ClassVar = {0 : "Team Selection", 1 : "Team Voting", 2 : "Quest Voting", 3 : "Assassination"}
+    ROLES: ClassVar = {0 : "Merlin", 1 : "Percival", 2 : "Morgana", 3 : "Mordred", 4 : "Oberon", 5 : "Servant", 6 : "Minion", 7 : "Assassin"}
+    ROLES_REVERSE: ClassVar = {v: k for k, v in ROLES.items()}
+
+    merlin: bool = True
+    percival: bool = False
+    morgana: bool = False
+    mordred: bool = False
+    oberon: bool = False
+
+    num_players: int
+    num_good: int
+    num_evil: int
+    num_players_for_quest: list
+    num_fails_for_quest: list
+
+    roles: Optional[List[int]]
+    role_names: Optional[List[str]]
+    is_good: Optional[List[bool]]
+    quest_leader: Optional[int]
+
+    @classmethod
+    def from_num_players(cls, num_players: int, **kwargs) -> 'AgentConfig':
+        num_evil = cls.QUEST_PRESET[num_players][0][1]
+        num_good = num_players - num_evil
+        num_players_for_quest = cls.QUEST_PRESET[num_players][1]
+        num_fails_for_quest = cls.QUEST_PRESET[num_players][2]
+
+        return cls(
+            num_players=num_players,
+            num_good=num_good,
+            num_evil=num_evil,
+            num_players_for_quest=num_players_for_quest,
+            num_fails_for_quest=num_fails_for_quest,
+            **kwargs
+        )
+    
+    @classmethod
+    def from_presets(cls, presets: Dict) -> 'AgentConfig':
+        num_players = presets['num_players']
+        quest_leader = presets['quest_leader']
+        role_names = presets['role_names']
+        role_ids = [cls.ROLES_REVERSE[role_name] for role_name in role_names]
+
+        is_good = np.full(num_players, True).tolist()
+        for idx, role in enumerate(role_names):
+            if role in ["Morgana", "Mordred", "Oberon", "Minion", "Assassin"]:
+                is_good[idx] = False
+
+        num_evil = cls.QUEST_PRESET[num_players][0][1]
+        num_good = num_players - num_evil
+        num_players_for_quest = cls.QUEST_PRESET[num_players][1]
+        num_fails_for_quest = cls.QUEST_PRESET[num_players][2]
+
+        return cls(
+            num_players=num_players,
+            num_good=num_good,
+            num_evil=num_evil,
+            num_players_for_quest=num_players_for_quest,
+            num_fails_for_quest=num_fails_for_quest,
+            quest_leader=quest_leader,
+            role_names=role_names,
+            roles=role_ids,
+            is_good=is_good
+        )
+
     
 class AvalonGameEnvironment():
+    r"""Avalon game environment, call methods to access environment.
     
-    '''
-    Avalon game environment, call methods to access environment
-    '''
-    def __init__(self, config: AvalonConfig) -> None:
-        '''
-        num_players: number of players in the game
-        merlin: whether Merlin is in the game
-        percival: whether Percival is in the game
-        morgana: whether Morgana is in the game
-        mordred: whether Mordred is in the game
-        oberon: whether Oberon is in the game
-        '''
-        self.num_players = config.num_players
-        self.merlin = config.merlin
-        self.percival = config.percival
-        self.morgana = config.morgana
-        self.mordred = config.mordred
-        self.oberon = config.oberon
-
-        # load game presets
-        self.num_evil = config.num_evil
-        self.num_good = config.num_good
-        self.num_players_for_quest = config.num_players_for_quest
-        self.num_fails_for_quest = config.num_fails_for_quest
+    There are two ways to initialize the environment:
+    1. Directly call the constructor with the game presets, and then call the method :method:`reset` to initialize the game
+    2. Call the class method :method:`from_presets` to instantiate the environment with game presets, which includes role information
+    
+    When calling the class method :method:`from_presets`, the following presets are required:
+    - role_names (List[str]): List of role names for each player
+    - num_players (int): Number of players in the game
+    - quest_leader (int): The id of the quest leader
+    """
+    def __init__(self, config: AgentConfig) -> None:
+        for key, value in config.dict().items():
+            setattr(self, key, value)
 
         self.config = config
+
+        if self.roles is None:
+            print("New Game!")
+            self.reset()
+
+    @classmethod
+    def from_num_players(cls, num_players: Dict) -> 'AvalonGameEnvironment':
+        r"""Instantiate the environment with number of players"""
+        config = AgentConfig.from_num_players(num_players)
+        cls.config = config
+
+        return cls(config)
+
+    @classmethod
+    def from_presets(cls, presets: Dict) -> 'AvalonGameEnvironment':
+        r"""Instantiate the environment with game presets"""
+        config = AgentConfig.from_presets(presets)
+        cls.config = config
+
+        cls.round = 0
+        cls.quest = 0
+        cls.phase = 0
+        cls.turn = 0
+        cls.done = False
+        cls.good_victory = False
+
+        cls.quest_results = []
+        cls.quest_team = []
+        cls.team_votes = []
+        cls.quest_votes = []
         
-        # np.random.seed(0)
-        # initialize game
-        self.reset()
+
+        return cls(config)
 
     def reset(self):
         '''
@@ -144,7 +227,7 @@ class AvalonGameEnvironment():
         '''
         returns tuple of role index, role name, and whether player is good
         '''
-        return (self.roles[player], self.ROLES[self.roles[player]], self.is_good[player])
+        return (self.roles[player], self.config.ROLES[self.roles[player]], self.is_good[player])
     
     def get_roles(self):
         '''
@@ -353,15 +436,21 @@ class AvalonGameEnvironment():
         self.good_victory = False
         return (self.phase, self.done, False)
 
-
-
-
-        
+if __name__ == "__main__":
+    config = AgentConfig.from_num_players(5)
+    env = AvalonGameEnvironment.from_presets({
+        'num_players': 5,
+        'quest_leader': 0,
+        'role_names': ['Merlin', 'Percival', 'Morgana', 'Mordred', 'Oberon']
+    })
     
+    print(env.get_role(0))
+    
+    env = AvalonGameEnvironment.from_num_players(5)
 
-        
-
-
-
-
-
+    print(env.get_role(0))
+    # print(config.dict())
+    # print(env.roles)
+    # print(env.is_good)
+    # print(config.ROLES)
+    # print(config.ROLES_REVERSE)
