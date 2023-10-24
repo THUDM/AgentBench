@@ -1,6 +1,7 @@
 os-dev:
   module: "src.server.tasks.os_interaction.OSInteraction"
   parameters:
+    name: "os-dev"
     concurrency: 24
     round_limit: 8
 
