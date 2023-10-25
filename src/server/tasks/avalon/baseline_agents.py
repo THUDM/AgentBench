@@ -1,11 +1,23 @@
 import random
-from .engine import AvalonConfig
+from .engine import AvalonBasicConfig, AvalonGameEnvironment
 import itertools
 import warnings
+from typing import List
+from .agent import Agent
 
-class Agent:
+class NaiveAgent(Agent):
+    r"""Agent with naive strategies.
 
-    def __init__(self, id, name, config: AvalonConfig, side=None, role=None, sides = None):
+    When creating an agent, the following information is needed:
+    - id (int): The Player id of the agent.
+    - role (int): The role (id) of the agent.
+    - config (AvalonBasicConfig): The config of the basic game info.
+    
+    Please refer to the paper https://arxiv.org/pdf/2310.05036.pdf for details.
+    """
+
+    def __init__(self, id: int, role: int, config: AvalonBasicConfig, name: str, side: int=None, sides: List[int] = None):
+        super().__init__(id, role, config)
         self.name = name
         self.id = id
         self.config = config
@@ -65,9 +77,9 @@ class Agent:
         '''
         return [0.5 if side == -1 else side for side in self.player_sides]
 
-class NaiveMinion(Agent):
+class NaiveMinion(NaiveAgent):
     
-    def __init__(self, id, name, config: AvalonConfig, side=0, role=6, sides = None):
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=0, role: int=6, sides: List[int]=None):
         super().__init__(id, name, config, side, role, sides)
 
     def vote_on_mission(self, mission_id, team: frozenset):
@@ -101,9 +113,9 @@ class NaiveMinion(Agent):
         # propose a random team that includes evil_team and y-x good player(s), where y is number of players required for this mission
         return frozenset(random.sample([i for i in range(self.config.num_players) if i not in evil_team and self.player_sides[i] == 1], self.config.num_players_for_quest[mission_id] - num_fails) + evil_team)
         
-class NaiveAssassin(Agent):
+class NaiveAssassin(NaiveAgent):
     
-    def __init__(self, id, name, config: AvalonConfig, side=0, role=7, sides = None):
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=0, role: int=7, sides: List[int]=None):
         super().__init__(id, name, config, side, role, sides)
 
     def vote_on_mission(self, mission_id, team: frozenset):
@@ -136,9 +148,9 @@ class NaiveAssassin(Agent):
         # assassinate a random good player
         return random.choice([i for i in range(self.config.num_players) if self.player_sides[i] == 1])
 
-class NaiveMerlin(Agent):
+class NaiveMerlin(NaiveAgent):
 
-    def __init__(self, id, name, config: AvalonConfig, side=1, role=0, sides = None):
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=1, role: int=0, sides: List[int]=None):
         super().__init__(id, name, config, side, role, sides)
     
     def vote_on_team(self, mission_id, team: frozenset):
@@ -152,9 +164,9 @@ class NaiveMerlin(Agent):
         # propose a random team with all good players that includes Merlin
         return frozenset(random.sample([i for i in range(self.config.num_players) if self.player_sides[i] != 0 and i != self.id], self.config.num_players_for_quest[mission_id] - 1) + [self.id])
 
-class NaiveServant(Agent):
+class NaiveServant(NaiveAgent):
 
-    def __init__(self, id, name, config: AvalonConfig, side=1, role=5, sides = None, lexigraphic = True):
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=1, role: int=5, sides: List[int]=None, lexigraphic: bool=True):
         super().__init__(id, name, config, side, role, sides)
 
         # maintain a list of all possible combinations of player sides
@@ -195,24 +207,6 @@ class NaiveServant(Agent):
                 else:
                     out.extend(self.generate_possible_player_sides(sides_copy, num_evils))    
             return out
-
-    # def generate_possible_player_sides(self, sides):
-    #     '''
-    #     generates a list of all possible combinations of player sides given a list of known sides and unknown sides recursively
-    #     '''
-    #     out = []
-    #     # if there are no unknown sides, return the list of sides   
-    #     if -1 not in sides:
-    #         return [sides]
-    #     else:
-    #         # find the first unknown side
-    #         unknown_index = sides.index(-1)
-    #         # recurse on the two possible sides
-    #         for side in [0, 1]:
-    #             sides_copy = sides.copy()
-    #             sides_copy[unknown_index] = side
-    #             out.extend(self.generate_possible_player_sides(sides_copy))
-    #         return out
         
     def generate_team_preferences(self, mission_id):
         '''
@@ -310,8 +304,14 @@ class NaiveServant(Agent):
         return marginal_distribution
     
 
-
-        
+if __name__ == "__main__":
+    env = AvalonGameEnvironment.from_presets({
+        'num_players': 5,
+        'quest_leader': 0,
+        'role_names': ['Servant', 'Minion', 'Merlin', 'Assassin', 'Servant']
+    })
+    config = env.config
+    player_0 = NaiveServant(0, 'player_0', config)
         
     
 
