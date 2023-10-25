@@ -21,34 +21,36 @@ class Agent:
         self.config = config
 
 
-    def propose_team(self, team_size: int) -> List[int]:
+    def propose_team(self, mission_id: int) -> frozenset[int]:
         r"""Propose a team of given size.
 
         Args:
-            team_size (int): The size of the team to propose.
+            mission_id (int): The id of the mission. team_size = config.num_players_for_quest[mission_id]
 
         Returns:
-            List[int]: The list of player ids to be included in the team.
+            frozenset[int]: The list of player ids to be included in the team.
         """
         raise NotImplementedError
     
 
-    def vote_on_team(self, team: List[int]) -> bool:
+    def vote_on_team(self, mission_id: int, team: frozenset[int]) -> bool:
         r"""Vote on a given team.
 
         Args:
-            team (List[int]): The list of player ids included in the team.
+            mission_id (int): The id of the mission. num_fails = self.config.num_fails_for_quest[mission_id]
+            team (frozenset[int]): The list of player ids included in the team.
 
         Returns:
             bool: The vote result.
         """
         raise NotImplementedError
     
-    def vote_on_mission(self, quest_team: List[int]) -> bool:
+    def vote_on_mission(self, mission_id: int, quest_team: frozenset[int]) -> bool:
         r"""Vote on a quest (team).
 
         Args:
-            quest_team (List[int]): The list of player ids included in the quest.
+            mission_id (int): The id of the mission. num_fails = self.config.num_fails_for_quest[mission_id]
+            quest_team (frozenset[int]): The list of player ids included in the quest.
         
         Returns:
             bool: The vote result.
