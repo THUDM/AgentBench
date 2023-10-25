@@ -26,10 +26,11 @@ class AgentConfig(BaseModel):
         num_players_for_quest (list): Number of players for each quest
         num_fails_for_quest (list): Number of rejects required for the failure of each quest
 
-        roles (List[int]): List of roles for each player (Optional)
+        preset_flag (bool): Whether the game is initialized with presets
 
     Method:
         :method:`from_num_players` (@classmethod): instantiate the class from number of players
+        :method:`from_presets` (@classmethod): instantiate the class from presets
     """
 
     QUEST_PRESET: ClassVar =   {5 : [[3,2] , [2,3,2,3,3], [1,1,1,1,1], ] , 
@@ -56,10 +57,8 @@ class AgentConfig(BaseModel):
     num_players_for_quest: list
     num_fails_for_quest: list
 
-    roles: Optional[List[int]]
-    role_names: Optional[List[str]]
-    is_good: Optional[List[bool]]
-    quest_leader: Optional[int]
+    preset_flag: bool = False
+
 
     @classmethod
     def from_num_players(cls, num_players: int, **kwargs) -> 'AgentConfig':
@@ -74,20 +73,13 @@ class AgentConfig(BaseModel):
             num_evil=num_evil,
             num_players_for_quest=num_players_for_quest,
             num_fails_for_quest=num_fails_for_quest,
+            preset_flag=False,
             **kwargs
         )
     
     @classmethod
     def from_presets(cls, presets: Dict) -> 'AgentConfig':
         num_players = presets['num_players']
-        quest_leader = presets['quest_leader']
-        role_names = presets['role_names']
-        role_ids = [cls.ROLES_REVERSE[role_name] for role_name in role_names]
-
-        is_good = np.full(num_players, True).tolist()
-        for idx, role in enumerate(role_names):
-            if role in ["Morgana", "Mordred", "Oberon", "Minion", "Assassin"]:
-                is_good[idx] = False
 
         num_evil = cls.QUEST_PRESET[num_players][0][1]
         num_good = num_players - num_evil
@@ -100,10 +92,7 @@ class AgentConfig(BaseModel):
             num_evil=num_evil,
             num_players_for_quest=num_players_for_quest,
             num_fails_for_quest=num_fails_for_quest,
-            quest_leader=quest_leader,
-            role_names=role_names,
-            roles=role_ids,
-            is_good=is_good
+            preset_flag=True,
         )
 
     
@@ -125,7 +114,7 @@ class AvalonGameEnvironment():
 
         self.config = config
 
-        if self.roles is None:
+        if not self.preset_flag:
             print("New Game!")
             self.reset()
 
@@ -142,6 +131,21 @@ class AvalonGameEnvironment():
         r"""Instantiate the environment with game presets"""
         config = AgentConfig.from_presets(presets)
         cls.config = config
+
+        num_players = presets['num_players']
+        quest_leader = presets['quest_leader']
+        role_names = presets['role_names']
+        role_ids = [config.ROLES_REVERSE[role_name] for role_name in role_names]
+
+        is_good = np.full(num_players, True).tolist()
+        for idx, role in enumerate(role_names):
+            if role in ["Morgana", "Mordred", "Oberon", "Minion", "Assassin"]:
+                is_good[idx] = False
+
+        cls.roles = role_ids
+        cls.role_names = role_names
+        cls.is_good = is_good
+        cls.quest_leader = quest_leader
 
         cls.round = 0
         cls.quest = 0
@@ -441,7 +445,7 @@ if __name__ == "__main__":
     env = AvalonGameEnvironment.from_presets({
         'num_players': 5,
         'quest_leader': 0,
-        'role_names': ['Merlin', 'Percival', 'Morgana', 'Mordred', 'Oberon']
+        'role_names': ['Servant', 'Percival', 'Morgana', 'Mordred', 'Oberon']
     })
     
     print(env.get_role(0))
