@@ -2,7 +2,7 @@ from typing import ClassVar, List, Optional, Dict
 import numpy as np
 from pydantic import BaseModel
 
-class AgentConfig(BaseModel):
+class AvalonBasicConfig(BaseModel):
     r"""Avalon game configuration
 
     Class Variables:
@@ -61,7 +61,7 @@ class AgentConfig(BaseModel):
 
 
     @classmethod
-    def from_num_players(cls, num_players: int, **kwargs) -> 'AgentConfig':
+    def from_num_players(cls, num_players: int, **kwargs) -> 'AvalonBasicConfig':
         num_evil = cls.QUEST_PRESET[num_players][0][1]
         num_good = num_players - num_evil
         num_players_for_quest = cls.QUEST_PRESET[num_players][1]
@@ -78,7 +78,7 @@ class AgentConfig(BaseModel):
         )
     
     @classmethod
-    def from_presets(cls, presets: Dict) -> 'AgentConfig':
+    def from_presets(cls, presets: Dict) -> 'AvalonBasicConfig':
         num_players = presets['num_players']
 
         num_evil = cls.QUEST_PRESET[num_players][0][1]
@@ -108,7 +108,7 @@ class AvalonGameEnvironment():
     - num_players (int): Number of players in the game
     - quest_leader (int): The id of the quest leader
     """
-    def __init__(self, config: AgentConfig) -> None:
+    def __init__(self, config: AvalonBasicConfig) -> None:
         for key, value in config.dict().items():
             setattr(self, key, value)
 
@@ -121,7 +121,7 @@ class AvalonGameEnvironment():
     @classmethod
     def from_num_players(cls, num_players: Dict) -> 'AvalonGameEnvironment':
         r"""Instantiate the environment with number of players"""
-        config = AgentConfig.from_num_players(num_players)
+        config = AvalonBasicConfig.from_num_players(num_players)
         cls.config = config
 
         return cls(config)
@@ -129,7 +129,7 @@ class AvalonGameEnvironment():
     @classmethod
     def from_presets(cls, presets: Dict) -> 'AvalonGameEnvironment':
         r"""Instantiate the environment with game presets"""
-        config = AgentConfig.from_presets(presets)
+        config = AvalonBasicConfig.from_presets(presets)
         cls.config = config
 
         num_players = presets['num_players']
@@ -441,7 +441,7 @@ class AvalonGameEnvironment():
         return (self.phase, self.done, False)
 
 if __name__ == "__main__":
-    config = AgentConfig.from_num_players(5)
+    config = AvalonBasicConfig.from_num_players(5)
     env = AvalonGameEnvironment.from_presets({
         'num_players': 5,
         'quest_leader': 0,
