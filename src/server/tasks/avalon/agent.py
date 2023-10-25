@@ -1,19 +1,19 @@
 from typing import List
-from .engine import AgentConfig
+from .engine import AvalonBasicConfig
 class Agent:
     r"""The base class for all agents.
 
     Args:
         id (int): The Player id of the agent.
         role (int): The role (id) of the agent.
-        config (AgentConfig): The config of the agent.
+        config (AvalonBasicConfig): The config of the agent.
 
     To implement your own agent, subclass this class and implement the following methods:
         - :method:`Agent.propose_team`
         - :method:`Agent.vote_on_team`
         - :method:`Agent.vote_on_mission`
     """
-    def __init__(self, id: int, role: int, config: AgentConfig):
+    def __init__(self, id: int, role: int, config: AvalonBasicConfig):
         self.id = id
         self.name = f"Player {id}"
         self.role = role
