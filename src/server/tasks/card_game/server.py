@@ -36,13 +36,13 @@ class Server:
             else:
                 try:
                     session.history = json.loads(data)
-                    print(data)
                     session.history = [ChatHistoryItem(**item) for item in session.history]
                     log_file.append({"role": "user", "content": data})
                     ret = await session.action()
                     if ret.content is None:
                         self.status[folder] = 3
-                        ret = ""
+                        self.send_message(client_socket, "### LLM ERROR EXIT ###")
+                        break
                     else:
                         ret = ret.content
                     print("\n######\n")
