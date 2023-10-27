@@ -3,7 +3,11 @@ default:
   parameters:
     num_games: 10
     num_players: 5
+    agent_list: ["naive", "naive", "naive", "naive", "naive"]
+
+    discussion: False
 
 avalon-dev:
   parameters:
     name: "AvalonBench-dev"
+    data_file: "data/avalon/dev.json"

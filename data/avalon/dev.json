@@ -1,0 +1,12 @@
+[
+    {
+        "num_players": 5,
+        "quest_leader": 0,
+        "role_names": ["Servant", "Servant", "Assassin", "Merlin", "Minion"]
+    },
+    {
+        "num_players": 5,
+        "quest_leader": 0,
+        "role_names": ["Assassin", "Servant", "Servant", "Merlin", "Minion"]
+    }
+]
