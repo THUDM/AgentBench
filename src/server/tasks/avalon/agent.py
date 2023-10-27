@@ -79,3 +79,15 @@ class Agent:
         Returns:
             List[float]: The list of believed sides of all players.
         """
+        raise NotImplementedError
+
+
+class AgentWithDiscussion(Agent):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def initialize_game_info(self,):
+        r"""Initiliaze the game info for the agent, which includes game introduction, role, and reveal information for different roles.
+
+        """
+        raise NotImplementedError

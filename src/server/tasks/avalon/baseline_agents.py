@@ -2,7 +2,7 @@ import random
 from .engine import AvalonBasicConfig, AvalonGameEnvironment
 import itertools
 import warnings
-from typing import List
+from typing import List, Dict
 from .agent import Agent
 
 class NaiveAgent(Agent):
@@ -16,7 +16,7 @@ class NaiveAgent(Agent):
     Please refer to the paper https://arxiv.org/pdf/2310.05036.pdf for details.
     """
 
-    def __init__(self, id: int, role: int, config: AvalonBasicConfig, name: str, side: int=None, sides: List[int] = None):
+    def __init__(self, id: int, role: int, config: AvalonBasicConfig, name: str, side: int=None, sides: List[int] = None, **kwargs):
         super().__init__(id, role, config)
         self.name = name
         self.id = id
@@ -44,13 +44,13 @@ class NaiveAgent(Agent):
     def __repr__(self):
         return self.name
     
-    def propose_team(self, mission_id):
+    async def propose_team(self, mission_id: int, **kwargs):
         return frozenset(random.sample(range(0, self.config.num_players), self.config.num_players_for_quest[mission_id]))
     
-    def vote_on_team(self, mission_id, team: frozenset):
+    async def vote_on_team(self, mission_id, team: frozenset, **kwargs):
         return random.choice([0, 1])
     
-    def vote_on_mission(self, mission_id, team: frozenset):
+    async def vote_on_mission(self, mission_id, team: frozenset, **kwargs):
         return self.side
     
     def assign_side(self, side):
@@ -62,27 +62,42 @@ class NaiveAgent(Agent):
     def see_sides(self, sides):
         self.player_sides = sides
 
-    def assignHistory(self, history):
+    async def assignHistory(self, history):
         self.history = history
 
-    def observe_mission(self, team: frozenset, mission_id, num_fails):
+    async def observe_mission(self, team: frozenset, mission_id, num_fails):
         pass
 
-    def assassinate(self):
+    async def team_result(self, mission_id, result):
+        pass
+
+    async def quest_result(self, mission_id, result):
+        pass
+
+    async def assassinate(self):
         return random.randint(0, self.config.num_players-1)
     
-    def get_believed_sides(self):
+    async def get_believed_sides(self, **kwargs):
         '''
         returns a list of probability of each player being good, where the list is ordered by player id. if player side is known, probability is 0 or 1. otherwise, probability is 0.5
         '''
         return [0.5 if side == -1 else side for side in self.player_sides]
+    
 
 class NaiveMinion(NaiveAgent):
     
-    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=0, role: int=6, sides: List[int]=None):
-        super().__init__(id, name, config, side, role, sides)
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=0, role_name: str="Minion", role: int=6, sides: List[int]=None, **configs):
+        assert role == 6
+        super().__init__(
+            id      =   id,
+            name    =   name,
+            config  =   config,
+            side    =   side,
+            role    =   role,
+            sides   =   sides
+            )
 
-    def vote_on_mission(self, mission_id, team: frozenset):
+    async def vote_on_mission(self, mission_id: int, team: frozenset, **kwargs):
         num_fails = self.config.num_fails_for_quest[mission_id]
 
         # if less than num_fails evil players on the team, vote success
@@ -97,7 +112,7 @@ class NaiveMinion(NaiveAgent):
         else:
             return 0
         
-    def vote_on_team(self, mission_id, team: frozenset):
+    async def vote_on_team(self, mission_id: int, team: frozenset, **kwargs):
         # approve if there are at least x evil player(s) on the team, where x is number of fails required for this mission
         num_fails = self.config.num_fails_for_quest[mission_id]
         if sum([self.player_sides[i] == 0 for i in team]) >= num_fails:
@@ -105,7 +120,7 @@ class NaiveMinion(NaiveAgent):
         else:
             return 0
         
-    def propose_team(self, mission_id):
+    async def propose_team(self, mission_id: int, **kwargs):
         num_fails = self.config.num_fails_for_quest[mission_id]
         # choose evil team with x-1 other evil player(s), where x is number of fails required for this mission, plus the minion
         evil_team = random.sample([i for i in range(self.config.num_players) if self.player_sides[i] == 0 and i != self.id], num_fails - 1) + [self.id]
@@ -115,10 +130,18 @@ class NaiveMinion(NaiveAgent):
         
 class NaiveAssassin(NaiveAgent):
     
-    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=0, role: int=7, sides: List[int]=None):
-        super().__init__(id, name, config, side, role, sides)
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=0, role_name: str="Assassin", role: int=7, sides: List[int]=None, **configs):
+        assert role == 7
+        super().__init__(
+            id      =   id,
+            name    =   name,
+            config  =   config,
+            side    =   side,
+            role    =   role,
+            sides   =   sides
+            )
 
-    def vote_on_mission(self, mission_id, team: frozenset):
+    async def vote_on_mission(self, mission_id: int, team: frozenset, **kwargs):
         num_fails = self.config.num_fails_for_quest[mission_id]
 
         # if less than num_fails evil players on the team, vote success
@@ -128,7 +151,7 @@ class NaiveAssassin(NaiveAgent):
         else:
             return 0
         
-    def vote_on_team(self, mission_id, team: frozenset):
+    async def vote_on_team(self, mission_id: int, team: frozenset, **kwargs):
         # approve if there are at least x evil player(s) on the team, where x is number of fails required for this mission
         num_fails = self.config.num_fails_for_quest[mission_id]
         if sum([self.player_sides[i] == 0 for i in team]) >= num_fails:
@@ -136,7 +159,7 @@ class NaiveAssassin(NaiveAgent):
         else:
             return 0
         
-    def propose_team(self, mission_id):
+    async def propose_team(self, mission_id: int, **kwargs):
         num_fails = self.config.num_fails_for_quest[mission_id]
         # choose evil team with x-1 other evil player(s), where x is number of fails required for this mission, plus the assassin
         evil_team = random.sample([i for i in range(self.config.num_players) if self.player_sides[i] == 0 and i != self.id], num_fails - 1) + [self.id]
@@ -144,30 +167,46 @@ class NaiveAssassin(NaiveAgent):
         # propose a random team that includes evil_team and y-x good player(s), where y is number of players required for this mission
         return frozenset(random.sample([i for i in range(self.config.num_players) if i not in evil_team and self.player_sides[i] == 1], self.config.num_players_for_quest[mission_id] - num_fails) + evil_team)
         
-    def assassinate(self):
+    async def assassinate(self, **kwargs):
         # assassinate a random good player
         return random.choice([i for i in range(self.config.num_players) if self.player_sides[i] == 1])
 
 class NaiveMerlin(NaiveAgent):
 
-    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=1, role: int=0, sides: List[int]=None):
-        super().__init__(id, name, config, side, role, sides)
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=1, role: int=0, sides: List[int]=None, **configs):
+        assert role == 0
+        super().__init__(
+            id      =   id,
+            name    =   name,
+            config  =   config,
+            side    =   side,
+            role    =   role,
+            sides   =   sides
+            )
     
-    def vote_on_team(self, mission_id, team: frozenset):
+    async def vote_on_team(self, mission_id: int, team: frozenset, **kwargs):
         # approve if there are no evil players on the team
         if any([self.player_sides[i] == 0 for i in team]):
             return 0
         else:
             return 1
         
-    def propose_team(self, mission_id):
+    async def propose_team(self, mission_id: int, **kwargs):
         # propose a random team with all good players that includes Merlin
         return frozenset(random.sample([i for i in range(self.config.num_players) if self.player_sides[i] != 0 and i != self.id], self.config.num_players_for_quest[mission_id] - 1) + [self.id])
 
 class NaiveServant(NaiveAgent):
 
-    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=1, role: int=5, sides: List[int]=None, lexigraphic: bool=True):
-        super().__init__(id, name, config, side, role, sides)
+    def __init__(self, id: int, name: str, config: AvalonBasicConfig, side: int=1, role: int=5, sides: List[int]=None, lexigraphic: bool=True, **configs):
+        assert role == 5
+        super().__init__(
+            id      =   id,
+            name    =   name,
+            config  =   config,
+            side    =   side,
+            role    =   role,
+            sides   =   sides
+            )
 
         # maintain a list of all possible combinations of player sides
         self.possible_player_sides = self.generate_possible_player_sides(self.player_sides, self.config.num_evil)
@@ -181,7 +220,7 @@ class NaiveServant(NaiveAgent):
 
         self.lexigraphic = lexigraphic
 
-    def generate_possible_player_sides(self, sides, num_evils):
+    def generate_possible_player_sides(self, sides: List[int], num_evils: int):
         '''
         generates a list of all possible combinations of player sides given a list of known sides and unknown sides recursively as well number of unknown evils
         '''
@@ -208,7 +247,7 @@ class NaiveServant(NaiveAgent):
                     out.extend(self.generate_possible_player_sides(sides_copy, num_evils))    
             return out
         
-    def generate_team_preferences(self, mission_id):
+    def generate_team_preferences(self, mission_id: int):
         '''
         generates preferences across mission teams specified by mission_id
         '''
@@ -230,7 +269,7 @@ class NaiveServant(NaiveAgent):
         # return dictionary mapping teams to preferences
         return dict(zip(teams, team_preferences))
     
-    def find_most_prefered_teams(self, team_to_preferences):
+    def find_most_prefered_teams(self, team_to_preferences: Dict):
         '''
         returns a list of the most preferred teams, where team_to_preferences is a dictionary mapping teams to preferences
         '''
@@ -257,17 +296,17 @@ class NaiveServant(NaiveAgent):
                         return max_teams
             return list(set(max_teams))
     
-    def vote_on_team(self, mission_id, team: frozenset):
+    async def vote_on_team(self, mission_id: int, team: frozenset, **kwargs):
         # print('vote', self.team_preferences)
         # if team is in most preferred teams, approve, otherwise reject
         return 1 if team in self.find_most_prefered_teams(self.team_preferences) else 0
     
-    def propose_team(self, mission_id):
+    async def propose_team(self, mission_id: int, **kwargs):
         # propose random team in most preferred teams
         # print('propose', self.team_preferences)
         return random.choice(self.find_most_prefered_teams(self.team_preferences))
     
-    def observe_mission(self, team: frozenset, mission_id, num_fails):
+    async def observe_mission(self, team: frozenset, mission_id: int, num_fails: int):
         # if mission succeeded, update largest_successful_team
         if num_fails == 0:
             if self.largest_successful_team is None or len(team) > len(self.largest_successful_team):
@@ -288,7 +327,7 @@ class NaiveServant(NaiveAgent):
             self.team_preferences = self.generate_team_preferences(mission_id+1)
         pass
 
-    def get_believed_sides(self):
+    async def get_believed_sides(self, **kwargs):
         '''
         Return marginal distribution of each player being good based on self.player_side_probabilities and self.possible_player_sides
         '''
@@ -303,6 +342,32 @@ class NaiveServant(NaiveAgent):
                     marginal_distribution[i] += prob
         return marginal_distribution
     
+NAIVEAGENT_FINDER = {
+    'Servant': NaiveServant,
+    'Merlin': NaiveMerlin,
+    'Assassin': NaiveAssassin,
+    'Minion': NaiveMinion
+}
+
+def find_naive_agent(**configs):
+    return NAIVEAGENT_FINDER[configs["role_name"]](
+        name        =   configs["name"],
+        num_players =   configs["num_players"],
+        session     =   configs["session"],
+        role        =   configs["role"],
+        role_name   =   configs["role_name"],
+        side        =   configs["side"],
+        id          =   configs["id"],
+        config      =   configs["config"],
+        merlin      =   configs["merlin"],
+        percival    =   configs["percival"],
+        morgana     =   configs["morgana"],
+        mordred     =   configs["mordred"],
+        oberon      =   configs["oberon"],
+        num_good    =   configs["num_good"],
+        num_evil    =   configs["num_evil"],
+        seed        =   configs["seed"]
+    )
 
 if __name__ == "__main__":
     env = AvalonGameEnvironment.from_presets({
@@ -311,7 +376,7 @@ if __name__ == "__main__":
         'role_names': ['Servant', 'Minion', 'Merlin', 'Assassin', 'Servant']
     })
     config = env.config
-    player_0 = NaiveServant(0, 'player_0', config)
+    player_0 = find_naive_agent['Merlin'](0, 'player_0', config)
         
     
 

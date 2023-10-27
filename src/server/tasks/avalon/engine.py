@@ -132,6 +132,8 @@ class AvalonGameEnvironment():
         config = AvalonBasicConfig.from_presets(presets)
         cls.config = config
 
+        print(presets)
+
         num_players = presets['num_players']
         quest_leader = presets['quest_leader']
         role_names = presets['role_names']
@@ -142,9 +144,9 @@ class AvalonGameEnvironment():
             if role in ["Morgana", "Mordred", "Oberon", "Minion", "Assassin"]:
                 is_good[idx] = False
 
-        cls.roles = role_ids
+        cls.roles = np.array(role_ids)
         cls.role_names = role_names
-        cls.is_good = is_good
+        cls.is_good = np.array(is_good)
         cls.quest_leader = quest_leader
 
         cls.round = 0
