@@ -2,7 +2,7 @@ import random
 from .engine import AvalonBasicConfig, AvalonGameEnvironment
 import itertools
 import warnings
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from .agent import Agent
 
 class NaiveAgent(Agent):
@@ -53,6 +53,9 @@ class NaiveAgent(Agent):
     async def vote_on_mission(self, mission_id, team: frozenset, **kwargs):
         return self.side
     
+    async def initialize_game_info(self, player_list):
+        pass
+
     def assign_side(self, side):
         self.side = side
 
@@ -65,13 +68,10 @@ class NaiveAgent(Agent):
     async def assignHistory(self, history):
         self.history = history
 
-    async def observe_mission(self, team: frozenset, mission_id, num_fails):
+    async def observe_mission(self, team: frozenset, mission_id: int, **kargs):
         pass
 
-    async def team_result(self, mission_id, result):
-        pass
-
-    async def quest_result(self, mission_id, result):
+    async def observe_team_result(self, mission_id, team: frozenset, votes: List[int], outcome: Tuple):
         pass
 
     async def assassinate(self):
@@ -151,7 +151,7 @@ class NaiveAssassin(NaiveAgent):
         else:
             return 0
         
-    async def vote_on_team(self, mission_id: int, team: frozenset, **kwargs):
+    async def vote_on_team(self, team: frozenset, mission_id: int, **kwargs):
         # approve if there are at least x evil player(s) on the team, where x is number of fails required for this mission
         num_fails = self.config.num_fails_for_quest[mission_id]
         if sum([self.player_sides[i] == 0 for i in team]) >= num_fails:
@@ -184,7 +184,7 @@ class NaiveMerlin(NaiveAgent):
             sides   =   sides
             )
     
-    async def vote_on_team(self, mission_id: int, team: frozenset, **kwargs):
+    async def vote_on_team(self, team: frozenset, mission_id: int, **kwargs):
         # approve if there are no evil players on the team
         if any([self.player_sides[i] == 0 for i in team]):
             return 0
@@ -296,7 +296,7 @@ class NaiveServant(NaiveAgent):
                         return max_teams
             return list(set(max_teams))
     
-    async def vote_on_team(self, mission_id: int, team: frozenset, **kwargs):
+    async def vote_on_team(self, team: frozenset, mission_id: int, **kwargs):
         # print('vote', self.team_preferences)
         # if team is in most preferred teams, approve, otherwise reject
         return 1 if team in self.find_most_prefered_teams(self.team_preferences) else 0
@@ -306,7 +306,7 @@ class NaiveServant(NaiveAgent):
         # print('propose', self.team_preferences)
         return random.choice(self.find_most_prefered_teams(self.team_preferences))
     
-    async def observe_mission(self, team: frozenset, mission_id: int, num_fails: int):
+    async def observe_mission(self, team: frozenset, mission_id: int, num_fails: int, **kargs):
         # if mission succeeded, update largest_successful_team
         if num_fails == 0:
             if self.largest_successful_team is None or len(team) > len(self.largest_successful_team):
@@ -317,8 +317,11 @@ class NaiveServant(NaiveAgent):
             if sum([sides[i] == 0 for i in team]) < num_fails:
                 self.player_side_probabilities[self.possible_player_sides.index(sides)] = 0
 
-        # normalize probabilities
-        self.player_side_probabilities = [prob / sum(self.player_side_probabilities) for prob in self.player_side_probabilities]
+        # normalize probabilities TODO: threre could be situations where sum(self.player_side_probabilities) = 0; should take a look
+        try:
+            self.player_side_probabilities = [prob / sum(self.player_side_probabilities) for prob in self.player_side_probabilities]
+        except:
+            self.player_side_probabilities = [0.25 for _ in range(len(self.player_side_probabilities))]
         # print('side probs', self.player_side_probabilities)
         # print(self.possible_player_sides)
 
