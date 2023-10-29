@@ -1,12 +1,12 @@
-from .engine import AvalonConfig
+from .engine import AvalonBasicConfig
 import numpy as np
 
 class AvalonScoring():
 
-    def __init__(self, config: AvalonConfig) -> None:
+    def __init__(self, config: AvalonBasicConfig) -> None:
         self.config = config # AvalonConfig object
 
-    def deduction_acc(self, true_player_sides, believed_player_sides):
+    def deduction_acc(self, true_player_sides, believed_player_sides) -> float:
         true_player_sides = np.array(true_player_sides)
         # believed_player_sides = np.where(np.array(believed_player_sides) == 0.5, -1, np.array(believed_player_sides))
         believed_player_sides = np.where(np.array(believed_player_sides) >= 0.5, 1, np.array(believed_player_sides))
@@ -76,7 +76,7 @@ class AvalonScoring():
         return np.mean(vote_outcome)
     
 if __name__ == "__main__":
-    config = AvalonConfig(num_players=5)
+    config = AvalonBasicConfig(num_players=5)
     scoring = AvalonScoring(config)
 
     true_sides = [[0, 0, 1, 1, 1]]

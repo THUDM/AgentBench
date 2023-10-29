@@ -1,5 +1,5 @@
 import random
-from .engine import AvalonBasicConfig, AvalonGameEnvironment
+from ..engine import AvalonBasicConfig, AvalonGameEnvironment
 import itertools
 import warnings
 from typing import List, Dict, Tuple

@@ -3,6 +3,7 @@ from typing import Dict, Union
 from src.server.task import Session
 from .utils import get_team_result, get_vote_result, get_assassination_result, get_believed_player_sides
 from .prompts import CHECK_CHOOSE_TEAM_PROMPT, CHECK_VOTE_ON_QUEST_PROMPT, CHECK_VOTE_ON_TEAM_PROMPT, CHECK_ASSASSINATE_PROMPT, CHECK_BELIEVED_SIDES_PROMPT
+from src.typings import SampleStatus
 
 
 class FakeSession:
@@ -99,7 +100,7 @@ class SessionWrapper:
                     assert len(answer) == team_size
                     assert isinstance(answer, list)
                 except:
-                    answer = input['naive_result']
+                    raise RuntimeError
 
         elif mode == "vote_on_team":
             self.session.inject({
@@ -122,7 +123,7 @@ class SessionWrapper:
                 self.session.history = deepcopy(past_history)
                 self.session.inject({
                     "role": "user",
-                    "content": f"You should output Yes or No to vote on the team."
+                    "content": f"You are a player in the game. Please output `Yes` or `No` to vote on the team."
                 })
                 answer = await self.session.action()
                 answer = answer.content
@@ -139,7 +140,7 @@ class SessionWrapper:
             try:
                 answer = result_dict[answer]
             except:
-                answer = input['naive_result']
+                raise RuntimeError
 
         elif mode == "vote_on_mission":
             self.session.inject({
@@ -162,7 +163,7 @@ class SessionWrapper:
                 self.session.history = deepcopy(past_history)
                 self.session.inject({
                     "role": "user",
-                    "content": "You should output Yes or No to vote on the quest."
+                    "content": "You are a member in the quest. Please output `Yes` or `No` to vote on the quest."
                 })
                 answer = await self.session.action()
                 answer = answer.content
@@ -179,7 +180,7 @@ class SessionWrapper:
             try:
                 answer = result_dict[answer]
             except:
-                answer = input['naive_result']
+                raise RuntimeError
 
         elif mode == "assassination":
             self.session.inject({
@@ -188,7 +189,7 @@ class SessionWrapper:
             })
             answer = await self.session.action()
             answer = answer.content
-            answer = get_assassination_result(result, answer)
+            answer = int(get_assassination_result(result, answer))
         elif mode == "get_believed_sides":
             self.session.inject({
                 "role": "user",

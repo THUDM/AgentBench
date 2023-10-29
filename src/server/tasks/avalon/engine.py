@@ -310,7 +310,7 @@ class AvalonGameEnvironment():
         '''
         return self.quest_team
 
-    def vote_on_team(self, votes):
+    def gather_team_votes(self, votes: List):
         '''
         votes on quest team: list, 0 for reject, 1 for accept
         returns (next phase, whether game is done, whether team is accepted)
@@ -351,7 +351,7 @@ class AvalonGameEnvironment():
         '''
         return self.quest_team_votes
     
-    def vote_on_quest(self, votes):
+    def gather_quest_votes(self, votes: List):
         '''
         votes on quest: list, 0 for fail, 1 for pass
         returns: (next phase, whether game is done, whether the quest succeeded, number of fails)

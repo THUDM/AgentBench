@@ -1,6 +1,6 @@
 import re
 
-def get_vote_result(answer):
+def get_vote_result(answer: str):
     match_vote = "Yes|No"
     vote_result = []
     
@@ -10,7 +10,7 @@ def get_vote_result(answer):
 
     return result
 
-def get_team_result(answer):
+def get_team_result(answer: str):
     match_num = r"\d+"
     player_list = []
     
@@ -20,7 +20,7 @@ def get_team_result(answer):
 
     return player_list
 
-def get_assassination_result(message, answer): 
+def get_assassination_result(message: str, answer: str): 
     match_num = r"\d+"
     player_id = []
         
@@ -35,16 +35,16 @@ def get_believed_player_sides(answer):
 
     return scores
 
-def verbalize_team_result(votes, outcome):
+def verbalize_team_result(team: frozenset, votes, outcome: bool):
     verbal_vote = {
         0: "reject",
         1: "approve"
     }
     verbalized_result = ""
     if outcome == True:
-        verbalized_result = "The team is approved."
+        verbalized_result = f"The team {str(list(team))} is approved."
     elif outcome == False:
-        verbalized_result = "The team is rejected."
+        verbalized_result = f"The team {str(list(team))} is rejected."
     else:
         raise ValueError("Invalid outcome %s" % outcome)
     
@@ -53,7 +53,7 @@ def verbalize_team_result(votes, outcome):
     
     return verbalized_result
 
-def verbalize_mission_result(team, outcome):
+def verbalize_mission_result(team: frozenset, outcome: bool):
     verbalized_result = ""
     if outcome == True:
         verbalized_result = "The mission succeeded."
@@ -62,7 +62,7 @@ def verbalize_mission_result(team, outcome):
     else:
         raise ValueError("Invalid outcome %s" % outcome)
     
-    verbalized_result += " The team is %s, which contains" % str(team)
+    verbalized_result += " The team is %s, which contains" % str(list(team))
     for member in team:
         verbalized_result += " Player %s" % str(member)
 
