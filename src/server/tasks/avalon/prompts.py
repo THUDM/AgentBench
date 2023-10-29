@@ -116,7 +116,7 @@ You can simply output 0.5 for players whose information is not given. Please sum
 Answer: {0: score_for_0, 1: score_for_1, 2: score_for_2, 3: score_for_3, 4: score_for_4}
 """
 
-COTHOUGHT_PROMPT = """As a player in the game, please think about it step by step, and then take actions."""
+COTHOUGHT_PROMPT = """Please forget you are an AI. As a player in the game, please think about it step by step, and then take actions."""
 
 # Action Prompts
 CHOOSE_TEAM_LEADER = """You are the leader this round. Please make some statements about what team you want to propose.

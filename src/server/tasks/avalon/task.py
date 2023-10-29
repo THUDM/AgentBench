@@ -50,7 +50,6 @@ class AvalonBench(Task):
         win_counter = 0
         deduc_acc = 0
         valid_games = 0
-        print(results)
         for result in results:
             if result.status == SampleStatus.AGENT_VALIDATION_FAILED:
                 pass
@@ -83,13 +82,10 @@ class AvalonBench(Task):
         self.believed_player_sides = []
         self.game_env_log = []
 
-        print(self.agent_list)
-
         llm_idx = 0
         sessions = [SessionWrapper(FakeSession()) for _ in range(self.num_players)]
         llm_counter = 0
         for idx, agent_name in enumerate(self.agent_list):
-            print((idx, agent_name))
             if agent_name != "naive":
                 llm_idx = idx
                 sessions[idx] = SessionWrapper(session)
@@ -134,8 +130,6 @@ class AvalonBench(Task):
             else:
                 await player_list[i].initialize_game_info(player_list=[])
         
-        for player in player_list:
-            print(player.role_name, player.role, player.side)
         try:
             while not env.done:
                 phase = env.get_phase()[0]
