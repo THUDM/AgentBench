@@ -110,12 +110,13 @@ CHECK_ASSASSINATE_PROMPT = """Based on the information, which player will be ass
 Answer: [player_id_num]
 """
 
-CHECK_BELIEVED_SIDES_PROMPT = r"""Based on the above information, to what extend do you believe for each player to be Good, from Player 0 to Player 4 with probabilities within [0, 1]. Please summarize with the following template:
+CHECK_BELIEVED_SIDES_PROMPT = r"""Based on the above information, to what extend do you believe for each player to be Good, from Player 0 to Player 4 with probabilities within [0, 1]. 
+You can simply output 0.5 for players whose information is not given. Please summarize with the following template:
 
 Answer: {0: score_for_0, 1: score_for_1, 2: score_for_2, 3: score_for_3, 4: score_for_4}
 """
 
-COTHOUGHT_PROMPT = """You are a player in this game. Please think about it step by step and in accordance with your overall strategy, and then take actions."""
+COTHOUGHT_PROMPT = """As a player in the game, please think about it step by step, and then take actions."""
 
 # Action Prompts
 CHOOSE_TEAM_LEADER = """You are the leader this round. Please make some statements about what team you want to propose.
@@ -127,10 +128,10 @@ CHOOSE_TEAM_ACTION = """Please choose {} players from player ids 0 to {} as team
 VOTE_TEAM_DISCUSSION = """Discussion Phase. Please discuss your thoughts on the team {} and what players should do in the current situation.
 """
 
-VOTE_TEAM_ACTION = """Based on your observations and preferences, do you approve or reject the team {}?
+VOTE_TEAM_ACTION = """You're a player in this game. Do you approve the team {}? Please answer `Yes` or `No`.
 """
 
-VOTE_MISSION_ACTION = """The team {} was approved, which includes you. Based on your preferences, do you want to help the mission succeed or fail it?
+VOTE_MISSION_ACTION = """The team {} was approved, which includes you. Do you want to help the mission succeed? Please answer `Yes` or `No`.
 """
 
 ASSASSINATION_PHASE = """Assassination phase. Your job is to assassinate Merlin. \

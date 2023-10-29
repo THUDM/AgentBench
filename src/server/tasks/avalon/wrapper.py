@@ -82,7 +82,7 @@ class SessionWrapper:
                 self.session.history = deepcopy(past_history)
                 self.session.inject({
                     "role": "user",
-                    "content": f"You should choose a team of size {team_size}, instead of size {len(answer)} as you did."
+                    "content": f"You should choose a team of size {team_size}, instead of size {len(answer)} as you did. Please output a list of player ids with the correct team size."
                 })
                 answer = await self.session.action()
                 answer = answer.content
@@ -123,7 +123,7 @@ class SessionWrapper:
                 self.session.history = deepcopy(past_history)
                 self.session.inject({
                     "role": "user",
-                    "content": f"You are a player in the game. Please output `Yes` or `No` to vote on the team."
+                    "content": f"You surely are a player in the game. Please output `Yes` or `No` to vote on the team."
                 })
                 answer = await self.session.action()
                 answer = answer.content
@@ -157,13 +157,11 @@ class SessionWrapper:
             }
 
             if answer not in ["No", "Yes"]:
-                # logger.warning(f"Error from vote on mission")
-
                 # Run another action to get the correct vote result
                 self.session.history = deepcopy(past_history)
                 self.session.inject({
                     "role": "user",
-                    "content": "You are a member in the quest. Please output `Yes` or `No` to vote on the quest."
+                    "content": "You surely are a player in the game, and you are a member in the quest. Please output `Yes` or `No` to vote on the quest."
                 })
                 answer = await self.session.action()
                 answer = answer.content
