@@ -34,10 +34,8 @@ class LLMAgentWithDiscussion(Agent):
     def see_sides(self, sides):
         self.player_sides = sides
     
-    async def initialize_game_info(self, player_list):
-        r"""Initiliaze the game info for the agent, which includes game introduction, role, and reveal information for different roles.
-
-        """
+    async def initialize_game_info(self, player_list) -> None:
+        """Initiliaze the game info for the agent, which includes game introduction, role, and reveal information for different roles."""
         # Introduction Prompt
         verbal_side = ["Evil", "Good"]
         intro_prompt = INTRODUCTION
@@ -89,7 +87,7 @@ class LLMAgentWithDiscussion(Agent):
             "mode": "system",
         })
 
-    async def summarize(self):
+    async def summarize(self) -> None:
         summary = await self.session.action({
             "role": "user",
             "content": "Please summarize the history. Try to keep all useful information, including your identity, other player's identities, and your observations in the game.",
@@ -104,10 +102,10 @@ class LLMAgentWithDiscussion(Agent):
         })
         print("History after summarization: ", self.session.get_history())
 
-    async def observe_mission(self, team, mission_id, num_fails, votes, outcome):
+    async def observe_mission(self, team, mission_id, num_fails, votes, outcome) -> None:
         pass
 
-    async def observe_team_result(self, mission_id, team: frozenset, votes: List[int], outcome: bool):
+    async def observe_team_result(self, mission_id, team: frozenset, votes: List[int], outcome: bool) -> None:
         await self.session.action({
             "role": "user",
             "content": verbalize_team_result(team, votes, outcome),
@@ -229,7 +227,6 @@ class LLMAgentWithDiscussion(Agent):
         if isinstance(vote_result, int):
             return vote_result
         else:
-            print(vote_result)
             raise ValueError(
                 "Vote result should be either 0 or 1, instead of {}.".format(type(vote_result))
             )

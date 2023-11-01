@@ -17,6 +17,9 @@ from .utils import verbalize_team_result, verbalize_mission_result
 
 from .agents.llm_with_discussion import LLMAgentWithDiscussion
 
+from src.typings import AgentContextLimitException
+from .avalon_exception import AvalonAgentActionException
+
 AGENT_FINDER = {
     'naive': find_naive_agent,
     'llm': LLMAgentWithDiscussion
@@ -40,7 +43,7 @@ class AvalonBench(Task):
             self.data.append((data_item, -1))
         self.inputs = data_object
 
-        self.seed = 0
+        self.seed = configs.pop('seed', 0)
 
     def calculate_overall(self, results: List[TaskOutput]) -> Dict[str, Any]:
         outputs = [None for _ in range(len(self.data))]
@@ -51,9 +54,7 @@ class AvalonBench(Task):
         deduc_acc = 0
         valid_games = 0
         for result in results:
-            if result.status == SampleStatus.AGENT_VALIDATION_FAILED:
-                pass
-            else:
+            if result.status == SampleStatus.COMPLETED:
                 llm_idx = result.result['llm_idx']
                 if result.result[f'Player_{llm_idx}_wins']:
                     win_counter += 1
@@ -64,7 +65,6 @@ class AvalonBench(Task):
         return {
             "Win rate of Player 0": win_counter / len(outputs),
             "Avg deduction acc of Player 0": deduc_acc / len(outputs),
-            "Valid number of games": valid_games,
         }
 
     def get_indices(self) -> List[SampleIndex]:
@@ -73,14 +73,12 @@ class AvalonBench(Task):
     async def start_sample(self, index: SampleIndex, session: Session) -> TaskSampleExecutionResult:
         assert isinstance(index, int), "Index must be an integer"
         assert self.inputs[index]['num_players'] == self.num_players, "Number of players must be the same"
-        self.env = AvalonGameEnvironment.from_presets(self.inputs[index])
-        self.socring = AvalonScoring(self.env.config)
+        env = AvalonGameEnvironment.from_presets(self.inputs[index])
+        scoring = AvalonScoring(env.config)
 
-        env = self.env
-
-        self.true_player_sides = []
-        self.believed_player_sides = []
-        self.game_env_log = []
+        true_player_sides = []
+        believed_player_sides = []
+        game_env_log = []
 
         llm_idx = 0
         sessions = [SessionWrapper(FakeSession()) for _ in range(self.num_players)]
@@ -106,7 +104,7 @@ class AvalonBench(Task):
             player_list.append(AGENT_FINDER[self.agent_list[i]](
                                     id          =   i,
                                     name        =   f"Player {i}",
-                                    config      =   self.env.config,
+                                    config      =   env.config,
                                     side        =   side,
                                     role        =   role_i,
                                     num_players =   num_players,
@@ -137,7 +135,7 @@ class AvalonBench(Task):
                 # if phase is team selection phase, ask for team
                 if phase == 0:
                     leader = env.get_quest_leader()
-                    self.game_env_log.append(f"Selection Phase, the leader is Player {leader}")
+                    game_env_log.append(f"Selection Phase, the leader is Player {leader}")
                     """
                     Leader speaks & Discussion
                     """
@@ -183,11 +181,11 @@ class AvalonBench(Task):
                         team   =  frozenset(team),
                         leader =  leader
                     )
-                    self.game_env_log.append(f"Leader Player {leader} chooses team {list(team)}")
+                    game_env_log.append(f"Leader Player {leader} chooses team {list(team)}")
 
                 # if phase is team voting phase, ask for votes
                 elif phase == 1:
-                    self.game_env_log.append("Team voting Phase")
+                    game_env_log.append("Team voting Phase")
                     discussion_history = []
                     votes = [
                         await player_list[i].vote_on_team(
@@ -196,7 +194,7 @@ class AvalonBench(Task):
                             ) for i in range(num_players)
                             ]
                     outcome = env.gather_team_votes(votes)
-                    self.game_env_log.append(f"Team votes at this round: {str(votes)}")
+                    game_env_log.append(f"Team votes at this round: {str(votes)}")
 
                     # Observe results of Team Selection
                     for player in player_list:
@@ -206,12 +204,12 @@ class AvalonBench(Task):
                             votes       =   votes,
                             outcome     =   outcome[2],
                     )
-                    self.game_env_log.append("Team result: " + verbalize_team_result(team=env.get_current_quest_team(), votes=votes, outcome=outcome[2]))
+                    game_env_log.append("Team result: " + verbalize_team_result(team=env.get_current_quest_team(), votes=votes, outcome=outcome[2]))
 
 
                 # if phase is quest voting phase, ask for votes
                 elif phase == 2:
-                    self.game_env_log.append("Quest voting phase")
+                    game_env_log.append("Quest voting phase")
                     '''
                     TODO: Can have a discussion before voting on quest
                     '''
@@ -224,7 +222,7 @@ class AvalonBench(Task):
                             ) for i in env.get_current_quest_team()
                             ]
                     outcome = env.gather_quest_votes(votes)
-                    self.game_env_log.append(f"Quest votes at this round: {str(votes)}")
+                    game_env_log.append(f"Quest votes at this round: {str(votes)}")
 
                     # Observe mission/quest result
                     for player in player_list:
@@ -235,11 +233,11 @@ class AvalonBench(Task):
                             votes       =   votes,
                             outcome     =   outcome[2],
                     )
-                    self.game_env_log.append("Quest result: " + verbalize_mission_result(team=env.get_current_quest_team(), outcome=outcome[2]))
+                    game_env_log.append("Quest result: " + verbalize_mission_result(team=env.get_current_quest_team(), outcome=outcome[2]))
                 
                 # if phase is assassination phase, ask for assassination
                 elif phase == 3:
-                    self.game_env_log.append("Assassination phase")
+                    game_env_log.append("Assassination phase")
                     '''
                         TODO: Discussion before Assassination Phase
                     '''
@@ -247,15 +245,15 @@ class AvalonBench(Task):
                     target = int(await player_list[assassin].assassinate())
 
                     _, _, assassinated = env.choose_assassination_target(assassin, target)
-                    self.game_env_log.append(f"Assassin Player {assassin} chooses to assassinate Player {target}")
+                    game_env_log.append(f"Assassin Player {assassin} chooses to assassinate Player {target}")
             
             # reflect sides of each player at the end of the game
             for idx, player in enumerate(player_list):
                 if idx == llm_idx:
-                    believed_player_sides = await player.get_believed_sides(num_players=self.num_players)
+                    llm_believed_player_sides = await player.get_believed_sides(num_players=self.num_players)
 
-                    self.true_player_sides.append(list(map(int, env.is_good)))
-                    self.believed_player_sides.append(believed_player_sides)
+                    true_player_sides.append(list(map(int, env.is_good)))
+                    believed_player_sides.append(llm_believed_player_sides)
 
             if env.good_victory:
                 answer = 1
@@ -265,24 +263,25 @@ class AvalonBench(Task):
                 else:
                     answer = -1
             finish_reason = SampleStatus.COMPLETED
-        except:
+
+        except AgentContextLimitException as e1:
+            return TaskSampleExecutionResult(status=SampleStatus.AGENT_CONTEXT_LIMIT)
+        except AvalonAgentActionException as e2:
+            return TaskSampleExecutionResult(status=SampleStatus.AGENT_INVALID_ACTION, result={"result": False, "error": e2})
+        except Exception as e:
             finish_reason = SampleStatus.AGENT_VALIDATION_FAILED
+            return TaskSampleExecutionResult(status=finish_reason, result={"result": False, "error": e})
         
         verbal_game_result = {
             -1: "Evil wins by mission!",
             0: "Evil wins by assassination!",
             1: "Good wins!"
         }
-        if finish_reason == SampleStatus.COMPLETED:
-            return TaskSampleExecutionResult(status=finish_reason, result={
-                "game_result": verbal_game_result[answer],
-                "llm_idx": llm_idx,
-                f"role_of_Player_{llm_idx}": player_list[llm_idx].role_name,
-                f"Player_{llm_idx}_wins": (answer > 0) == bool(player_list[llm_idx].side),
-                f"Player_{llm_idx}_deduc_acc": self.socring.deduction_acc(self.true_player_sides, self.believed_player_sides),
-                "game_env_log": self.game_env_log
-            })
-        elif finish_reason == SampleStatus.AGENT_VALIDATION_FAILED:
-            return TaskSampleExecutionResult(status=finish_reason, result={
-                "game_result": "Agent validation failed",
-            })
+        return TaskSampleExecutionResult(status=finish_reason, result={
+            "game_result": verbal_game_result[answer],
+            "llm_idx": llm_idx,
+            f"role_of_Player_{llm_idx}": player_list[llm_idx].role_name,
+            f"Player_{llm_idx}_wins": (answer > 0) == bool(player_list[llm_idx].side),
+            f"Player_{llm_idx}_deduc_acc": scoring.deduction_acc(true_player_sides, believed_player_sides),
+            "game_env_log": game_env_log
+        })

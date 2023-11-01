@@ -78,9 +78,6 @@ class NaiveAgent(Agent):
         return random.randint(0, self.config.num_players-1)
     
     async def get_believed_sides(self, **kwargs):
-        '''
-        returns a list of probability of each player being good, where the list is ordered by player id. if player side is known, probability is 0 or 1. otherwise, probability is 0.5
-        '''
         return [0.5 if side == -1 else side for side in self.player_sides]
     
 
@@ -221,7 +218,8 @@ class NaiveServant(NaiveAgent):
         self.lexigraphic = lexigraphic
 
     def generate_possible_player_sides(self, sides: List[int], num_evils: int):
-        '''
+        '''Util func of NaiveServant
+        
         generates a list of all possible combinations of player sides given a list of known sides and unknown sides recursively as well number of unknown evils
         '''
         out = []

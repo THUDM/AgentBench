@@ -1,6 +1,7 @@
 from typing import ClassVar, List, Optional, Dict
 import numpy as np
 from pydantic import BaseModel
+from .avalon_exception import AvalonEnvException
 
 class AvalonBasicConfig(BaseModel):
     r"""Avalon game configuration
@@ -279,22 +280,22 @@ class AvalonGameEnvironment():
         '''
         # check if game ended or not
         if self.done:
-            raise ValueError("Game ended")
+            raise AvalonEnvException("Game ended")
 
         # check if it is team selection phase. if not, raise error
         if self.phase != 0:
-            raise ValueError("Not in team selection phase")
+            raise AvalonEnvException("Not in team selection phase")
 
         # check if team size is valid
         # if np.sum(team) != self.num_players_for_quest[self.round]:
-        #     raise ValueError("Invalid team size")
+        #     raise AvalonEnvException("Invalid team size")
 
         if len(team) != self.num_players_for_quest[self.turn]:
-            raise ValueError("Invalid team size")
+            raise AvalonEnvException("Invalid team size")
 
         # check if leader is quest leader
         if leader != self.quest_leader:
-            raise ValueError("Not quest leader")
+            raise AvalonEnvException("Not quest leader")
 
         self.quest_team = team
 
@@ -317,15 +318,15 @@ class AvalonGameEnvironment():
         '''
         # check if game ended or not
         if self.done:
-            raise ValueError("Game ended")
+            raise AvalonEnvException("Game ended")
 
         # check if it is team voting phase. if not, raise error
         if self.phase != 1:
-            raise ValueError("Not in team voting phase")
+            raise AvalonEnvException("Not in team voting phase")
 
         # check if votes is valid
         if len(votes) != self.num_players:
-            raise ValueError("Invalid number of votes")
+            raise AvalonEnvException("Invalid number of votes")
 
         self.team_votes = votes
 
@@ -358,15 +359,15 @@ class AvalonGameEnvironment():
         '''
         # check if game ended or not
         if self.done:
-            raise ValueError("Game ended")
+            raise AvalonEnvException("Game ended")
 
         # check if it is quest voting phase. if not, raise error
         if self.phase != 2:
-            raise ValueError("Not in quest voting phase")
+            raise AvalonEnvException("Not in quest voting phase")
 
         # check if votes is valid
         if len(votes) != self.num_players_for_quest[self.turn]:
-            raise ValueError("Invalid number of votes")
+            raise AvalonEnvException("Invalid number of votes")
 
         self.quest_votes = votes
 
@@ -412,19 +413,19 @@ class AvalonGameEnvironment():
         '''
         # check if game ended or not
         if self.done:
-            raise ValueError("Game ended")
+            raise AvalonEnvException("Game ended")
 
         # check if it is assassination phase. if not, raise error
         if self.phase != 3:
-            raise ValueError("Not in assassination phase")
+            raise AvalonEnvException("Not in assassination phase")
 
         # check if player is assassin
         if self.roles[player] != 7:
-            raise ValueError("Not assassin")
+            raise AvalonEnvException("Not assassin")
 
         # check if player is good
         if self.is_good[player]:
-            raise ValueError("Assassin cannot be good")
+            raise AvalonEnvException("Assassin cannot be good")
 
         self.done = True
 

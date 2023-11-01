@@ -4,16 +4,18 @@ from src.server.task import Session
 from .utils import get_team_result, get_vote_result, get_assassination_result, get_believed_player_sides
 from .prompts import CHECK_CHOOSE_TEAM_PROMPT, CHECK_VOTE_ON_QUEST_PROMPT, CHECK_VOTE_ON_TEAM_PROMPT, CHECK_ASSASSINATE_PROMPT, CHECK_BELIEVED_SIDES_PROMPT
 from src.typings import SampleStatus
-
+from src.typings import AgentContextLimitException
+from .avalon_exception import AvalonAgentActionException
 
 class FakeSession:
     history: list=[]    # Fake history
 
     async def action(self, input: Dict):
-        try:
-            return input["naive_result"]
-        except:
-            return "No naive results provided."
+        # try:
+        #     return input["naive_result"]
+        # except:
+        #     return "No naive results provided."
+        pass
 
     def inject(self, input: Dict):
         pass
@@ -56,6 +58,10 @@ class SessionWrapper:
             })
             response = await self.session.action()
 
+            if response.status == SampleStatus.AGENT_CONTEXT_LIMIT:
+                raise AgentContextLimitException()
+            if response.content is None:
+                raise RuntimeError("Response content is None.")
             return response.content
         elif isinstance(self.session, FakeSession):
             return input.pop('naive_result', None)
@@ -76,8 +82,6 @@ class SessionWrapper:
             answer = answer.content
             answer = get_team_result(answer)
             if len(answer) != team_size:
-                # logger.warning(f"Wrong team size {len(result)}. The correct team size should be {team_size}.")
-
                 # Run another action to get the correct team size
                 self.session.history = deepcopy(past_history)
                 self.session.inject({
@@ -100,7 +104,7 @@ class SessionWrapper:
                     assert len(answer) == team_size
                     assert isinstance(answer, list)
                 except:
-                    raise RuntimeError
+                    raise AvalonAgentActionException("Invalid team size with retry.")
 
         elif mode == "vote_on_team":
             self.session.inject({
@@ -117,8 +121,6 @@ class SessionWrapper:
             }
 
             if answer not in ["No", "Yes"]:
-                # logger.warning(f"Error from vote on team")
-
                 # Run another action to get the correct vote result
                 self.session.history = deepcopy(past_history)
                 self.session.inject({
@@ -140,7 +142,7 @@ class SessionWrapper:
             try:
                 answer = result_dict[answer]
             except:
-                raise RuntimeError
+                raise AvalonAgentActionException("Invalid (team) vote result with retry.")
 
         elif mode == "vote_on_mission":
             self.session.inject({
@@ -178,7 +180,7 @@ class SessionWrapper:
             try:
                 answer = result_dict[answer]
             except:
-                raise RuntimeError
+                raise AvalonAgentActionException("Invalid (quest) vote result with retry.")
 
         elif mode == "assassination":
             self.session.inject({

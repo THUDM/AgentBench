@@ -13,7 +13,7 @@ class Agent:
         - :method:`Agent.vote_on_team`
         - :method:`Agent.vote_on_mission`
     """
-    def __init__(self, id: int, role: int, config: AvalonBasicConfig):
+    def __init__(self, id: int, role: int, config: AvalonBasicConfig) -> None:
         self.id = id
         self.name = f"Player {id}"
         self.role = role
@@ -77,6 +77,6 @@ class Agent:
             num_players (int): The number of players in the game.
         
         Returns:
-            List[float]: The list of believed sides of all players.
+            List[float]: The list of believed sides (probability) of all players.
         """
         raise NotImplementedError
