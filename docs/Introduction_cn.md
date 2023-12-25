@@ -129,7 +129,7 @@ Client主要包含三部分：
 
 - Assigner 负责根据目前各个任务以及模型的并发数，统筹、规划和分配样例的测试，并生成对应数量的Worker及其Agent Client和Task
   Client。
-- Agent Client 负责实现 Agent Server 要求的对应的接口，暴露统一的 `AgentClient.reference(self, history)`。
+- Agent Client 负责实现 Agent Server 要求的对应的接口，暴露统一的 `AgentClient.inference(self, history)`。
 - Task Client 面对唯一的 Task Controller，因此实现是唯一的。其核心方法是 `TaskClient.run_sample(self, index, agent)`
   ，需要负责将传入的 `Agent` 和 `Task` 的输出相互转发。
 
