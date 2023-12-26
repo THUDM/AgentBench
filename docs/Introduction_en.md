@@ -169,7 +169,7 @@ The Client primarily comprises three components:
 - The Assigner is responsible for coordinating the concurrent tasks and models currently available, planning and
   allocating test cases, and creating the corresponding number of Workers along with their Agent Client and Task Client.
 - The Agent Client implements the corresponding interface required by the Agent Server, exposing the
-  unified `AgentClient.reference(self, history)`.
+  unified `AgentClient.inference(self, history)`.
 - The Task Client interfaces exclusively with the Task Controller, making its implementation unique. Its core method
   is `TaskClient.run_sample(self, index, agent)`, which ensures the passed `Agent` and `Task` outputs are forwarded to
   each other.
