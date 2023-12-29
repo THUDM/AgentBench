@@ -120,14 +120,14 @@ python -m src.client.agent_test --config configs/agents/api_agents.yaml --agent 
 Starting the task worker involves specific tasks. Manual starting might be cumbersome; hence, we provide an automated
 script.
 
-The assumption for this step is that ports from 5000 to 5015 are available.
+The assumption for this step is that ports from 5000 to 5015 are available. For Mac OS system, you may want to follow [here](https://stackoverflow.com/questions/69955686/why-cant-i-run-the-project-on-port-5000) to free port 5000 to use.
 
 ```bash
 python -m src.start_task -a
 ```
 
 This will launch five task_workers each for `dbbench-std` and `os-std` tasks and automatically connect them
-to the controller on port 5000. **After executing this command, please allow approximately 1 minute for the task setup to complete.**
+to the controller on port 5000. **After executing this command, please allow approximately 1 minute for the task setup to complete.** If the terminal shows ".... 200 OK", you can open another terminal and follow step 4.
 
 ### Step 4. Start the assigner
 
