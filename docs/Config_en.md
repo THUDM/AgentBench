@@ -121,8 +121,8 @@ A single task configuration file mainly requires the following fields:
 
 A single `assignment` requires two fields:
 
-- `agents`: the name of the agent required for this task.
-- `tasks`: the name of the task required for this task.
+- `agent`: the name of the agent required for this task.
+- `task`: the name of the task required for this task.
 
 ### agents
 
