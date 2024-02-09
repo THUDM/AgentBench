@@ -168,6 +168,10 @@ launching:
 | os        | ~5s            | < 500M             |
 | kd        | ~5s            | < 500M             |
 
+## References
+
+Avalon task is merged from [AvalonBench](https://github.com/jonathanmli/Avalon-LLM/), which implements a multi-agent framework.
+
 ## Citation
 
 ```
