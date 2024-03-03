@@ -369,7 +369,7 @@ class ZHPrompter(Prompter):
 
 
 class LateralThinkingPuzzle(Task):
-    def __init__(self, rounds=50, filepath=None, eval_yaml=None, **configs):
+    def __init__(self, rounds=25, filepath=None, eval_yaml=None, **configs):
         # TODO: refactor
         # change into list, which contains dict with problems and language
         self.rounds = rounds
