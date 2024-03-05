@@ -19,8 +19,10 @@ def _start_worker(name, port, controller, definition):
                 "docker",
                 "run",
                 "--rm",
-                "--network",
-                "host",
+                "-p",
+                f"{port}:{port}",
+                "--add-host",
+                "host.docker.internal:host-gateway",
                 "-v",
                 f"{project_root}:/root/workspace",
                 "-w",
@@ -29,9 +31,9 @@ def _start_worker(name, port, controller, definition):
                 "bash",
                 "-c",
                 docker.get("command", "") + f" python -m src.server.task_worker {name}"
-                f" --self http://localhost:{port}/api"
-                f" --port {port}"
-                f" --controller {controller}",
+                                            f" --self http://localhost:{port}/api"
+                                            f" --port {port}"
+                                            f" --controller {controller.replace('localhost', 'host.docker.internal')}",
             ]
         )
     else:
