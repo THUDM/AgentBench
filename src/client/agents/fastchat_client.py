@@ -4,6 +4,7 @@ from typing import List, Dict, Union, Any
 
 import requests
 from fastchat.model.model_adapter import get_conversation_template
+
 # import TimeoutException
 from requests.exceptions import Timeout, ConnectionError
 

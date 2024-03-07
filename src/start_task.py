@@ -31,9 +31,9 @@ def _start_worker(name, port, controller, definition):
                 "bash",
                 "-c",
                 docker.get("command", "") + f" python -m src.server.task_worker {name}"
-                                            f" --self http://localhost:{port}/api"
-                                            f" --port {port}"
-                                            f" --controller {controller.replace('localhost', 'host.docker.internal')}",
+                f" --self http://localhost:{port}/api"
+                f" --port {port}"
+                f" --controller {controller.replace('localhost', 'host.docker.internal')}",
             ]
         )
     else:
@@ -133,7 +133,9 @@ if __name__ == "__main__":
         )
     for i in range(0, n, 2):
         for _ in range(int(args.start[i + 1])):
-            _start_worker(args.start[i], base_port, controller_addr, config["definition"])
+            _start_worker(
+                args.start[i], base_port, controller_addr, config["definition"]
+            )
             base_port += 1
 
     while True:

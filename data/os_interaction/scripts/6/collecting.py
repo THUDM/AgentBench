@@ -13,11 +13,14 @@ while correct < 1000:
             json={
                 "model": "gpt-3.5-turbo",
                 "messages": [
-                    {"role": "user",
-                     "content": "The topic is: linux permission questions.\ngenerate one like this:\n" + p[2:-1]},
-                ]
+                    {
+                        "role": "user",
+                        "content": "The topic is: linux permission questions.\ngenerate one like this:\n"
+                        + p[2:-1],
+                    },
+                ],
             },
-            timeout=60
+            timeout=60,
         )
         entry = json.loads(resp.json()["choices"][0]["message"]["content"])
         f.write(json.dumps(entry))

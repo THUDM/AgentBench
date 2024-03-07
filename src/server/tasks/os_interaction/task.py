@@ -151,7 +151,7 @@ ls /etc
     {
         "role": "user",
         "content": "The output of the OS:\ncpi cron.hourly fuse.conf iproute2 lvm networkd-dispatcher protocols "
-                   "selinux tmpfiles.d [truncated because the output is too long]",
+        "selinux tmpfiles.d [truncated because the output is too long]",
     },
     {
         "role": "agent",
@@ -335,7 +335,7 @@ class OSInteraction(Task):
                 right_par_pos = content.rfind(")")
                 if left_par_pos == -1 or right_par_pos == -1:
                     continue
-                content = content[left_par_pos + 1: right_par_pos]
+                content = content[left_par_pos + 1 : right_par_pos]
                 ret["action"] = "commit"
                 ret["content"] = content
                 break
@@ -476,9 +476,11 @@ If the output is too long, I will truncate it. The truncated output is not compl
                 session.inject(
                     {
                         "role": "user",
-                        "content": ("The output of the OS:\n\n" + result)
-                        if result
-                        else "The output of the OS is empty.",
+                        "content": (
+                            ("The output of the OS:\n\n" + result)
+                            if result
+                            else "The output of the OS is empty."
+                        ),
                     }
                 )
         else:

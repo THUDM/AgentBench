@@ -17,3 +17,4 @@ src/server/tasks/card_game/result
 .dockerfile
 .dockerfile-cache
 analysis
+.mypy_cache/

@@ -36,7 +36,9 @@ class Server:
             else:
                 try:
                     session.history = json.loads(data)
-                    session.history = [ChatHistoryItem(**item) for item in session.history]
+                    session.history = [
+                        ChatHistoryItem(**item) for item in session.history
+                    ]
                     log_file.append({"role": "user", "content": data})
                     ret = await session.action()
                     if ret.content is None:

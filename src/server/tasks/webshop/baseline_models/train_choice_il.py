@@ -59,8 +59,10 @@ from models.bert import BertModelForWebshop, BertConfigForWebshop
 
 logger = get_logger(__name__)
 
-require_version("datasets>=1.8.0",
-                "To fix: pip install -r examples/pytorch/text-classification/requirements.txt")
+require_version(
+    "datasets>=1.8.0",
+    "To fix: pip install -r examples/pytorch/text-classification/requirements.txt",
+)
 
 task_to_keys = {
     "cola": ("sentence", None),
@@ -74,40 +76,43 @@ task_to_keys = {
     "wnli": ("sentence1", "sentence2"),
 }
 
-tokenizer = AutoTokenizer.from_pretrained(
-    'bert-base-uncased', truncation_side='left')
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased", truncation_side="left")
 print(len(tokenizer))
-tokenizer.add_tokens(['[button]', '[button_]', '[clicked button]',
-                     '[clicked button_]'], special_tokens=True)
+tokenizer.add_tokens(
+    ["[button]", "[button_]", "[clicked button]", "[clicked button_]"],
+    special_tokens=True,
+)
 print(len(tokenizer))
 
 PATH = "./data/il_trajs_finalized_images.jsonl"
 MEM_PATH = "./data/il_trajs_mem_finalized_images.jsonl"
-HUMAN_GOAL_PATH = './data/human_goals.json'
+HUMAN_GOAL_PATH = "./data/human_goals.json"
 
 
 def process(s):
-    s = s.lower().replace('"', '').replace("'", "").strip()
-    s = s.replace('[sep]', '[SEP]')
+    s = s.lower().replace('"', "").replace("'", "").strip()
+    s = s.replace("[sep]", "[SEP]")
     return s
 
 
 def process_goal(state):
-    state = state.lower().replace('"', '').replace("'", "")
-    state = state.replace('amazon shopping game\ninstruction:', '').replace('webshop\ninstruction:', '')
-    state = state.replace('\n[button] search [button_]', '').strip()
-    if ', and price lower than' in state:
-        state = state.split(', and price lower than')[0]
+    state = state.lower().replace('"', "").replace("'", "")
+    state = state.replace("amazon shopping game\ninstruction:", "").replace(
+        "webshop\ninstruction:", ""
+    )
+    state = state.replace("\n[button] search [button_]", "").strip()
+    if ", and price lower than" in state:
+        state = state.split(", and price lower than")[0]
     return state
 
 
 def get_data(split, mem=False, filter_search=True):
     path = MEM_PATH if mem else PATH
-    print('Loading data from {}'.format(path))
-    with open(path, 'r') as json_file:
+    print("Loading data from {}".format(path))
+    with open(path, "r") as json_file:
         json_list = list(json_file)
 
-    human_goals = json.load(open(HUMAN_GOAL_PATH, 'r'))
+    human_goals = json.load(open(HUMAN_GOAL_PATH, "r"))
 
     random.seed(233)
     random.shuffle(json_list)
@@ -121,11 +126,11 @@ def get_data(split, mem=False, filter_search=True):
 
     # split by human goal index
     goal_range = range(len(human_goals))
-    if split == 'train':
+    if split == "train":
         goal_range = range(1500, len(human_goals))
-    elif split == 'eval':
+    elif split == "eval":
         goal_range = range(500, 1500)
-    elif split == 'test':
+    elif split == "test":
         goal_range = range(0, 500)
 
     bad = cnt = 0
@@ -134,24 +139,28 @@ def get_data(split, mem=False, filter_search=True):
     num_trajs = 0
     for json_str in json_list:
         result = json.loads(json_str)
-        s = process_goal(result['states'][0])
+        s = process_goal(result["states"][0])
         assert s in human_goals, s
         goal_idx = human_goals.index(s)
         if goal_idx not in goal_range:
             continue
         num_trajs += 1
-        if 'images' not in result:
-            result['images'] = [0] * len(result['states'])
-        for state, valid_acts, idx, image in zip(result['states'], result['available_actions'], result['action_idxs'], result['images']):
+        if "images" not in result:
+            result["images"] = [0] * len(result["states"])
+        for state, valid_acts, idx, image in zip(
+            result["states"],
+            result["available_actions"],
+            result["action_idxs"],
+            result["images"],
+        ):
             cnt += 1
             if filter_search and idx == -1:
                 continue
             state_list.append(state)
-            image_list.append([0.] * 512 if image == 0 else image)
+            image_list.append([0.0] * 512 if image == 0 else image)
             if len(valid_acts) > 20:  # do some action space reduction...
                 bad += 1
-                new_idxs = list(range(6)) + \
-                    random.sample(range(6, len(valid_acts)), 10)
+                new_idxs = list(range(6)) + random.sample(range(6, len(valid_acts)), 10)
                 if idx not in new_idxs:
                     new_idxs += [idx]
                 new_idxs = sorted(new_idxs)
@@ -161,58 +170,79 @@ def get_data(split, mem=False, filter_search=True):
             action_list.extend(valid_acts)
             idx_list.append(idx)
             size_list.append(len(valid_acts))
-    print('num of {} trajs: {}'.format(split, num_trajs))
-    print('total transitions and bad transitions: {} {}'.format(cnt, bad))
-    state_list, action_list = list(
-        map(process, state_list)), list(map(process, action_list))
+    print("num of {} trajs: {}".format(split, num_trajs))
+    print("total transitions and bad transitions: {} {}".format(cnt, bad))
+    state_list, action_list = list(map(process, state_list)), list(
+        map(process, action_list)
+    )
     return state_list, action_list, idx_list, size_list, image_list
 
 
 def get_dataset(split, mem=False):
     states, actions, idxs, sizes, images = get_data(split, mem)
     state_encodings = tokenizer(
-        states, padding='max_length', max_length=512, truncation=True, return_tensors='pt')
+        states,
+        padding="max_length",
+        max_length=512,
+        truncation=True,
+        return_tensors="pt",
+    )
     action_encodings = tokenizer(
-        actions, padding='max_length', max_length=128, truncation=True, return_tensors='pt')
+        actions,
+        padding="max_length",
+        max_length=128,
+        truncation=True,
+        return_tensors="pt",
+    )
     dataset = {
-        'state_input_ids': state_encodings['input_ids'],
-        'state_attention_mask': state_encodings['attention_mask'],
-        'action_input_ids': action_encodings['input_ids'].split(sizes),
-        'action_attention_mask': action_encodings['attention_mask'].split(sizes),
-        'sizes': sizes,
-        'images': torch.tensor(images),
-        'labels': idxs,
+        "state_input_ids": state_encodings["input_ids"],
+        "state_attention_mask": state_encodings["attention_mask"],
+        "action_input_ids": action_encodings["input_ids"].split(sizes),
+        "action_attention_mask": action_encodings["attention_mask"].split(sizes),
+        "sizes": sizes,
+        "images": torch.tensor(images),
+        "labels": idxs,
     }
     return Dataset.from_dict(dataset)
 
 
 def data_collator(batch):
-    state_input_ids, state_attention_mask, action_input_ids, action_attention_mask, sizes, labels, images = [
-    ], [], [], [], [], [], []
+    (
+        state_input_ids,
+        state_attention_mask,
+        action_input_ids,
+        action_attention_mask,
+        sizes,
+        labels,
+        images,
+    ) = ([], [], [], [], [], [], [])
     for sample in batch:
-        state_input_ids.append(sample['state_input_ids'])
-        state_attention_mask.append(sample['state_attention_mask'])
-        action_input_ids.extend(sample['action_input_ids'])
-        action_attention_mask.extend(sample['action_attention_mask'])
-        sizes.append(sample['sizes'])
-        labels.append(sample['labels'])
-        images.append(sample['images'])
+        state_input_ids.append(sample["state_input_ids"])
+        state_attention_mask.append(sample["state_attention_mask"])
+        action_input_ids.extend(sample["action_input_ids"])
+        action_attention_mask.extend(sample["action_attention_mask"])
+        sizes.append(sample["sizes"])
+        labels.append(sample["labels"])
+        images.append(sample["images"])
     max_state_len = max(sum(x) for x in state_attention_mask)
     max_action_len = max(sum(x) for x in action_attention_mask)
     return {
-        'state_input_ids': torch.tensor(state_input_ids)[:, :max_state_len],
-        'state_attention_mask': torch.tensor(state_attention_mask)[:, :max_state_len],
-        'action_input_ids': torch.tensor(action_input_ids)[:, :max_action_len],
-        'action_attention_mask': torch.tensor(action_attention_mask)[:, :max_action_len],
-        'sizes': torch.tensor(sizes),
-        'images': torch.tensor(images) if images and images[0] else None,
-        'labels': torch.tensor(labels),
+        "state_input_ids": torch.tensor(state_input_ids)[:, :max_state_len],
+        "state_attention_mask": torch.tensor(state_attention_mask)[:, :max_state_len],
+        "action_input_ids": torch.tensor(action_input_ids)[:, :max_action_len],
+        "action_attention_mask": torch.tensor(action_attention_mask)[
+            :, :max_action_len
+        ],
+        "sizes": torch.tensor(sizes),
+        "images": torch.tensor(images) if images and images[0] else None,
+        "labels": torch.tensor(labels),
     }
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Finetune a transformers model on a text classification task")
+        description="Finetune a transformers model on a text classification task"
+    )
     parser.add_argument(
         "--task_name",
         type=str,
@@ -221,10 +251,16 @@ def parse_args():
         choices=list(task_to_keys.keys()),
     )
     parser.add_argument(
-        "--train_file", type=str, default=None, help="A csv or a json file containing the training data."
+        "--train_file",
+        type=str,
+        default=None,
+        help="A csv or a json file containing the training data.",
     )
     parser.add_argument(
-        "--validation_file", type=str, default=None, help="A csv or a json file containing the validation data."
+        "--validation_file",
+        type=str,
+        default=None,
+        help="A csv or a json file containing the validation data.",
     )
     parser.add_argument(
         "--max_length",
@@ -269,10 +305,15 @@ def parse_args():
         default=2e-5,
         help="Initial learning rate (after the potential warmup period) to use.",
     )
-    parser.add_argument("--weight_decay", type=float,
-                        default=0.0, help="Weight decay to use.")
-    parser.add_argument("--num_train_epochs", type=int, default=10,
-                        help="Total number of training epochs to perform.")
+    parser.add_argument(
+        "--weight_decay", type=float, default=0.0, help="Weight decay to use."
+    )
+    parser.add_argument(
+        "--num_train_epochs",
+        type=int,
+        default=10,
+        help="Total number of training epochs to perform.",
+    )
     parser.add_argument(
         "--max_train_steps",
         type=int,
@@ -290,23 +331,43 @@ def parse_args():
         type=SchedulerType,
         default="linear",
         help="The scheduler type to use.",
-        choices=["linear", "cosine", "cosine_with_restarts",
-                 "polynomial", "constant", "constant_with_warmup"],
+        choices=[
+            "linear",
+            "cosine",
+            "cosine_with_restarts",
+            "polynomial",
+            "constant",
+            "constant_with_warmup",
+        ],
     )
     parser.add_argument(
-        "--num_warmup_steps", type=int, default=0, help="Number of steps for the warmup in the lr scheduler."
+        "--num_warmup_steps",
+        type=int,
+        default=0,
+        help="Number of steps for the warmup in the lr scheduler.",
     )
-    parser.add_argument("--output_dir", type=str, default="./ckpts/web_click",
-                        help="Where to store the final model.")
-    parser.add_argument("--seed", type=int, default=None,
-                        help="A seed for reproducible training.")
-    parser.add_argument("--push_to_hub", action="store_true",
-                        help="Whether or not to push the model to the Hub.")
     parser.add_argument(
-        "--hub_model_id", type=str, help="The name of the repository to keep in sync with the local `output_dir`."
+        "--output_dir",
+        type=str,
+        default="./ckpts/web_click",
+        help="Where to store the final model.",
     )
-    parser.add_argument("--hub_token", type=str,
-                        help="The token to use to push to the Model Hub.")
+    parser.add_argument(
+        "--seed", type=int, default=None, help="A seed for reproducible training."
+    )
+    parser.add_argument(
+        "--push_to_hub",
+        action="store_true",
+        help="Whether or not to push the model to the Hub.",
+    )
+    parser.add_argument(
+        "--hub_model_id",
+        type=str,
+        help="The name of the repository to keep in sync with the local `output_dir`.",
+    )
+    parser.add_argument(
+        "--hub_token", type=str, help="The token to use to push to the Model Hub."
+    )
     parser.add_argument(
         "--checkpointing_steps",
         type=str,
@@ -327,32 +388,42 @@ def parse_args():
     )
 
     parser.add_argument("--mem", type=int, default=0, help="State with memory")
-    parser.add_argument("--image", type=int, default=1,
-                        help="State with image")
-    parser.add_argument("--pretrain", type=int, default=1,
-                        help="Pretrained BERT or not")
+    parser.add_argument("--image", type=int, default=1, help="State with image")
+    parser.add_argument(
+        "--pretrain", type=int, default=1, help="Pretrained BERT or not"
+    )
 
-    parser.add_argument("--logging_steps", type=int,
-                        default=10, help="Logging in training")
+    parser.add_argument(
+        "--logging_steps", type=int, default=10, help="Logging in training"
+    )
 
     args = parser.parse_args()
 
     # Sanity checks
-    if args.task_name is None and args.train_file is None and args.validation_file is None:
-        raise ValueError(
-            "Need either a task name or a training/validation file.")
+    if (
+        args.task_name is None
+        and args.train_file is None
+        and args.validation_file is None
+    ):
+        raise ValueError("Need either a task name or a training/validation file.")
     else:
         if args.train_file is not None:
             extension = args.train_file.split(".")[-1]
             assert extension in [
-                "csv", "json"], "`train_file` should be a csv or a json file."
+                "csv",
+                "json",
+            ], "`train_file` should be a csv or a json file."
         if args.validation_file is not None:
             extension = args.validation_file.split(".")[-1]
             assert extension in [
-                "csv", "json"], "`validation_file` should be a csv or a json file."
+                "csv",
+                "json",
+            ], "`validation_file` should be a csv or a json file."
 
     if args.push_to_hub:
-        assert args.output_dir is not None, "Need an `output_dir` to create a repo when `--push_to_hub` is passed."
+        assert (
+            args.output_dir is not None
+        ), "Need an `output_dir` to create a repo when `--push_to_hub` is passed."
 
     return args
 
@@ -390,8 +461,7 @@ def main():
     # In distributed training, the .from_pretrained methods guarantee that only one local process can concurrently
     # download model & vocab.
     # tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
-    config = BertConfigForWebshop(
-        image=args.image, pretrain_bert=args.pretrain)
+    config = BertConfigForWebshop(image=args.image, pretrain_bert=args.pretrain)
     model = BertModelForWebshop(config)
     # model.bert.resize_token_embeddings(len(tokenizer))
 
@@ -400,26 +470,39 @@ def main():
 
     # Log a few random samples from the training set:
     for index in random.sample(range(len(train_dataset)), 3):
-        logger.info(
-            f"Sample {index} of the training set: {train_dataset[index]}.")
+        logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
     # DataLoaders creation:
     train_dataloader = DataLoader(
-        train_dataset, shuffle=True, collate_fn=data_collator, batch_size=args.per_device_train_batch_size
+        train_dataset,
+        shuffle=True,
+        collate_fn=data_collator,
+        batch_size=args.per_device_train_batch_size,
     )
     eval_dataloader = DataLoader(
-        eval_dataset, collate_fn=data_collator, batch_size=args.per_device_eval_batch_size)
+        eval_dataset,
+        collate_fn=data_collator,
+        batch_size=args.per_device_eval_batch_size,
+    )
 
     # Optimizer
     # Split weights in two groups, one with weight decay and the other not.
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
-            "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
+            "params": [
+                p
+                for n, p in model.named_parameters()
+                if not any(nd in n for nd in no_decay)
+            ],
             "weight_decay": args.weight_decay,
         },
         {
-            "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
+            "params": [
+                p
+                for n, p in model.named_parameters()
+                if any(nd in n for nd in no_decay)
+            ],
             "weight_decay": 0.0,
         },
     ]
@@ -427,12 +510,14 @@ def main():
 
     # Scheduler and math around the number of training steps.
     num_update_steps_per_epoch = math.ceil(
-        len(train_dataloader) / args.gradient_accumulation_steps)
+        len(train_dataloader) / args.gradient_accumulation_steps
+    )
     if args.max_train_steps is None:
         args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
     else:
         args.num_train_epochs = math.ceil(
-            args.max_train_steps / num_update_steps_per_epoch)
+            args.max_train_steps / num_update_steps_per_epoch
+        )
 
     lr_scheduler = get_scheduler(
         name=args.lr_scheduler_type,
@@ -442,13 +527,16 @@ def main():
     )
 
     # Prepare everything with our `accelerator`.
-    model, optimizer, train_dataloader, eval_dataloader, lr_scheduler = accelerator.prepare(
-        model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
+    model, optimizer, train_dataloader, eval_dataloader, lr_scheduler = (
+        accelerator.prepare(
+            model, optimizer, train_dataloader, eval_dataloader, lr_scheduler
+        )
     )
 
     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
     num_update_steps_per_epoch = math.ceil(
-        len(train_dataloader) / args.gradient_accumulation_steps)
+        len(train_dataloader) / args.gradient_accumulation_steps
+    )
     args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
 
     # Figure out how many steps we should save the Accelerator states
@@ -463,36 +551,42 @@ def main():
     if args.with_tracking:
         experiment_config = vars(args)
         # TensorBoard cannot log Enums, need the raw value
-        experiment_config["lr_scheduler_type"] = experiment_config["lr_scheduler_type"].value
+        experiment_config["lr_scheduler_type"] = experiment_config[
+            "lr_scheduler_type"
+        ].value
         accelerator.init_trackers("glue_no_trainer", experiment_config)
 
     # Get the metric function
     metric = load_metric("accuracy")
 
     # Train!
-    total_batch_size = args.per_device_train_batch_size * \
-        accelerator.num_processes * args.gradient_accumulation_steps
+    total_batch_size = (
+        args.per_device_train_batch_size
+        * accelerator.num_processes
+        * args.gradient_accumulation_steps
+    )
 
     logger.info("***** Running training *****")
     logger.info(f"  Num examples = {len(train_dataset)}")
     logger.info(f"  Num Epochs = {args.num_train_epochs}")
     logger.info(
-        f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
+        f"  Instantaneous batch size per device = {args.per_device_train_batch_size}"
+    )
     logger.info(
-        f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
-    logger.info(
-        f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
+        f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}"
+    )
+    logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
     logger.info(f"  Total optimization steps = {args.max_train_steps}")
     # Only show the progress bar once on each machine.
-    progress_bar = tqdm(range(args.max_train_steps),
-                        disable=not accelerator.is_local_main_process)
+    progress_bar = tqdm(
+        range(args.max_train_steps), disable=not accelerator.is_local_main_process
+    )
     completed_steps = 0
     starting_epoch = 0
     # Potentially load in the weights and states from a previous save
     if args.resume_from_checkpoint:
         if args.resume_from_checkpoint is not None or args.resume_from_checkpoint != "":
-            accelerator.print(
-                f"Resumed from checkpoint: {args.resume_from_checkpoint}")
+            accelerator.print(f"Resumed from checkpoint: {args.resume_from_checkpoint}")
             accelerator.load_state(args.resume_from_checkpoint)
             path = os.path.basename(args.resume_from_checkpoint)
         else:
@@ -533,19 +627,27 @@ def main():
             accelerator.backward(loss)
 
             metric.add_batch(
-                predictions=torch.stack([logit.argmax(dim=0)
-                                        for logit in outputs.logits]),
-                references=batch["labels"]
+                predictions=torch.stack(
+                    [logit.argmax(dim=0) for logit in outputs.logits]
+                ),
+                references=batch["labels"],
             )
 
-            if step % args.gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
+            if (
+                step % args.gradient_accumulation_steps == 0
+                or step == len(train_dataloader) - 1
+            ):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
                 progress_bar.update(1)
                 completed_steps += 1
 
-                if args.with_tracking and args.logging_steps > 0 and completed_steps % args.logging_steps == 0:
+                if (
+                    args.with_tracking
+                    and args.logging_steps > 0
+                    and completed_steps % args.logging_steps == 0
+                ):
                     train_metric = metric.compute()
                     wandb.log(
                         {
@@ -575,17 +677,17 @@ def main():
         for step, batch in enumerate(eval_dataloader):
             with torch.no_grad():
                 outputs = model(**batch)
-            predictions = torch.stack([logit.argmax(dim=0)
-                                      for logit in outputs.logits])
-            predictions, references = accelerator.gather(
-                (predictions, batch["labels"]))
+            predictions = torch.stack([logit.argmax(dim=0) for logit in outputs.logits])
+            predictions, references = accelerator.gather((predictions, batch["labels"]))
             # If we are in a multiprocess environment, the last batch has duplicates
             if accelerator.num_processes > 1:
                 if step == len(eval_dataloader):
-                    predictions = predictions[: len(
-                        eval_dataloader.dataset) - samples_seen]
-                    references = references[: len(
-                        eval_dataloader.dataset) - samples_seen]
+                    predictions = predictions[
+                        : len(eval_dataloader.dataset) - samples_seen
+                    ]
+                    references = references[
+                        : len(eval_dataloader.dataset) - samples_seen
+                    ]
                 else:
                     samples_seen += references.shape[0]
             metric.add_batch(
@@ -615,8 +717,9 @@ def main():
                 output_dir = os.path.join(args.output_dir, output_dir)
             os.makedirs(output_dir, exist_ok=True)
             unwrapped_model = accelerator.unwrap_model(model)
-            torch.save(unwrapped_model.state_dict(),
-                       os.path.join(output_dir, "model.pth"))
+            torch.save(
+                unwrapped_model.state_dict(), os.path.join(output_dir, "model.pth")
+            )
 
             # accelerator.save_state(output_dir)
 

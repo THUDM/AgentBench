@@ -350,7 +350,9 @@ class TaskController:
             print("job sent")
 
             if SampleStatus(result["output"]["status"]) != SampleStatus.RUNNING:
-                print(ColorMessage.green("finishing session"), result["output"]["status"])
+                print(
+                    ColorMessage.green("finishing session"), result["output"]["status"]
+                )
                 await self._finish_session(sid)
 
             return result
@@ -386,7 +388,9 @@ class TaskController:
             print("[Server] interact result")
 
             if SampleStatus(result["output"]["status"]) != SampleStatus.RUNNING:
-                print(ColorMessage.green("finishing session"), result["output"]["status"])
+                print(
+                    ColorMessage.green("finishing session"), result["output"]["status"]
+                )
                 await self._finish_session(data.session_id)
 
             return result
@@ -523,9 +527,12 @@ class TaskController:
                     locked=True,
                 )
             except Exception as e:
-                print(ColorMessage.red(
-                    f"syncing {name} task worker {worker_id} at {target_worker.address} failed"
-                ), e)
+                print(
+                    ColorMessage.red(
+                        f"syncing {name} task worker {worker_id} at {target_worker.address} failed"
+                    ),
+                    e,
+                )
                 async with self.tasks_lock:
                     self.tasks[name].workers[worker_id].status = WorkerStatus.DEAD
                     return False
@@ -591,7 +598,8 @@ class TaskController:
             async with task_worker.lock:
                 async with self.sessions.lock:
                     sessions = await self._gather_session(
-                        lambda _, s: s.worker_id == task_worker.id and s.name == task_name
+                        lambda _, s: s.worker_id == task_worker.id
+                        and s.name == task_name
                     )
                     if sessions is None:
                         return
@@ -604,9 +612,16 @@ class TaskController:
                         timeout=30,
                     )
                 except Exception as e:
-                    print(ColorMessage.yellow(f"worker {task_name}#{task_worker.id} cancel all failed"), e)
+                    print(
+                        ColorMessage.yellow(
+                            f"worker {task_name}#{task_worker.id} cancel all failed"
+                        ),
+                        e,
+                    )
                     async with self.tasks_lock:
-                        self.tasks[task_name].workers[task_worker.id].status = WorkerStatus.DEAD
+                        self.tasks[task_name].workers[
+                            task_worker.id
+                        ].status = WorkerStatus.DEAD
                     for sid in sessions:
                         self.sessions[sid].lock.release()
                 else:

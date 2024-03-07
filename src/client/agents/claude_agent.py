@@ -12,11 +12,13 @@ class Claude(AgentClient):
         if not api_args:
             api_args = {}
         api_args = deepcopy(api_args)
-        self.key = api_args.pop("key", None) or os.getenv('Claude_API_KEY')
+        self.key = api_args.pop("key", None) or os.getenv("Claude_API_KEY")
         api_args["model"] = api_args.pop("model", None)
         if not self.key:
-            raise ValueError("Claude API KEY is required, please assign api_args.key or set OPENAI_API_KEY "
-                             "environment variable.")
+            raise ValueError(
+                "Claude API KEY is required, please assign api_args.key or set OPENAI_API_KEY "
+                "environment variable."
+            )
         if not api_args["model"]:
             raise ValueError("Claude model is required, please assign api_args.model.")
         self.api_args = api_args

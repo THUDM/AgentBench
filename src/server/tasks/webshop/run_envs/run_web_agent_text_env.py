@@ -3,6 +3,7 @@ Test the text gym environment.
 
 TODO: move to testing dir for more rigorous tests
 """
+
 import datetime
 import os
 import sys
@@ -31,7 +32,7 @@ class InteractionLog:
         return self.file + "-" + str(self.suffix_index) + ".log"
 
     def __enter__(self):
-        self.logfile = open(self.file_name, 'w', encoding="utf-8")
+        self.logfile = open(self.file_name, "w", encoding="utf-8")
         self.stdout = sys.stdout
         sys.stdout = self.logfile
         return self
@@ -59,7 +60,7 @@ def worker(log_file, idx, rnge):
             for j in range(100):
                 print(observation)
                 available_actions = env.get_available_actions()
-                print('Available actions:', available_actions)
+                print("Available actions:", available_actions)
                 action = policy.forward(observation, available_actions)
                 if not action:
                     reward = 0
@@ -76,7 +77,7 @@ def worker(log_file, idx, rnge):
         print(f"#Average: {sum(scores) / len(scores)}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # env = gym.make('WebAgentTextEnv-v0', observation_mode='text', num_products=DEBUG_PROD_SIZE)
     arg_length = len(sys.argv)
     if arg_length == 1:

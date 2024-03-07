@@ -103,26 +103,32 @@ class TaskWorker:
                 print("Heartbeat failed:", e)
             await asyncio.sleep(self.heart_rate)
 
-    async def task_start_sample_wrapper(self, index: SampleIndex, session: Session, session_id: int):
+    async def task_start_sample_wrapper(
+        self, index: SampleIndex, session: Session, session_id: int
+    ):
         try:
             result = await self.task.start_sample(index, session)
         except Exception as _:
             self.session_map.pop(session_id)
             error = traceback.format_exc()
-            await session.controller.env_finish(TaskOutput(
-                index=index,
-                status=SampleStatus.TASK_ERROR,
-                result=error,
-                history=session.history,
-            ))
+            await session.controller.env_finish(
+                TaskOutput(
+                    index=index,
+                    status=SampleStatus.TASK_ERROR,
+                    result=error,
+                    history=session.history,
+                )
+            )
             return
         self.session_map.pop(session_id)
-        await session.controller.env_finish(TaskOutput(
-            index=index,
-            status=result.status,
-            result=result.result,
-            history=session.history,
-        ))
+        await session.controller.env_finish(
+            TaskOutput(
+                index=index,
+                status=result.status,
+                result=result.result,
+                history=session.history,
+            )
+        )
 
     async def start_sample(self, parameters: WorkerStartSampleRequest):
         print("job received")
@@ -133,7 +139,8 @@ class TaskWorker:
             if len(self.session_map) >= self.task.concurrency:
                 raise HTTPException(
                     status_code=406,
-                    detail="Sample concurrency limit reached: %d" % self.task.concurrency,
+                    detail="Sample concurrency limit reached: %d"
+                    % self.task.concurrency,
                 )
             session = Session()
             print("session created")
@@ -172,10 +179,13 @@ class TaskWorker:
             parameters.agent_response
         )
         if response.status == SampleStatus.TASK_ERROR:
-            raise HTTPException(status_code=501, detail={
-                "session_id": parameters.session_id,
-                "output": response.dict(),
-            })
+            raise HTTPException(
+                status_code=501,
+                detail={
+                    "session_id": parameters.session_id,
+                    "output": response.dict(),
+                },
+            )
         return {
             "session_id": parameters.session_id,
             "output": response.dict(),
@@ -195,7 +205,9 @@ class TaskWorker:
                 raise HTTPException(status_code=400, detail="No such session")
             running = self.session_map.get(parameters.session_id)
             print("canceling", running)
-            running.session.controller.env_input = AgentOutput(status=AgentOutputStatus.CANCELLED)
+            running.session.controller.env_input = AgentOutput(
+                status=AgentOutputStatus.CANCELLED
+            )
             running.session.controller.env_signal.release()
             print("awaiting task")
             try:

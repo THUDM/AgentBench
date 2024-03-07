@@ -24,7 +24,8 @@ Players may make any claims during the game, at any point in the game. Discussio
 """
 
 TUTORIAL_STRATEGIES_PROMPTS_ZERO_SHOT = {
-    'Merlin': ["""Tutorial on strategies:
+    "Merlin": [
+        """Tutorial on strategies:
 
 As you are playing the role of Merlin in this game, here are some aspects you can consider when formulating strategies for making decisions.
 
@@ -34,8 +35,10 @@ the Assassin can assassinate you and you will immediately lose the game.
 2. Accusation: Exercise caution when accusing players from the Evil side. Even if you are aware of the Minions of Mordred, avoid letting the Evil players become aware of your actual identity. Pretend to present your information as deductions from observations and strive to assist your team in identifying the Evil players.
 
 3. Defense: When other players accuse you of being Merlin, try to defend yourself.""",
-               "Okay, I understand"],
-    'Minion': ["""Tutorial on strategies:
+        "Okay, I understand",
+    ],
+    "Minion": [
+        """Tutorial on strategies:
 
 As you are playing the role of Minion of Modred in this game, here are some aspects you can consider when formulating strategies for making decisions.
 
@@ -45,8 +48,10 @@ As you are playing the role of Minion of Modred in this game, here are some aspe
 
 3. Defense: When accused of being from the Evil side, insist that you are actually from the Good side.
                         """,
-                        "Okay, I understand"],
-    'Servant': ["""Tutorial on strategies:
+        "Okay, I understand",
+    ],
+    "Servant": [
+        """Tutorial on strategies:
 
 As you are playing the role of Servant in this game, here are some aspects you can consider when formulating strategies for making decisions.
 
@@ -56,8 +61,10 @@ As you are playing the role of Servant in this game, here are some aspects you c
 
 3. Defense: When accused, you can pretend to be Merlin.
                       """,
-                      "Okay, I understand"],
-    'Assassin': ["""Tutorial on strategies:
+        "Okay, I understand",
+    ],
+    "Assassin": [
+        """Tutorial on strategies:
 
 As you are playing the role of Assassin in this game, here are some aspects you can consider when formulating strategies for making decisions.
 
@@ -67,25 +74,25 @@ As you are playing the role of Assassin in this game, here are some aspects you 
 
 3. Defense: When accused, you can pretend to be from the Good side.
                       """,
-                      "Okay, I understand"]
-
+        "Okay, I understand",
+    ],
 }
 
 REVEAL_PROMPTS = {
-    #TODO: Evil, Good
+    # TODO: Evil, Good
     "Merlin": [
         "Player {} is Minion. Players {} are Servants.",
         # "Players {} are Minions of Modred."
     ],
-    #TODO: only knows who are Evil
+    # TODO: only knows who are Evil
     "Minion": [
         "Player {} is Assassin. Players {} are Good.",
-        "Players {} are Minions of Modred."
+        "Players {} are Minions of Modred.",
     ],
-    #TODO: Evil, Good
+    # TODO: Evil, Good
     "Assassin": [
         "Player {} is Minion. Players {} are Good.",
-        "Players {} are Minions of Modred."
+        "Players {} are Minions of Modred.",
     ],
     # "Percival": "Player {} is Merlin and player {} is Morgan."
 }

@@ -2,18 +2,15 @@
 AquaWar AI SDK for Python
 """
 
-
 from __future__ import annotations
 
 from typing import Any, overload
-
 
 """
 `None`, `bool`, `int`, `float`, `str` 是 `Json` 类型\n
 `Json` 类型组成的 `tuple`, `list`, `set`, `dict` 也是 `Json` 类型
 """
 Json = Any
-
 
 class fish_type:
     def __eq__(self: object, other: object) -> bool: ...
@@ -26,7 +23,6 @@ class fish_type:
     def __repr__(self: object) -> str: ...
     def __setstate__(self: fish_type, state: int) -> None: ...
     def __str__(self: fish_type) -> str: ...
-
     @property
     def name(self: fish_type) -> str: ...
 
@@ -43,7 +39,6 @@ class fish_type:
     clownfish: fish_type  # = 11
     imitator: fish_type  # = 12
 
-
 spray = fish_type.spray  # 射水鱼
 flame = fish_type.flame  # 喷火鱼
 eel = fish_type.eel  # 电鳗
@@ -57,7 +52,6 @@ hammerhead = fish_type.hammerhead  # 锤头鲨
 clownfish = fish_type.clownfish  # 小丑鱼
 imitator = fish_type.imitator  # 拟态鱼
 
-
 class active_skill:
     def __eq__(self: object, other: object) -> bool: ...
     def __getstate__(self: object) -> int: ...
@@ -69,7 +63,6 @@ class active_skill:
     def __repr__(self: object) -> str: ...
     def __setstate__(self: active_skill, state: int) -> None: ...
     def __str__(self: active_skill) -> str: ...
-
     @property
     def name(self: active_skill) -> str: ...
 
@@ -79,8 +72,7 @@ class active_skill:
     reduce_injury: active_skill  # = 3
     limit_critical: active_skill  # = 4
     weak_critical: active_skill  # = 5
-    injury_tansfer: active_skill   # = 6
-
+    injury_tansfer: active_skill  # = 6
 
 range_attack = active_skill.range_attack  # 射水鱼(spray)+电鳗(eel)
 friend_attack = active_skill.friend_attack  # 喷火鱼(flame)+翻车鱼(sunfish)
@@ -89,7 +81,6 @@ reduce_injury = active_skill.reduce_injury  # 蝠鲼(mobula)+章鱼(octupus)
 limit_critical = active_skill.limit_critical  # 海龟(turtle)
 weak_critical = active_skill.weak_critical  # 大白鲨(whiteshark)+锤头鲨(hammerhead)
 injury_tansfer = active_skill.injury_tansfer  # 小丑鱼(clownfish)
-
 
 class passive_skill:
     def __eq__(self: object, other: object) -> bool: ...
@@ -102,7 +93,6 @@ class passive_skill:
     def __repr__(self: object) -> str: ...
     def __setstate__(self: passive_skill, state: int) -> None: ...
     def __str__(self: passive_skill) -> str: ...
-
     @property
     def name(self: passive_skill) -> str: ...
 
@@ -114,7 +104,6 @@ class passive_skill:
     dead_boom: passive_skill  # = 5
     injury_transfer: passive_skill  # = 6
 
-
 injury_back = passive_skill.injury_back  # 射水鱼(spray)+喷火鱼(flame)
 # 电鳗(eel)+翻车鱼(sunfish)
 friend_injury_transfer = passive_skill.friend_injury_transfer
@@ -124,14 +113,11 @@ limit_heal = passive_skill.limit_heal  # 章鱼(octopus)+大白鲨(whiteshark)
 dead_boom = passive_skill.dead_boom  # 锤头鲨(hammerhead)
 injury_transfer = passive_skill.injury_transfer  # 小丑鱼(clownfish)
 
-
 class Fish:
     def __copy__(self: Fish) -> Fish: ...
     def __deepcopy__(self: Fish, memo: dict) -> Fish: ...
-
     @overload
     def __init__(self: Fish, id: int, hp: int, atk: int) -> None: ...
-
     def __init__(self: Fish) -> None:
         self.id: int = ...
         self.type: fish_type = ...
@@ -141,7 +127,6 @@ class Fish:
         self.active: active_skill = ...
         self.passive: passive_skill = ...
         ...
-
 
 class skill_type:
     def __eq__(self: object, other: object) -> bool: ...
@@ -154,7 +139,6 @@ class skill_type:
     def __repr__(self: object) -> str: ...
     def __setstate__(self: skill_type, state: int) -> None: ...
     def __str__(self: skill_type) -> str: ...
-
     @property
     def name(self: skill_type) -> str: ...
 
@@ -164,13 +148,11 @@ class skill_type:
     subtle: skill_type  # = 3
     normalattack: skill_type  # = 4
 
-
 aoe = skill_type.aoe
 infight = skill_type.infight
 crit = skill_type.crit
 subtle = skill_type.subtle
 normalattack = skill_type.normalattack
-
 
 class passive_type:
     def __eq__(self: object, other: object) -> bool: ...
@@ -183,7 +165,6 @@ class passive_type:
     def __repr__(self: object) -> str: ...
     def __setstate__(self: passive_type, state: int) -> None: ...
     def __str__(self: passive_type) -> str: ...
-
     @property
     def name(self: passive_type) -> str: ...
 
@@ -193,16 +174,13 @@ class passive_type:
     heal: passive_type  # = 3
     explode: passive_type  # = 4
 
-
 counter = passive_type.counter
 deflect = passive_type.deflect
 reduce = passive_type.reduce
 heal = passive_type.heal
 explode = passive_type.explode
 
-
 max_length: int = 24
-
 
 class ActionInfo:
     def __init__(self: ActionInfo) -> None:
@@ -246,7 +224,6 @@ class ActionInfo:
     def clear(self: ActionInfo) -> None: ...
     def is_empty(self: ActionInfo) -> bool: ...
 
-
 class AssertInfo:
     def __init__(self: AssertInfo) -> None:
         self.assertPos: int = ...
@@ -256,22 +233,34 @@ class AssertInfo:
     def clear(self: AssertInfo) -> None: ...
     def is_empty(self: AssertInfo) -> bool: ...
 
-
 class Game:
     """
     游戏局面
     """
 
-    def __init__(self: Game,
-                 friend1: Fish, friend2: Fish, friend3: Fish, friend4: Fish,
-                 enemy1: Fish, enemy2: Fish, enemy3: Fish, enemy4: Fish,
-                 avatar_id: int, first_mover: bool, round: int,
-                 enemy_action: ActionInfo, my_action: ActionInfo,
-                 enemy_assert: AssertInfo, my_assert: AssertInfo,
-                 round1_win: bool, round2_win: bool, round3_win: bool,
-                 last_round_finish_reason: int, state_limit_exceed: bool
-                 ) -> None: ...
-
+    def __init__(
+        self: Game,
+        friend1: Fish,
+        friend2: Fish,
+        friend3: Fish,
+        friend4: Fish,
+        enemy1: Fish,
+        enemy2: Fish,
+        enemy3: Fish,
+        enemy4: Fish,
+        avatar_id: int,
+        first_mover: bool,
+        round: int,
+        enemy_action: ActionInfo,
+        my_action: ActionInfo,
+        enemy_assert: AssertInfo,
+        my_assert: AssertInfo,
+        round1_win: bool,
+        round2_win: bool,
+        round3_win: bool,
+        last_round_finish_reason: int,
+        state_limit_exceed: bool,
+    ) -> None: ...
     @property
     def my_fish(self: Game) -> list[Fish]: ...
     @property
@@ -301,7 +290,6 @@ class Game:
     @property
     def state_limit_exceed(self: Game) -> bool: ...
 
-
 class err_type:
     def __eq__(self: object, other: object) -> bool: ...
     def __getstate__(self: object) -> int: ...
@@ -313,7 +301,6 @@ class err_type:
     def __repr__(self: object) -> str: ...
     def __setstate__(self: err_type, state: int) -> None: ...
     def __str__(self: err_type) -> str: ...
-
     @property
     def name(self: err_type) -> str: ...
 
@@ -325,7 +312,6 @@ class err_type:
     err_fish_not_choose: err_type  # = 5
     success: err_type  # = 6
 
-
 err_target = err_type.err_target
 err_target_out_of_range = err_type.err_target_out_of_range
 err_action_type = err_type.err_action_type
@@ -334,14 +320,12 @@ err_action_not_choose = err_type.err_action_not_choose
 err_fish_not_choose = err_type.err_fish_not_choose
 success = err_type.success
 
-
 class Action:
     """
     -1 代表未初始化，-2 代表目标为全体
     """
 
     def __init__(self: Action, game: Game) -> None: ...
-
     def set_action_type(self: Action, action_type: int) -> err_type: ...
     def set_action_fish(self: Action, fish_id: int) -> err_type: ...
     def set_enemy_target(self: Action, enemy_id: int) -> err_type: ...
@@ -351,14 +335,11 @@ class Action:
     def get_enemy_target(self: Action) -> int: ...
     def get_friend_target(self: Action) -> int: ...
 
-
 class AIClient:
     def __init__(self: AIClient) -> None: ...
-
     def random(self: AIClient, l: float, r: float) -> float: ...
     def debug_msg(self: AIClient, str: str) -> None: ...
     def clear_msg(self: AIClient) -> None: ...
-
     def sendLen(self: AIClient, s: str) -> None:
         """
         发送消息前需要先发送长度\n
@@ -373,7 +354,6 @@ class AIClient:
     def listen(self: AIClient) -> None:
         """接收消息"""
         ...
-
     # sdk 函数
     def get_my_remain_fishes(self: AIClient) -> list[int]:
         """获得自己剩余的鱼的编号"""
@@ -386,13 +366,11 @@ class AIClient:
     def get_enemy_hp(self: AIClient, pos: int) -> int:
         """获得敌方一条鱼的 hp"""
         ...
-        
     # def get_enemy_atk(self: AIClient, pos: int) -> int:
     #     """获得敌方一条鱼的 atk"""
     #     ...
 
     def get_my_id(self: AIClient, pos: int) -> int: ...
-
     def get_my_hp(self: AIClient, pos: int) -> int:
         """获得我方一条鱼的 hp"""
         ...
@@ -402,9 +380,7 @@ class AIClient:
         ...
 
     def get_lowest_health_enemy(self: AIClient) -> int: ...
-
     def get_lowest_health_enemies(self: AIClient) -> list[int]: ...
-
     def get_enemy_living_fishes(self: AIClient) -> list[int]:
         """获得敌方剩余存活的鱼的编号"""
         ...
@@ -432,7 +408,6 @@ class AIClient:
     def auto_valid_action(self: AIClient, pos: int, action: Action) -> Action:
         """自动为一个位置的鱼选取合法行动目标，优先高概率使用主动技能，若不可能合法则使用普通攻击"""
         ...
-
     # 用户编写 AI 的函数
     def Pick(self: AIClient, game: Game) -> list[int]:
         """用于完成选鱼上场的操作"""
@@ -462,24 +437,20 @@ class AIClient:
         然后只需以下标修改各向量内容即可\n
         """
         ...
-
     # 解析函数
     def parseGameInfo(self: AIClient, gameInfo: Json) -> None: ...
     def parseEnemyActionInfo(self: AIClient, actionInfo: Json) -> None: ...
     def parseMyActionInfo(self: AIClient, actionInfo: Json) -> None: ...
     def parseEnemyAssert(self: AIClient, assertInfo: Json) -> None: ...
     def parseMyAssert(self: AIClient, assertInfo: Json) -> None: ...
-
     def updateGame(self: AIClient) -> None:
         """更新函数"""
         ...
-
     # 动作函数
     def Action_Pick(self: AIClient) -> None: ...
     def Action_Assert(self: AIClient) -> None: ...
     def Action_Action(self: AIClient) -> None: ...
     def Action_Finish(self: AIClient) -> None: ...
-
     def run(self: AIClient) -> None:
         """回合制循环"""
         ...

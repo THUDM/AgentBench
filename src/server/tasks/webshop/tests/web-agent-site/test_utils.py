@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 from web_agent_site.utils import *
 
+
 def test_random_idx():
     random.seed(24)
     weights = [random.randint(0, 10) for _ in range(0, 50)]
@@ -18,8 +19,9 @@ def test_random_idx():
     assert idx_2 == expected_2
     assert idx_3 == expected_3
 
+
 def test_setup_logger():
-    LOG_DIR = 'user_session_logs_test/'
+    LOG_DIR = "user_session_logs_test/"
     user_log_dir = Path(LOG_DIR)
     user_log_dir.mkdir(parents=True, exist_ok=True)
     session_id = "ABC"
@@ -35,13 +37,14 @@ def test_setup_logger():
 
     shutil.rmtree(LOG_DIR)
 
+
 def test_generate_mturk_code():
     suite = [
-        ('', 'DA39A3EE5E'),
-        ('ABC', '3C01BDBB26'),
-        ('123', '40BD001563'),
-        ('1A1', '10E7DB0A44'),
-        ('$%^ABC', '5D5607D24E')
+        ("", "DA39A3EE5E"),
+        ("ABC", "3C01BDBB26"),
+        ("123", "40BD001563"),
+        ("1A1", "10E7DB0A44"),
+        ("$%^ABC", "5D5607D24E"),
     ]
     for session_id, expected in suite:
         output = generate_mturk_code(session_id)

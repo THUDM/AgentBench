@@ -10,29 +10,30 @@ def lisp_to_nested_expression(lisp_string: str) -> List:
     current_expression: List = []
     tokens = lisp_string.split()
     for token in tokens:
-        while token[0] == '(':
+        while token[0] == "(":
             nested_expression: List = []
             current_expression.append(nested_expression)
             stack.append(current_expression)
             current_expression = nested_expression
             token = token[1:]
-        current_expression.append(token.replace(')', ''))
-        while token[-1] == ')':
+        current_expression.append(token.replace(")", ""))
+        while token[-1] == ")":
             current_expression = stack.pop()
             token = token[:-1]
     return current_expression[0]
 
+
 def expression_to_lisp(expression) -> str:
-    rtn = '('
+    rtn = "("
     for i, e in enumerate(expression):
         if isinstance(e, list):
             rtn += expression_to_lisp(e)
         else:
             rtn += e
         if i != len(expression) - 1:
-            rtn += ' '
+            rtn += " "
 
-    rtn += ')'
+    rtn += ")"
     return rtn
 
 
@@ -47,9 +48,8 @@ def get_nesting_level(expression) -> int:
     return 1 + max_sub
 
 
-
-if __name__ == '__main__':
-    lisp = '(AND common.topic (AND (JOIN common.topic.notable_types Comic Strip) (JOIN common.topic.notable_types Comic Strip)))'
+if __name__ == "__main__":
+    lisp = "(AND common.topic (AND (JOIN common.topic.notable_types Comic Strip) (JOIN common.topic.notable_types Comic Strip)))"
     print(get_nesting_level(lisp_to_nested_expression(lisp)))
 
     print(expression_to_lisp(lisp_to_nested_expression(lisp)))

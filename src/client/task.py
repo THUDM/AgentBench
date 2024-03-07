@@ -17,7 +17,7 @@ class TaskError(enum.Enum):
 
 class TaskClient:
     def __init__(
-        self, name: str, controller_address: str = "http://localhost:5000/api", *_, **__,
+        self, name: str, controller_address: str = "http://localhost:5000/api", *_, **__
     ) -> None:
         self.name = name
         self.controller_address = controller_address
@@ -33,11 +33,13 @@ class TaskClient:
 
     def get_concurrency(self) -> int:
         try:
-            result = requests.get(
-                self.controller_address + "/list_workers"
-            )
+            result = requests.get(self.controller_address + "/list_workers")
         except Exception as e:
-            print(ColorMessage.yellow(f"Warning task {self.name} cannot connect to controller {e}"))
+            print(
+                ColorMessage.yellow(
+                    f"Warning task {self.name} cannot connect to controller {e}"
+                )
+            )
             return 0
         if result.status_code != 200:
             raise AgentBenchException(result.text, result.status_code, self.name)
@@ -125,7 +127,7 @@ class TaskClient:
         return TaskClientOutput(output=result["output"])
 
     def calculate_overall(self, results: List[TaskOutput]) -> JSONSerializable:
-        statistics = {s: 0 for s in SampleStatus}
+        statistics = {s: 0.0 for s in SampleStatus}
         for result in results:
             statistics[SampleStatus(result.status)] += 1
         for s in SampleStatus:

@@ -43,7 +43,7 @@ class CardGame(Task):
         total_damage = 0
         for dict_ in prediction:
             x = dict_["meta"]
-            for (key, val) in x.items():
+            for key, val in x.items():
                 win_round += val["win_round"]
                 total_round += val["test_times"]
                 total_damage += val["damage"]
@@ -62,7 +62,8 @@ class CardGame(Task):
                 "total_round": total_round,
                 "win_rate": win_round / total_round,
                 "damage_rate": total_damage / total_hp,
-                "score": win_round / total_round * 0.7 + min(0.3, total_damage / total_hp * 0.3),
+                "score": win_round / total_round * 0.7
+                + min(0.3, total_damage / total_hp * 0.3),
             }
 
     @staticmethod
@@ -140,7 +141,7 @@ class CardGame(Task):
         else:
             meta = {"ai1": base, "ai2": "ai"}
 
-        if "\"0\" : 0" in msg:
+        if '"0" : 0' in msg:
             meta["winner"] = "1"
         else:
             meta["winner"] = "0"
@@ -172,6 +173,6 @@ class CardGame(Task):
                 "game": current_log,
                 "state": meta,
                 "folder": folder,
-                "msg": msg
+                "msg": msg,
             },
         )

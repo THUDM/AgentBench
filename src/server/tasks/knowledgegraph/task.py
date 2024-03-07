@@ -2,7 +2,13 @@ import sys
 from typing import List, Tuple, Dict, Any
 
 from src.server.task import Task, Session
-from src.typings import TaskSampleExecutionResult, TaskOutput, SampleIndex, AgentOutputStatus, SampleStatus
+from src.typings import (
+    TaskSampleExecutionResult,
+    TaskOutput,
+    SampleIndex,
+    AgentOutputStatus,
+    SampleStatus,
+)
 from .api import *
 from .utils.sparql_executer import SparqlExecuter
 
@@ -65,7 +71,8 @@ Action: get_relations(#2)""",
 Action: get_neighbors(#2, spaceflight.rocket_engine.designed_by)""",
     """Observation: variable #3, which are instances of pspaceflight.rocket_engine_designer""",
     """Thought: #3 is the final answer to the question, which represents the target rocket engine designer.
-Final Answer: #3"""]
+Final Answer: #3""",
+]
 
 
 class KnowledgeGraph(Task):
@@ -102,7 +109,7 @@ class KnowledgeGraph(Task):
                 if not isinstance(outputs[i], dict):
                     continue
                 count += 1
-                predicted_answer = set(outputs[i]['predict'])
+                predicted_answer = set(outputs[i]["predict"])
                 gold_answer = targets[i]
                 TP = len(gold_answer.intersection(predicted_answer))
                 FP = len(predicted_answer) - TP
@@ -122,10 +129,13 @@ class KnowledgeGraph(Task):
                 if not isinstance(outputs[i], dict):
                     continue
                 count += 1
-                predicted_answer = set(outputs[i]['predict'])
+                predicted_answer = set(outputs[i]["predict"])
                 gold_answer = targets[i]
-                if len(gold_answer.intersection(predicted_answer)) == len(gold_answer) and len(
-                        gold_answer.intersection(predicted_answer)) == len(predicted_answer):
+                if len(gold_answer.intersection(predicted_answer)) == len(
+                    gold_answer
+                ) and len(gold_answer.intersection(predicted_answer)) == len(
+                    predicted_answer
+                ):
                     em_sum += 1
 
             return em_sum / len(outputs)
@@ -137,7 +147,7 @@ class KnowledgeGraph(Task):
                 if not isinstance(outputs[i], dict):
                     continue
                 count += 1
-                if outputs[i]['predict'] is not None and len(outputs[i]['predict']) > 0:
+                if outputs[i]["predict"] is not None and len(outputs[i]["predict"]) > 0:
                     executability_sum += 1
 
             return executability_sum / len(outputs)
@@ -148,13 +158,15 @@ class KnowledgeGraph(Task):
             "main": main_metric(),
             "F1": main_metric(),
             "EM": EM(),
-            "executability": executability()
+            "executability": executability(),
         }
 
     def get_indices(self) -> List[SampleIndex]:
         return list(range(len(self.data)))
 
-    async def start_sample(self, index: SampleIndex, session: Session) -> TaskSampleExecutionResult:
+    async def start_sample(
+        self, index: SampleIndex, session: Session
+    ) -> TaskSampleExecutionResult:
         data_item = self.inputs[index]
 
         # TODO: complete this function
@@ -166,24 +178,35 @@ class KnowledgeGraph(Task):
         question = data_item["question"]
         entities = data_item["entities"]
 
-        session.inject({
-            "role": "user",
-            "content": INSTRUCTIONS
-        })
-        session.inject({"role": "agent", "content": "I've understood your instruction, start please."})
+        session.inject({"role": "user", "content": INSTRUCTIONS})
+        session.inject(
+            {
+                "role": "agent",
+                "content": "I've understood your instruction, start please.",
+            }
+        )
         for idx, shot in enumerate(ONE_SHOT):
             if idx % 2 == 0:
                 session.inject({"role": "user", "content": shot})
             else:
                 session.inject({"role": "agent", "content": shot})
-        session.inject({"role": "user",
-                        "content": "A new question: " + question + "\nEntities: " + f"[{', '.join([entity for entity in entities])}]"})
+        session.inject(
+            {
+                "role": "user",
+                "content": "A new question: "
+                + question
+                + "\nEntities: "
+                + f"[{', '.join([entity for entity in entities])}]",
+            }
+        )
 
         finish_reason = SampleStatus.COMPLETED
         for i in range(self.round):
             message = await session.action()
             if message.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
-                return TaskSampleExecutionResult(status=SampleStatus.AGENT_CONTEXT_LIMIT)
+                return TaskSampleExecutionResult(
+                    status=SampleStatus.AGENT_CONTEXT_LIMIT
+                )
             elif message.status != AgentOutputStatus.NORMAL:
                 return TaskSampleExecutionResult(status=SampleStatus.UNKNOWN)
             message = message.content
@@ -191,12 +214,17 @@ class KnowledgeGraph(Task):
             message = message.replace("\\_", "_")
             session.history[-1].content = message
 
-            final_answer = re.findall(r'(?:Find|Final) Answer: #(\d+)', message)
+            final_answer = re.findall(r"(?:Find|Final) Answer: #(\d+)", message)
             if final_answer:
                 try:
                     answer_variable = variables_list[int(final_answer[0])]
                 except IndexError:
-                    session.inject({"role": "user", "content": "Invalid variable id! Need to recheck the action."})
+                    session.inject(
+                        {
+                            "role": "user",
+                            "content": "Invalid variable id! Need to recheck the action.",
+                        }
+                    )
                     # print({"role": "user", "content": "Invalid variable id! Need to recheck the action."})
                     continue
                 answer = final_execute(answer_variable, self.sparql_executor)
@@ -208,13 +236,15 @@ class KnowledgeGraph(Task):
                     execution_message = "Function is not executed!"
                     if re.match(r"Action.*?:", line):
                         find_action = True
-                        function_names = re.findall(r'(\w+)\(', line)
+                        function_names = re.findall(r"(\w+)\(", line)
                         function_executed = False
                         for function_name in function_names:
                             try:
                                 func = getattr(sys.modules[__name__], function_name)
-                                matches = re.findall(r'{}\((.+?)\)'.format(function_name), line)
-                                arguments = re.split(r'\s*,\s*', matches[0])
+                                matches = re.findall(
+                                    r"{}\((.+?)\)".format(function_name), line
+                                )
+                                arguments = re.split(r"\s*,\s*", matches[0])
                                 ori_arguments = [argument for argument in arguments]
                                 for i, argument in enumerate(arguments):
                                     argument = argument.replace("variable ", "")
@@ -225,14 +255,22 @@ class KnowledgeGraph(Task):
                                         arguments[i] = variables_list[int(argument[1:])]
                                     elif argument in entities:
                                         arguments[i] = entities[argument]
-                                arguments.append(self.sparql_executor)  # add the sparql executor as the last argument
+                                arguments.append(
+                                    self.sparql_executor
+                                )  # add the sparql executor as the last argument
                                 execution, execution_message = func(*arguments)
-                                actions.append(f"{function_name}({', '.join(ori_arguments)})")
+                                actions.append(
+                                    f"{function_name}({', '.join(ori_arguments)})"
+                                )
                                 if "##" in execution_message:
                                     # the execution message contains a variable
-                                    execution_message = execution_message.replace("##", f"#{len(variables_list)}")
+                                    execution_message = execution_message.replace(
+                                        "##", f"#{len(variables_list)}"
+                                    )
                                     variables_list.append(execution)
-                                session.inject({"role": "user", "content": execution_message})
+                                session.inject(
+                                    {"role": "user", "content": execution_message}
+                                )
                                 function_executed = True
                                 break  # at most one function is executed in one turn
                             except Exception as e:
@@ -247,14 +285,24 @@ class KnowledgeGraph(Task):
                                 continue
 
                         if not function_executed:
-                            session.inject({"role": "user", "content": execution_message})
+                            session.inject(
+                                {"role": "user", "content": execution_message}
+                            )
 
                         break  # should at most be one line starts with Action
 
-                if not find_action:  # only for ChatGLM-130B to make sure the conversation alternates properly
+                if (
+                    not find_action
+                ):  # only for ChatGLM-130B to make sure the conversation alternates properly
                     session.inject(
-                        {"role": "user", "content": "No executable function found! Need to recheck the action."})
+                        {
+                            "role": "user",
+                            "content": "No executable function found! Need to recheck the action.",
+                        }
+                    )
         else:
             finish_reason = SampleStatus.TASK_LIMIT_REACHED
 
-        return TaskSampleExecutionResult(status=finish_reason, result={"predict": answer, "actions": actions})
+        return TaskSampleExecutionResult(
+            status=finish_reason, result={"predict": answer, "actions": actions}
+        )

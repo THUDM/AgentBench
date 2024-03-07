@@ -16,3 +16,4 @@ anthropic~=0.4.1
 fschat~=0.2.31
 accelerate~=0.23.0
 transformers~=4.34.0
+pre-commit

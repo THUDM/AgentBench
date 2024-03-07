@@ -8,18 +8,23 @@ import json
 import numpy as np
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 
+
 def bleu_score(reference, candidate):
     reference_tokens = reference.split()
     candidate_tokens = candidate.split()
 
     smoothie = SmoothingFunction().method4
-    score = sentence_bleu([reference_tokens], candidate_tokens, smoothing_function=smoothie)
+    score = sentence_bleu(
+        [reference_tokens], candidate_tokens, smoothing_function=smoothie
+    )
     return score
 
+
 def process_ob(ob):
-    if ob.startswith('You arrive at loc '):
-        ob = ob[ob.find('. ')+2:]    
+    if ob.startswith("You arrive at loc "):
+        ob = ob[ob.find(". ") + 2 :]
     return ob
+
 
 def process_action(action, choices, limit=0.01, to_print=False):
     if to_print:
@@ -49,11 +54,13 @@ def process_action(action, choices, limit=0.01, to_print=False):
         print("action: ", action)
     return action
 
+
 def load_prompts(prompts_file):
-    with open(prompts_file, 'r') as f:
+    with open(prompts_file, "r") as f:
         d = json.load(f)
         f.close()
     return d
+
 
 def load_config(config_file):
     with open(config_file) as reader:

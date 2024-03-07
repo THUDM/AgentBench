@@ -16,19 +16,24 @@ with open(path + "/ontology/vocab.json") as f:
 variable_relations_cache = {}
 variable_attributes_cache = {}
 
+
 class Variable:
     def __init__(self, type, program):
         self.type = type
         self.program = program
+
     def __hash__(self) -> int:
         return hash(self.program)
+
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Variable):
             return self.program == __value.program
         else:
             return False
+
     def __repr__(self) -> str:
         return self.program
+
 
 def final_execute(variable: Variable, sparql_executor):
     program = variable.program
@@ -39,6 +44,7 @@ def final_execute(variable: Variable, sparql_executor):
 
     return results
 
+
 def get_relations(variable: Union[Variable, str], sparql_executor):
     """
     Get all relations of a variable
@@ -46,7 +52,7 @@ def get_relations(variable: Union[Variable, str], sparql_executor):
     :return: a list of relations
     """
     if not isinstance(variable, Variable):
-        if not re.match(r'^(m|f)\.[\w_]+$', variable):
+        if not re.match(r"^(m|f)\.[\w_]+$", variable):
             raise ValueError("get_relations: variable must be a variable or an entity")
 
     if isinstance(variable, Variable):
@@ -59,9 +65,9 @@ def get_relations(variable: Union[Variable, str], sparql_executor):
         new_clauses = [clauses[0], "SELECT DISTINCT ?rel\nWHERE {\n?x ?rel ?obj .\n{"]
         new_clauses.extend(clauses[1:])
         new_clauses.append("}\n}")
-        new_query = '\n'.join(new_clauses)
+        new_query = "\n".join(new_clauses)
         out_relations = sparql_executor.execute_query(new_query)
-    else: # variable is an entity
+    else:  # variable is an entity
         out_relations = sparql_executor.get_out_relations(variable)
 
     out_relations = list(set(out_relations).intersection(set(relations)))
@@ -78,7 +84,9 @@ def get_relations(variable: Union[Variable, str], sparql_executor):
     return None, rtn_str
 
 
-def get_neighbors(variable: Union[Variable, str], relation: str, sparql_executor):  # will create a new variable
+def get_neighbors(
+    variable: Union[Variable, str], relation: str, sparql_executor
+):  # will create a new variable
     """
     Get all neighbors of a variable
     :param variable: a variable, here a variable is represented as its program derivation
@@ -86,21 +94,24 @@ def get_neighbors(variable: Union[Variable, str], relation: str, sparql_executor
     :return: a list of neighbors
     """
     if not isinstance(variable, Variable):
-        if not re.match(r'^(m|f)\.[\w_]+$', variable):
+        if not re.match(r"^(m|f)\.[\w_]+$", variable):
             raise ValueError("get_neighbors: variable must be a variable or an entity")
     if not relation in variable_relations_cache[variable]:
         raise ValueError("get_neighbors: relation must be a relation of the variable")
 
-
     rtn_str = f"Observation: variable ##, which are instances of {range_info[relation]}"
 
-    new_variable = Variable(range_info[relation],
-                            f"(JOIN {relation + '_inv'} {variable.program if isinstance(variable, Variable) else variable})")
+    new_variable = Variable(
+        range_info[relation],
+        f"(JOIN {relation + '_inv'} {variable.program if isinstance(variable, Variable) else variable})",
+    )
 
     return new_variable, rtn_str
 
 
-def intersection(variable1: Variable, variable2: Variable, sparql_executor):  # will create a new variable
+def intersection(
+    variable1: Variable, variable2: Variable, sparql_executor
+):  # will create a new variable
     """
     Get the intersection of two variables
     :param variable1: a variable
@@ -114,11 +125,15 @@ def intersection(variable1: Variable, variable2: Variable, sparql_executor):  # 
         raise ValueError("intersection: variable must be a variable")
 
     rtn_str = f"Observation: variable ##, which are instances of {variable1.type}"
-    new_variable = Variable(variable1.type, f"(AND {variable1.program} {variable2.program})")
+    new_variable = Variable(
+        variable1.type, f"(AND {variable1.program} {variable2.program})"
+    )
     return new_variable, rtn_str
 
 
-def union(variable1: set, variable2: set, sparql_executor): # will create a new variable
+def union(
+    variable1: set, variable2: set, sparql_executor
+):  # will create a new variable
     """
     Get the union of two variables
     :param variable1: a variable
@@ -132,7 +147,9 @@ def union(variable1: set, variable2: set, sparql_executor): # will create a new 
         raise ValueError("union: variable must be a variable")
 
     rtn_str = f"Observation: variable ##, which are instances of {variable1.type}"
-    new_variable = Variable(variable1.type, f"(OR {variable1.program} {variable2.program})")
+    new_variable = Variable(
+        variable1.type, f"(OR {variable1.program} {variable2.program})"
+    )
     return new_variable, rtn_str
 
 
@@ -157,7 +174,7 @@ def get_attributes(variable: Variable, sparql_executor):
     new_clauses = [clauses[0], "SELECT DISTINCT ?rel\nWHERE {\n?x ?rel ?obj .\n{"]
     new_clauses.extend(clauses[1:])
     new_clauses.append("}\n}")
-    new_query = '\n'.join(new_clauses)
+    new_query = "\n".join(new_clauses)
     out_relations = sparql_executor.execute_query(new_query)
 
     out_relations = list(set(out_relations).intersection(set(attributes)))
@@ -166,7 +183,6 @@ def get_attributes(variable: Variable, sparql_executor):
     rtn_str = f"Observation: [{', '.join(out_relations)}]"
 
     return None, rtn_str
-
 
 
 def argmax(variable: str, attribute: str, sparql_executor):
@@ -201,4 +217,3 @@ def argmin(variable: str, attribute: str, sparql_executor):
     rtn_str = f"Observation: variable ##, which are instances of {variable.type}"
     new_variable = Variable(variable.type, f"(ARGMIN {variable.program} {attribute})")
     return new_variable, rtn_str
-

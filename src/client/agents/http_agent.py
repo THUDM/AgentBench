@@ -22,8 +22,10 @@ def no_ssl_verification():
         # verify=False persist beyond the end of this context manager.
         opened_adapters.add(self.get_adapter(url))
 
-        settings = old_merge_environment_settings(self, url, proxies, stream, verify, cert)
-        settings['verify'] = False
+        settings = old_merge_environment_settings(
+            self, url, proxies, stream, verify, cert
+        )
+        settings["verify"] = False
 
         return settings
 
@@ -31,7 +33,7 @@ def no_ssl_verification():
 
     try:
         with warnings.catch_warnings():
-            warnings.simplefilter('ignore', InsecureRequestWarning)
+            warnings.simplefilter("ignore", InsecureRequestWarning)
             yield
     finally:
         requests.Session.merge_environment_settings = old_merge_environment_settings
@@ -129,9 +131,14 @@ class Prompter:
     @staticmethod
     def palm():
         def prompter(messages):
-            return {"instances": [
-                Prompter.role_content_dict("messages", "author", "content", "user", "bot")(messages)
-            ]}
+            return {
+                "instances": [
+                    Prompter.role_content_dict(
+                        "messages", "author", "content", "user", "bot"
+                    )(messages)
+                ]
+            }
+
         return prompter
 
 
@@ -192,7 +199,11 @@ class HTTPAgent(AgentClient):
                 body.update(self._handle_history(history))
                 with no_ssl_verification():
                     resp = requests.post(
-                        self.url, json=body, headers=self.headers, proxies=self.proxies, timeout=120
+                        self.url,
+                        json=body,
+                        headers=self.headers,
+                        proxies=self.proxies,
+                        timeout=120,
                     )
                 # print(resp.status_code, resp.text)
                 if resp.status_code != 200:

@@ -436,7 +436,9 @@ class LateralThinkingPuzzle(Task):
 
     async def start_sample(
         self, index: SampleIndex, session: Session
-    ) -> TaskSampleExecutionResult:  # return OUTPUT object, need to be json serializable
+    ) -> (
+        TaskSampleExecutionResult
+    ):  # return OUTPUT object, need to be json serializable
         data_item = self.inputs[index]
         story, answer, story_key, answer_key = (
             data_item[0],
@@ -521,33 +523,41 @@ class LateralThinkingPuzzle(Task):
                 for item in hosting:
                     if item["role"] == "assistant":
                         item["role"] = "agent"
-                host = (await asyncio.to_thread(
-                    self.eval_agent.inference,
-                    hosting,
-                )).strip()
+                host = (
+                    await asyncio.to_thread(
+                        self.eval_agent.inference,
+                        hosting,
+                    )
+                ).strip()
                 relevant = False
                 if prompter.check_yes(host):
                     correct += 1
-                    summary = (await asyncio.to_thread(
-                        self.eval_agent.inference,
-                        [
-                            {
-                                "role": "user",
-                                "content": prompter.hosting_summary(solver),
-                            }
-                        ],
-                    )).strip()
+                    summary = (
+                        await asyncio.to_thread(
+                            self.eval_agent.inference,
+                            [
+                                {
+                                    "role": "user",
+                                    "content": prompter.hosting_summary(solver),
+                                }
+                            ],
+                        )
+                    ).strip()
                     relevant = True
                 elif prompter.check_no(host):
-                    summary = (await asyncio.to_thread(
-                        self.eval_agent.inference,
-                        [
-                            {
-                                "role": "user",
-                                "content": prompter.hosting_summary_opposite(solver),
-                            }
-                        ]
-                    )).strip()
+                    summary = (
+                        await asyncio.to_thread(
+                            self.eval_agent.inference,
+                            [
+                                {
+                                    "role": "user",
+                                    "content": prompter.hosting_summary_opposite(
+                                        solver
+                                    ),
+                                }
+                            ],
+                        )
+                    ).strip()
                     relevant = True
                 if relevant:
                     relevance += 1
@@ -555,15 +565,17 @@ class LateralThinkingPuzzle(Task):
                     known.append(summary)
                     reasoning.append(summary)
                     if len(reasoning) >= 2:
-                        merge = (await asyncio.to_thread(
-                            self.eval_agent.inference,
-                            [
-                                {
-                                    "role": "user",
-                                    "content": prompter.hosting_simplify(reasoning),
-                                }
-                            ],
-                        )).strip()
+                        merge = (
+                            await asyncio.to_thread(
+                                self.eval_agent.inference,
+                                [
+                                    {
+                                        "role": "user",
+                                        "content": prompter.hosting_simplify(reasoning),
+                                    }
+                                ],
+                            )
+                        ).strip()
                     else:
                         merge = summary
                     for key in answer_key:
@@ -582,10 +594,12 @@ class LateralThinkingPuzzle(Task):
                                 "content": prompter.hosting_compare(key1, merge),
                             }
                         ]
-                        compare = (await asyncio.to_thread(
-                            self.eval_agent.inference,
-                            comp_msg,
-                        )).strip()
+                        compare = (
+                            await asyncio.to_thread(
+                                self.eval_agent.inference,
+                                comp_msg,
+                            )
+                        ).strip()
                         if prompter.check_yes(compare):
                             bingo += 1
                             answer_key.remove(key)

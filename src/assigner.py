@@ -25,6 +25,7 @@ import sys
 from tqdm import tqdm
 from tqdm.contrib import DummyTqdmFile
 
+
 @contextlib.contextmanager
 def std_out_err_redirect_tqdm():
     orig_out_err = sys.stdout, sys.stderr
@@ -37,6 +38,7 @@ def std_out_err_redirect_tqdm():
     # Always restore sys.stdout/err if necessary
     finally:
         sys.stdout, sys.stderr = orig_out_err
+
 
 class Assigner:
     def __init__(self, config: AssignmentConfig, auto_retry: bool = True) -> None:
@@ -56,12 +58,12 @@ class Assigner:
         self.task_indices: Dict[str, List[SampleIndex]] = {}
         self.task_worker_fail_count: Dict[str, int] = {}
         self.assignment_lock = threading.Lock()
-        self.remaining_tasks: Dict[
-            str, Dict[str, List[int]]
-        ] = {}  # {agent: {task: [index]}}
-        self.completions: Dict[
-            str, Dict[str, List[TaskOutput]]
-        ] = {}  # {agent: {task: [{index: int, result: JSONSerializable}]}}
+        self.remaining_tasks: Dict[str, Dict[str, List[int]]] = (
+            {}
+        )  # {agent: {task: [index]}}
+        self.completions: Dict[str, Dict[str, List[TaskOutput]]] = (
+            {}
+        )  # {agent: {task: [{index: int, result: JSONSerializable}]}}
         self.finished_count = 0
         self.started_count = 0
         self.running_count = 0
@@ -123,9 +125,7 @@ class Assigner:
                 for task in self.remaining_tasks[agent]
             ]
         )
-        print(
-            ColorMessage.cyan(f"Message: {count} samples remaining.")
-        )
+        print(ColorMessage.cyan(f"Message: {count} samples remaining."))
 
         for agent in self.remaining_tasks:
             agent_ = json.dumps(agent)
@@ -158,9 +158,7 @@ class Assigner:
     def get_output_dir(self, agent: str, task: str) -> str:
         return os.path.join(self.config.output, agent, task)
 
-    def worker_generator(
-        self, interval=10
-    ) -> Iterator[Tuple[str, str, SampleIndex]]:
+    def worker_generator(self, interval=10) -> Iterator[Tuple[str, str, SampleIndex]]:
 
         node_list = ["SRC", "DST"]
         agent_node_index = {}
@@ -290,10 +288,7 @@ class Assigner:
                 + "\n"
             )
         final_message += (
-            ColorMessage.cyan(
-                f"   >> results are saved to {self.config.output}"
-            )
-            + "\n"
+            ColorMessage.cyan(f"   >> results are saved to {self.config.output}") + "\n"
         )
         final_message += "============================================\n\n"
         print(final_message)
@@ -330,11 +325,7 @@ class Assigner:
         self, agent: str, task: str, index: SampleIndex, result: TaskClientOutput
     ):
         if result.error == TaskError.NOT_AVAILABLE.value:
-            print(
-                ColorMessage.yellow(
-                    f"Warning: {task} is not available, retrying."
-                )
-            )
+            print(ColorMessage.yellow(f"Warning: {task} is not available, retrying."))
             with self.assignment_lock:
                 self.remaining_tasks[agent][task].insert(0, index)
                 self.free_worker.agent[agent] += 1
@@ -343,8 +334,12 @@ class Assigner:
             return
 
         if result.error is not None:
-            print(ColorMessage.yellow(f"Warning: {agent}/{task}#{index} "
-                                      f"failed with error {result.error} {result.info} {result.output}"))
+            print(
+                ColorMessage.yellow(
+                    f"Warning: {agent}/{task}#{index} "
+                    f"failed with error {result.error} {result.info} {result.output}"
+                )
+            )
             if self.auto_retry:
                 with self.assignment_lock:
                     self.remaining_tasks[agent][task].insert(0, index)
@@ -411,9 +406,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config", "-c", type=str, default="configs/assignments/default.yaml"
     )
-    parser.add_argument(
-        "--auto-retry", "-r", action="store_true", dest="retry"
-    )
+    parser.add_argument("--auto-retry", "-r", action="store_true", dest="retry")
     args = parser.parse_args()
 
     loader = ConfigLoader()

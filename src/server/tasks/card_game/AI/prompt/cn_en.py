@@ -3,31 +3,31 @@ import json
 action_format = {
     "pick_fish": "pick an alive fish",
     "action": "choose from [normal, active]",
-    "target_position": "target's position, you must choose from [0,3]"
+    "target_position": "target's position, you must choose from [0,3]",
 }
 
 guess_format = {
     "guess_type": "the enemy's fish type you may guess",
-    "target_position": "guess target's position, you must choose from [0,3]"
+    "target_position": "guess target's position, you must choose from [0,3]",
 }
 
 fish_description = {
     "射水鱼": {
         "被动技能": r"反弹：队友被直接攻击后，若其生命值少于30%，对来源造成60的伤害",
-        "主动技能": r"范围伤害：对敌方所有目标发动攻击，每个造成35%攻击力的伤害"
+        "主动技能": r"范围伤害：对敌方所有目标发动攻击，每个造成35%攻击力的伤害",
     },
     "喷火鱼": {
         "被动技能": r"反弹：队友被直接攻击后，若其生命值少于30%，对来源造成60的伤害",
-        "主动技能": r"内斗：对一名队友发动攻击造成100伤害，并使自身攻击力永久提升140"
+        "主动技能": r"内斗：对一名队友发动攻击造成100伤害，并使自身攻击力永久提升140",
     },
     "电鳗": {
         "被动技能": r"伤害转移：自身受到敌方直接攻击而受到伤害时，如果还有队友存活，会让队友帮忙承受伤害（自身承受70%，其余队友平摊30%）；每累计受到的实际伤害值达到200，自身攻击值永久提升40",
-        "主动技能": r"范围伤害：对敌方所有目标发动攻击，每个造成35%攻击力的伤害"
+        "主动技能": r"范围伤害：对敌方所有目标发动攻击，每个造成35%攻击力的伤害",
     },
     "翻车鱼": {
         "被动技能": r"伤害转移：自身受到敌方直接攻击而受到伤害时，如果还有队友存活，会让队友帮忙承受伤害（自身承受70%，其余队友平摊30%）；每累计受到的实际伤害值达到200，自身攻击值永久提升40",
-        "主动技能": r"内斗：对一名队友发动攻击造成100伤害，并使自身攻击力永久提升140"
-    }
+        "主动技能": r"内斗：对一名队友发动攻击造成100伤害，并使自身攻击力永久提升140",
+    },
 }
 
 ACTION_PROMPT = """这是一个双人对战游戏，每队拥有四条宠物鱼。
@@ -61,8 +61,8 @@ GUESS_PROMPT = """这是一个双人对战游戏，每队拥有四条宠物鱼�
 注意！你必须在每一轮中返回你的动作。否则，你将被直接判负。"""
 
 ACTION_DESCRIPTION = {
-    1: ACTION_PROMPT % ('', fish_description, action_format),
-    2: ACTION_PROMPT % (GUESS_RULE, fish_description, action_format)
+    1: ACTION_PROMPT % ("", fish_description, action_format),
+    2: ACTION_PROMPT % (GUESS_RULE, fish_description, action_format),
 }
 
 GUESS_DESCRIPTION = {

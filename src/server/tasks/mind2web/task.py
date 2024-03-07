@@ -174,8 +174,8 @@ class Mind2Web(Task):
         final_prediction = None
         outputs = []
         while len(all_candidates) > 1:
-            candidate_ids = all_candidates[:self.candidates_num]  # 5
-            all_candidates = all_candidates[self.candidates_num:]
+            candidate_ids = all_candidates[: self.candidates_num]  # 5
+            all_candidates = all_candidates[self.candidates_num :]
             seq_context, seq_in, _, choices = format_input_multichoice(
                 sample, candidate_ids, -1, keep_html_brackets=True
             )
