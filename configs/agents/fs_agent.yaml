@@ -6,6 +6,10 @@ default:
     max_new_tokens: 512
     temperature: 0
 
+Llama-2-7b:
+  parameters:
+    model_name: "Llama-2-7b-hf"
+    
 vicuna-33b:
   parameters:
     model_name: "vicuna-33b-v1.3"
