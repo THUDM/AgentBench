@@ -17,3 +17,6 @@ src/server/tasks/card_game/result
 .dockerfile
 .dockerfile-cache
 analysis
+
+models/
+*.log
