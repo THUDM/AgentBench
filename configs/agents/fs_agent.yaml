@@ -2,7 +2,7 @@ default:
   module: "src.client.agents.FastChatAgent"
   parameters:
     name: "FastChat"
-    controller_address: "http://localhost:55555"
+    controller_address: "http://localhost:21001"
     max_new_tokens: 512
     temperature: 0
 
