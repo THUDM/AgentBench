@@ -5,11 +5,12 @@ concurrency:
     dbbench-std: 5
     os-std: 5
   agent:
-    gpt-3.5-turbo-0613: 5
+    # gpt-3.5-turbo-0613: 5
+    Llama-2-7b:5
 
 assignments: # List[Assignment] | Assignment
   - agent: # "task": List[str] | str ,  "agent": List[str] | str
-      - gpt-3.5-turbo-0613
+      - Llama-2-7b
     task:
       - dbbench-std
       - os-std
