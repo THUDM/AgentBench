@@ -19,3 +19,4 @@ src/server/tasks/card_game/result
 analysis
 
 models/
+*.log
