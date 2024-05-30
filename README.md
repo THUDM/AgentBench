@@ -166,7 +166,7 @@ launching:
 | card_game | ~5s            | < 500M             |
 | ltp       | ~5s            | < 500M             |
 | os        | ~5s            | < 500M             |
-| kd        | ~5s            | < 500M             |
+| kg        | ~5s            | < 500M             |
 
 ## Extending AgentBench
 
