@@ -394,7 +394,7 @@ class OSInteraction(Task):
         session.inject(
             {
                 "role": "user",
-                "content": """You are an assistant that will act like a person, I'will play the role of linux(ubuntu) operating system. Your goal is to implement the operations required by me or answer to the question proposed by me. For each of your turn, you should first think what you should do, and then take exact one of the three actions: "bash", "finish" or "answer". 
+                "content": """You are an assistant that will act like a person, I will play the role of linux(ubuntu) operating system. Your goal is to implement the operations required by me or answer to the question proposed by me. For each of your turn, you should first think what you should do, and then take exact one of the three actions: "bash", "finish" or "answer". 
 
 1. If you think you should execute some bash code, take bash action, and you should print like this:
 
