@@ -13,7 +13,7 @@
             }
         ],
         "example": {
-            "code": "find /usr -type f -name \".*\" -not -name \"*k*\"  | wc -l"
+            "code": "find /usr -type f -name \".*\" -not -name \"*u*\"  | wc -l"
         }
     },
     "labels": ["file"]
