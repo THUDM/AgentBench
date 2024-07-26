@@ -108,6 +108,7 @@ class ALFWorld(Task):
         print("creating env")
         env = SingleAlfredTWEnv(self.config, data_item)
         print("initializing env")
+        print("No quit wrapper")
         env = env.init_env(batch_size=1)
         try:
             print("running env")
@@ -161,7 +162,7 @@ class ALFWorld(Task):
         # history[0] = self.get_task_instruction() + "Here is one example.\n" + history[0]
         # self.inject_info(session, history)
         log_info = {"log": []}
-        session.inject({"role": "user", "content": self.get_task_instruction()})
+        session.inject({"role": "user", "content": ALFWorld.get_task_instruction()})
         session.inject(
             {"role": "agent", "content": "OK. I'll follow your instructions and try my best to solve the task."})
 
@@ -170,9 +171,16 @@ class ALFWorld(Task):
         history[0] = "Here is one example.\n" + history[0]
         self.inject_info(session, history)
 
-        init_prompt = "Here is your task. " + ob + self.get_available_actions(info.get('admissible_commands', [[]])[0])
+        init_prompt = "Here is your task. " + ob + ALFWorld.get_available_actions(info.get('admissible_commands', [[]])[0])
         log_info["init_prompt"] = init_prompt
         session.inject({"role": "user", "content": init_prompt})
+
+        if "quit" in ALFWorld.get_available_actions(info.get('admissible_commands', [[]])[0]):
+            print("quit is in the commands")
+            print(env)
+        if "quit" in init_prompt:
+            print("quit is in the prompt")
+            
         # init 
         # for his in session.history:
         #     print(his)
@@ -197,9 +205,10 @@ class ALFWorld(Task):
 
             observation, reward, done, info = env.step([action])
             observation, reward, done = process_ob(observation[0]), info['won'][0], done[0]
-            session.inject({"role": "user", "content": observation + self.get_available_actions(
+            
+            session.inject({"role": "user", "content": observation + ALFWorld.get_available_actions(
                 info.get('admissible_commands', [[]])[0])})
-
+            
             # save
             payload = {
                 "round": i + 1,

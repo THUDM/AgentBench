@@ -10,6 +10,7 @@ class SampleStatus(str, Enum):
     TASK_LIMIT_REACHED = "task limit reached"
     UNKNOWN = "unknown"
     TASK_ERROR = "task error"
+    QUIT = "quit"
 
 
 class WorkerStatus(IntEnum):

@@ -11,4 +11,5 @@ import:
   - os.yaml
   - ltp.yaml
   - alfworld.yaml
+  - alfworld_quit.yaml
   - avalon.yaml
