@@ -72,8 +72,10 @@ class TaskClient:
         latest_result = result
         while SampleStatus(result["output"]["status"]) == SampleStatus.RUNNING:
             try:
+                # CALL AGENT INFERENCE
                 content = agent.inference(result["output"]["history"])
-                response = AgentOutput(content=content)
+                length = len(content.split())
+                response = AgentOutput(content=content, length = length)
             except AgentContextLimitException:
                 response = AgentOutput(status=AgentOutputStatus.AGENT_CONTEXT_LIMIT)
             except Exception as e:

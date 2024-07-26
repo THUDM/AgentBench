@@ -22,6 +22,7 @@ class TaskSampleExecutionResult(BaseModel):
 class AgentOutput(BaseModel):
     status: AgentOutputStatus = AgentOutputStatus.NORMAL
     content: Union[str, None] = None
+    length: int = 0
 
     # at least one of them should be not None
     @root_validator(pre=False, skip_on_failure=True)

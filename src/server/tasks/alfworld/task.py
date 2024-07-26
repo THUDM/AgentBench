@@ -192,8 +192,9 @@ class ALFWorld(Task):
             if output.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
                 finish_reason = SampleStatus.AGENT_CONTEXT_LIMIT
                 break
+            generated_words = output.length
             output = output.content or ""
-
+            
             # process action
             admissible_commands = info.get('admissible_commands', [[]])[0]
             action = process_action(output, admissible_commands)
@@ -217,6 +218,8 @@ class ALFWorld(Task):
                 "admissible_commands": admissible_commands,
                 "observation": observation,
                 "done": done,
+                "words_generated": generated_words,
+                "prompt_length": sum( [ len(h.content.split()) for h in session.history] ) 
             }
             log_info["log"].append(payload)
 

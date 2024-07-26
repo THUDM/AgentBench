@@ -168,8 +168,9 @@ class TaskWorker:
                 detail="Task Executing, please do not send new request.",
             )
         print("awaiting agent pull in interact")
+        
         response = await running.session.controller.agent_pull(
-            parameters.agent_response
+            parameters.agent_response # agent response is AgentOutput
         )
         if response.status == SampleStatus.TASK_ERROR:
             raise HTTPException(status_code=501, detail={
