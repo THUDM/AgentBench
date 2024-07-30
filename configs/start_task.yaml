@@ -2,7 +2,9 @@ definition:
   import: tasks/task_assembly.yaml
 
 start:
-  # dbbench-std: 5
-  # os-std: 5
-  alfworld-quit-std: 1
+  # dbbench-std: 1
+  # os-std: 1
+  os-dev: 1
+  # os-quit-dev: 1
+  # alfworld-quit-std: 1
   # alfworld-std: 1

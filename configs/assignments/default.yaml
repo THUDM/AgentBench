@@ -2,10 +2,13 @@ import: definition.yaml
 
 concurrency:
   task:
-    # dbbench-std: 5
+    dbbench-std: 1
     alfworld-quit-std: 1
-    # alfworld-std: 1
-    # os-std: 5
+    alfworld-std: 1
+    os-std: 1
+    os-dev: 1
+    os-quit-std: 1
+    os-quit-dev: 1
   agent:
     # gpt-3.5-turbo-0613: 5
     gpt-4o-mini: 1
@@ -17,6 +20,8 @@ assignments: # List[Assignment] | Assignment
     task:
       # - dbbench-std
       # - os-std
+      - os-dev
+      # os-quit-dev: 1
       # - alfworld-std
-      - alfworld-quit-std
+      # - alfworld-quit-std
 output: "outputs/{TIMESTAMP}"

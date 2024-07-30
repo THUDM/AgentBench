@@ -9,7 +9,8 @@ import:
   - card_game.yaml
   - kg.yaml
   - os.yaml
+  - os_quit.yaml # quits
   - ltp.yaml
   - alfworld.yaml
-  - alfworld_quit.yaml
+  - alfworld_quit.yaml # quits
   - avalon.yaml
