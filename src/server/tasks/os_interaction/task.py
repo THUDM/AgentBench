@@ -439,8 +439,9 @@ If the output is too long, I will truncate it. The truncated output is not compl
                     + config.description,
                 }
             )
+        generated_words = 0
         for _ in range(self.round_limit):
-            total_prompt_len = sum( [ len(h.content.split()) for h in session.history] ) 
+            total_prompt_len = sum( [ len(h.content.split()) for h in session.history] )             
             root = await session.action() # base output.
             generated_words += root.length
             
