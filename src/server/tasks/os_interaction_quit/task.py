@@ -144,36 +144,38 @@ If the output is too long, I will truncate it. The truncated output is not compl
                     + config.description,
                 }
             )
-
+    
         for _ in range(self.round_limit):
-            root = await session.action()
+            total_prompt_len = sum( [ len(h.content.split()) for h in session.history] ) 
+            root = await session.action() # base output.
+            generated_words += root.length
+            
+            fail_result={"result": False, 
+                            "generated_words": generated_words,
+                            "total_prompt_len": total_prompt_len}
+            
+            # failure cases, break env loop
             if root.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
                 return TaskSampleExecutionResult(
-                    status=SampleStatus.AGENT_CONTEXT_LIMIT, result={"result": False}
-                )
+                    status=SampleStatus.AGENT_CONTEXT_LIMIT, result= fail_result)
             if root.status != AgentOutputStatus.NORMAL:
                 return TaskSampleExecutionResult(
-                    status=SampleStatus.UNKNOWN, result={"result": False}
-                )
+                    status=SampleStatus.UNKNOWN, result = fail_result)
             root = self.extract_action(root.content)
             if "action" not in root:
-                return TaskSampleExecutionResult(
-                    status=SampleStatus.AGENT_VALIDATION_FAILED,
-                    result={"result": False},
-                )
+                return TaskSampleExecutionResult( status=SampleStatus.AGENT_VALIDATION_FAILED,result=fail_result)
             if root["action"] not in ["bash", "commit", "quit"]:
                 return TaskSampleExecutionResult(
-                    status=SampleStatus.AGENT_INVALID_ACTION, result={"result": False}
-                )
+                    status=SampleStatus.AGENT_INVALID_ACTION, result=fail_result)
 
             action = root["action"]
             content = root["content"]
             # ----------------------------------------
             if action == "quit": 
-                return TaskSampleExecutionResult(status=SampleStatus.QUIT, result={"result": False})
+                return TaskSampleExecutionResult(status=SampleStatus.QUIT,result = fail_result)
             # ----------------------------------------
 
-            if action == "commit":
+            if action == "commit": # ends game with guess.
                 answer = content
                 break
             elif action == "bash":
@@ -191,12 +193,14 @@ If the output is too long, I will truncate it. The truncated output is not compl
                         else "The output of the OS is empty.",
                     }
                 )
+        
+        # completion of loop, did not break.
         else:
+            fail_result['reason'] = "round limit"
             return TaskSampleExecutionResult(
-                status=SampleStatus.TASK_LIMIT_REACHED,
-                result={"result": False, "reason": "round limit"},
-            )
+                status=SampleStatus.TASK_LIMIT_REACHED, result = fail_result)
 
+        # runs if loop was broken, check answer
         if isinstance(answer, str) and config.match and config.match["strip"]:
             answer = answer.strip()
 
@@ -223,9 +227,9 @@ If the output is too long, I will truncate it. The truncated output is not compl
                 jd = True
         else:
             return TaskSampleExecutionResult(
-                status=SampleStatus.UNKNOWN, result={"result": False}
+                status=SampleStatus.UNKNOWN, result=fail_result
             )
-
-        return TaskSampleExecutionResult(
-            status=SampleStatus.COMPLETED, result={"result": jd}
+        fail_result['result'] = jd 
+        return TaskSampleExecutionResult(status=SampleStatus.COMPLETED, 
+                                        result = fail_result
         )
