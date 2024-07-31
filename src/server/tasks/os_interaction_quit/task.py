@@ -194,7 +194,7 @@ If the output is too long, I will truncate it. The truncated output is not compl
                     }
                 )
         
-        # completion of loop, did not break.
+        # for-else, run after completion of loop if the loop did not break
         else:
             fail_result['reason'] = "round limit"
             return TaskSampleExecutionResult(
