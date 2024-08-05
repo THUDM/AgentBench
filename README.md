@@ -168,6 +168,19 @@ launching:
 | os        | ~5s            | < 500M             |
 | kg        | ~5s            | < 500M             |
 
+
+### Deploy the KnowledgeGraph service loacally
+the KnowledgeGraph task depends on an online service which now is not stable, if you want to deploy the service locally, you can follow steps below:
+
+**step1.** <br />
+download the database and setup the service [freebase-setup](https://github.com/dki-lab/Freebase-Setup).
+
+
+**step2.** <br />
+change this line `sparql_url: "http://164.107.116.56:3093/sparql"` to `sparql_url: "<your service api of sparql>"` in `/configs/tasks/kg.yaml`.
+
+**P.S.** you should start your KG service before you start the agent tasks services.
+
 ## Extending AgentBench
 
 If you wish to add new tasks to AgentBench, you may refer to [Extension Guide](docs/Extension_en.md).
