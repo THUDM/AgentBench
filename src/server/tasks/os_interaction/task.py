@@ -354,10 +354,10 @@ class OSInteraction(Task):
         config = data_item["config"]
         file = data_item["file"]
         index_in_file = data_item["index"]
-        print("init container")
-        container = Container(config.image)
-        print("init container ok")
         try:
+            print("init container")
+            container = Container(config.image)
+            print("init container ok")
             print("start judge")
             result = await self._judge(session, config, container)
             result.result["file"] = file
@@ -385,9 +385,19 @@ class OSInteraction(Task):
         print("exec start")
         if config.init_script:
             for script in config.init_script:
-                await asyncio.to_thread(container.execute_independent, script)
+                init = await asyncio.to_thread(container.execute_independent, script)
+                if init.exit_code != 0:
+                    return TaskSampleExecutionResult(
+                        status=SampleStatus.UNKNOWN,
+                        result={"result": False, "error": f'Init script {script} failed: {init}'}
+                    )
         if config.start:
-            await asyncio.to_thread(container.execute, config.start[1])
+            start = await asyncio.to_thread(container.execute, config.start[1])
+            if start.exit_code != 0:
+                return TaskSampleExecutionResult(
+                    status=SampleStatus.UNKNOWN,
+                    result={"result": False, "error": f'Start script {config.start} failed: {start}'}
+                )
         print("exec start ok")
 
         oneshot = True
