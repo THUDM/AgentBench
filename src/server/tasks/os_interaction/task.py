@@ -78,6 +78,21 @@ class Container:
                 break
             except socket.timeout:
                 break
+
+        # Clean up the output by removing terminal control sequences, removes escape sequences starting with
+        # ESC (0x1b), followed by...
+        # ... any characters, an '@' character, any characters, ending with '#' or '$'
+        output = re.sub(b"\x1b.+@.+[#|$] ", b'', output)
+        # ... '[' and any combination of digits and semicolons, ending with a letter (a-z or A-Z)
+        output = re.sub(b'\x1b\\[[0-9;]*[a-zA-Z]', b'', output)
+        # ... ']' and any digits, a semicolon, any characters except BEL (0x07), and ending with BEL
+        output = re.sub(b'\x1b\\][0-9]*;[^\x07]*\x07', b'', output)
+        # ... '[?2004' and either 'h' or 'l'
+        output = re.sub(b'\x1b\[\?2004[hl]', b'', output)
+
+        # Remove BEL characters (0x07)
+        output = re.sub(b'\x07', b'', output)
+
         return DummyOutput(0, output)
 
     def execute_independent(self, command, *params):
