@@ -5,6 +5,7 @@ import os
 import re
 import socket
 import struct
+import time
 from typing import List, Dict, Any, Tuple
 
 import docker
@@ -62,8 +63,15 @@ class Container:
         data = self.sock.recv(8)
         _, n = struct.unpack(">BxxxL", data)
         _ = self.sock.recv(n)
+
+        time_limit = 30  # seconds
+        start_time = time.time()
+
         output = b""
         while True:
+            if time.time() - start_time > time_limit:
+                print(f"Time limit reached, breaking out of the loop. Command was: `{command}`")
+                break
             try:
                 data = self.sock.recv(8)
                 # print(data)
