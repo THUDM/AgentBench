@@ -10,6 +10,16 @@
 👋 Join our <a href="https://join.slack.com/t/agentbenchcol-huw1944/shared_invite/zt-20ixabcuv-31cFLBAkqGQxQkJqrWVEVg" target="_blank">Slack</a>  for <i>Q & A</i> or <i><b>collaboration</b> on next version of AgentBench</i>!
 </p>
 
+## 🔥[2024.08.13] Introducing [VisualAgentBench](https://github.com/THUDM/VisualAgentBench)
+
+VisualAgentBench is design for evaluating and training visual foundation agents based on large multimodel models (LMMs). We introduce 5 distinct environments spanning 
+
+* Embodied: VAB-OmniGibson, VAB-Minecraft
+* GUI: VAB-Mobile, VAB-WebArena-Lite
+* Visual Design: VAB-CSS
+
+to systematically benchmark 17 LMMs (proprietary & open LMMs). We also provide the trajectory dataset for behavior cloning training on open LMMs for you to develop your own visual foundation agents!
+
 ## 📌Introducing AgentBench v0.2🎉
 
 You are now browsing AgentBench v0.2. If you wish to use the older version, you can revert to [v0.1](https://github.com/THUDM/AgentBench/tree/v0.1).
