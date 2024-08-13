@@ -12,7 +12,7 @@
 
 ## 🔥[2024.08.13] Introducing [VisualAgentBench](https://github.com/THUDM/VisualAgentBench)
 
-VisualAgentBench is design for evaluating and training visual foundation agents based on large multimodel models (LMMs). We introduce 5 distinct environments spanning 
+VisualAgentBench is designed for evaluating and training visual foundation agents based on large multimodel models (LMMs). We introduce 5 distinct environments spanning 
 
 * Embodied: VAB-OmniGibson, VAB-Minecraft
 * GUI: VAB-Mobile, VAB-WebArena-Lite
