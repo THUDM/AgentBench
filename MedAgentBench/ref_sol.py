@@ -26,3 +26,5 @@ def task1_sol(name, dob):
 
 assert 'S6540602' == task1_sol('Bobby Klein', '1954-01-02')
 assert 'Patient not found' == task1_sol('Kyle', '1999-01-01')
+
+# note: does not consider empty string
