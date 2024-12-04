@@ -97,7 +97,7 @@ def get_corpus(
         for key in keys:
             if key == 'review':
                 rs = p['review']['reviews']
-                if r is not None:
+                if rs is not None:
                     text_ = ' '.join([r['review'].lower() for r in rs])
                 else:
                     text_ = ''
