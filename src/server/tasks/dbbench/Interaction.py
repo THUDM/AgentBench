@@ -1,109 +1,85 @@
-import docker
-import mysql.connector
+import requests
 import random
-import socket
 import time
-from docker.models import containers
-from typing import Optional, Union, Sequence, Dict, Any
+from typing import Optional, Dict, Any
 
 
-class Container:
-    port = 13000
-    password = "password"
+class FHIRClient:
+    def __init__(self, base_url: str = "http://34.170.56.151:8080/fhir/"):
+        self.base_url = base_url
+        self.session = requests.Session()
+        self.session.headers.update({"Content-Type": "application/fhir+json"})
+        self.verify_connection()
 
-    def __init__(self, image: str = "mysql"):
-        self.deleted = False
-        self.image = image
-        self.client = docker.from_env()
-        p = Container.port + random.randint(0, 10000)
-        while self.is_port_open(p):
-            p += random.randint(0, 20)
-        self.port = p
-        self.container: containers.Container = self.client.containers.run(
-            image,
-            name=f"mysql_{self.port}",
-            environment={
-                "MYSQL_ROOT_PASSWORD": self.password,
-            },
-            ports={"3306": self.port},
-            detach=True,
-            tty=True,
-            stdin_open=True,
-            remove=True,
-        )
-
-        time.sleep(1)
-
-        retry = 0
-        while True:
-            try:
-                self.conn = mysql.connector.connect(
-                    host="127.0.0.1",
-                    user="root",
-                    password=self.password,
-                    port=self.port,
-                    pool_reset_session=True,
-                )
-            except mysql.connector.errors.OperationalError:
-                time.sleep(1)
-            except mysql.connector.InterfaceError:
-                if retry > 10:
-                    raise
-                time.sleep(5)
-            else:
-                break
-            retry += 1
-
-    def delete(self):
-        self.container.stop()
-        self.deleted = True
-
-    def __del__(self):
+    def verify_connection(self):
         try:
-            if not self.deleted:
-                self.delete()
-        except:
-            pass
+            response = self.session.get(f"{self.base_url}metadata")
+            response.raise_for_status()
+            print("Connected to FHIR server successfully!")
+        except requests.exceptions.RequestException as e:
+            print(f"Error connecting to FHIR server: {e}")
+            raise
 
-    def execute(
-        self,
-        sql: str,
-        database: str = None,
-        data: Union[Sequence, Dict[str, Any]] = (),
-    ) -> Optional[str]:
-        self.conn.reconnect()
+    def create_resource(self, resource_type: str, resource_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Create a resource on the FHIR server.
+        :param resource_type: The FHIR resource type (e.g., 'Patient', 'Observation').
+        :param resource_data: The resource data in FHIR JSON format.
+        :return: The created resource or None if there was an error.
+        """
+        url = f"{self.base_url}{resource_type}"
         try:
-            with self.conn.cursor() as cursor:
-                if database:
-                    cursor.execute(f"use `{database}`;")
-                    cursor.fetchall()
-                cursor.execute(sql, data, multi=True)
-                result = cursor.fetchall()
-                result = str(result)
-            self.conn.commit()
-        except Exception as e:
-            result = str(e)
-        if len(result) > 800:
-            result = result[:800] + "[TRUNCATED]"
-        return result
+            response = self.session.post(url, json=resource_data)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error creating resource: {e}")
+            return None
 
-    def is_port_open(self, port) -> bool:
+    def get_resource(self, resource_type: str, resource_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Retrieve a resource from the FHIR server.
+        :param resource_type: The FHIR resource type (e.g., 'Patient').
+        :param resource_id: The ID of the resource to retrieve.
+        :return: The resource data or None if there was an error.
+        """
+        url = f"{self.base_url}{resource_type}/{resource_id}"
         try:
-            self.client.containers.get(f"mysql_{port}")
+            response = self.session.get(url)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error retrieving resource: {e}")
+            return None
+
+    def search_resources(self, resource_type: str, search_params: Dict[str, str]) -> Optional[Dict[str, Any]]:
+        """
+        Search for resources on the FHIR server.
+        :param resource_type: The FHIR resource type (e.g., 'Patient').
+        :param search_params: A dictionary of search parameters.
+        :return: The search results or None if there was an error.
+        """
+        url = f"{self.base_url}{resource_type}"
+        try:
+            response = self.session.get(url, params=search_params)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error searching resources: {e}")
+            return None
+
+    def delete_resource(self, resource_type: str, resource_id: str) -> bool:
+        """
+        Delete a resource from the FHIR server.
+        :param resource_type: The FHIR resource type (e.g., 'Patient').
+        :param resource_id: The ID of the resource to delete.
+        :return: True if deletion was successful, False otherwise.
+        """
+        url = f"{self.base_url}{resource_type}/{resource_id}"
+        try:
+            response = self.session.delete(url)
+            response.raise_for_status()
             return True
-        except Exception:
-            pass
-        # Create a socket object
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        try:
-            # Try to connect to the specified port
-            sock.connect(("localhost", port))
-            # If the connection succeeds, the port is occupied
-            return True
-        except ConnectionRefusedError:
-            # If the connection is refused, the port is not occupied
+        except requests.exceptions.RequestException as e:
+            print(f"Error deleting resource: {e}")
             return False
-        finally:
-            # Close the socket
-            sock.close()
