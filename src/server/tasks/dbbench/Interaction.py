@@ -61,6 +61,7 @@ class FHIRClient:
         """
         url = f"{self.base_url}{resource_type}"
         try:
+            search_params["_format"] = "json"
             response = self.session.get(url, params=search_params)
             response.raise_for_status()
             return response.json()

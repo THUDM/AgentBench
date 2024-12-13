@@ -3,15 +3,15 @@ import: definition.yaml
 concurrency:
   task:
     dbbench-std: 5
-    os-std: 5
+    # os-std: 5
   agent:
-    gpt-3.5-turbo: 5
+    gpt-4o-mini: 5
 
 assignments: # List[Assignment] | Assignment
   - agent: # "task": List[str] | str ,  "agent": List[str] | str
-      - gpt-3.5-turbo
+      - gpt-4o-mini
     task:
       - dbbench-std
-      - os-std
+      # - os-std
 
 output: "outputs/{TIMESTAMP}"
