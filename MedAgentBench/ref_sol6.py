@@ -83,3 +83,47 @@
 # # Call the function to create a Procedure entry
 # result = post_procedure_request(medication_request_id, loinc_code, loinc_display, service_request_id=None)
 # print(result)  # Expected output: "done" or error message
+
+import requests
+from typing import Dict
+
+# Function to handle POST requests and return success status
+def ref_sol6(method: str, url: str, payload: Dict, task_id: int) -> bool:
+    if method.lower() == "post":
+        try:
+            # Make the POST request
+            response = requests.post(url, json=payload)
+            # Check if the request was successful (status code 200-299)
+            if 200 <= response.status_code < 300:
+                return True  # Successful POST request
+            else:
+                print(f"Error: Received status code {response.status_code} - {response.text}")
+                return False  # Unsuccessful request
+        except requests.exceptions.RequestException as e:
+            # Handle any exceptions that occur during the request
+            print(f"An error occurred: {e}")
+            return False  # Return False if there was an exception during the request
+    else:
+        print("Error: Only POST method is supported.")
+        return False  # Return False for unsupported methods
+
+# Example usage of ref_sol6 function
+
+# Example POST request payload
+payload = {
+    "resourceType": "Procedure",
+    "status": "completed",
+    "code": {
+        "coding": [{"system": "http://loinc.org", "code": "2503-9", "display": "Serum magnesium (test)"}],
+        "text": "Morning serum magnesium test"
+    },
+    "subject": {"reference": "Patient/39054"},
+    "performedDateTime": "2024-12-16T12:00:00"
+}
+
+# Example task ID
+task_id = 12345
+
+# Making a POST request
+post_request_success = ref_sol6("post", "http://34.132.86.17:8080/fhir/Procedure", payload, task_id)
+print(post_request_success)  # Expected output: True or False
