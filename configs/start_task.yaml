@@ -2,5 +2,6 @@ definition:
   import: tasks/task_assembly.yaml
 
 start:
-  dbbench-std: 5
-  os-std: 5
+  medagentbench-std: 1
+#   dbbench-std: 1
+#  os-std: 5
