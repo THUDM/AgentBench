@@ -1,3 +1,14 @@
+import requests
+
+def verify_fhir_server(fhir_api_base):
+    """
+    Verify connection to FHIR server. Returns True if everything is good
+    """
+    res = send_get_request(f'{fhir_api_base}metadata')
+    if res.get('status_code', 0) != 200:
+        return False
+    return True
+
 def send_get_request(url, params=None, headers=None):
     """
     Sends a GET HTTP request to the given URL.
