@@ -12,3 +12,4 @@ import:
   - ltp.yaml
   - alfworld.yaml
   - avalon.yaml
+  - medagentbench.yaml
