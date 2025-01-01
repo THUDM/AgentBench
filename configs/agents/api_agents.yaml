@@ -21,3 +21,12 @@ text-davinci-002:
         body:
             model: "text-davinci-002"
             max_tokens: 512
+
+
+gpt-4o-mini:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "gpt-4o-mini"
+        body:
+            model: "gpt-4o-mini"
+            max_tokens: 512
