@@ -9,3 +9,4 @@ medagentbench-std:
   parameters:
     name: medagentbench-std
     data_file: "data/medagentbench/test_data_Dec18.json"
+    func_file: "data/medagentbench/get_funcs.json"

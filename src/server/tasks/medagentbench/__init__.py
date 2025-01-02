@@ -4,10 +4,15 @@ from src.server.task import Task, Session
 from src.typings import TaskOutput, SampleStatus
 from .utils import *
 
+import json
+
 class MedAgentBench(Task):
     def __init__(self, **configs):
         super().__init__(**configs)
         self.data_file = configs.pop("data_file")
+        self.func_file = configs.pop("func_file")
+        with open(self.func_file, 'r') as f:
+            self.funcs = json.load(f)
         self.max_round = configs.pop("max_round", 5)
         self.fhir_api_base = configs.pop("fhir_api_base")
 
