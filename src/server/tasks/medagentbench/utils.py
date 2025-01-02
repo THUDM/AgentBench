@@ -31,5 +31,5 @@ def send_get_request(url, params=None, headers=None):
             "status_code": response.status_code,
             "data": response.json() if response.headers.get('Content-Type') == 'application/json' else response.text
         }
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         return {"error": str(e)}
