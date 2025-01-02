@@ -15,13 +15,10 @@ GET url?param_name1=param_value1&param_name2=param_value2...
 POST url
 [your payload data in JSON format]
 
-3. If you have got an answer for a question (make sure you answer the questions in the order they're asked), you MUST put it in the format of
-answer(answer=[your answer here])
+3. If you have answered all the questions and finished all the requested tasks, you MUST put it in the format of
+finish(["answer1", "answer2", ...])
 
-4. If you have answered all the questions and finished all the requested tasks, then your response should be:
-finish()
-
-Your response must be in the format of one of the four cases, and you SHOULD NOT include any other text in the response.
+Your response must be in the format of one of the three cases, and you SHOULD NOT include any other text in the response.
 
 Here is a list of functions in JSON format that you can invoke. Note that you should use {api_base} as the api_base.
 {functions}
