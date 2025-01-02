@@ -1,7 +1,7 @@
 #Structure documentation https://github.com/THUDM/AgentBench/blob/main/docs/Extension_en.md
 from typing import Callable, Dict, List, Any
 from src.server.task import Task, Session
-from src.typings import TaskOutput, SampleStatus
+from src.typings import TaskOutput, SampleStatus, AgentOutputStatus
 from .utils import *
 
 import json
@@ -49,12 +49,57 @@ class MedAgentBench(Task):
 
     async def start_sample(self, index, session: Session):
         print(f"task start {index}")
-        session.inject({"role": "user", "content": f"Which model are you? {index}"})
+        case = self.data[index]
+        session.inject({"role": "user", "content": MedAgentBench_prompt.format(api_base=self.fhir_api_base,
+                                                                               functions=json.dumps(self.funcs),
+                                                                               context=case['context'],
+                                                                               question=case['instruction'])})
+        try:
+            for round in range(self.max_round):
+                res = (await session.action())
+                if res.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
+                    return TaskOutput(
+                    status=SampleStatus.AGENT_CONTEXT_LIMIT,
+                    history=session.history
+                )
+                r = res.content.strip()
+                if r.startswith('GET'):
+                    url = r[3:].strip() + '&_format=json'
+                    print(f'GET {url}')
+                    get_res = send_get_request(url)
+                    if "data" in get_res:
+                        session.inject({"role": "user", "content": f"Here is the response from the GET request:\n{get_res['data']}"})
+                    else:
+                        session.inject({"role": "user", "content": f"Error in sending the GET request: {get_res['error']}"})
 
-        res = (await session.action()).content or ""
+                elif r.startswith('POST'):
+                    try:
+                        payload = json.loads('\n'.join(r.split('\n')[1:]))
+                    except Exception as e:
+                        session.inject({"role": "user", "content": "invalid POST request"})
+                    else:
+                        session.inject({"role": "user", "content": "POST request accepted"})
+                elif r.startswith('FINISH'):
+                    return TaskOutput(
+                        status=SampleStatus.COMPLETED,
+                        result={"result": r},
+                        history=session.history
+                    )
+                else:
+                    return TaskOutput(
+                        status=SampleStatus.AGENT_INVALID_ACTION,
+                        history=session.history
+                    )
+                
+        except Exception as e:
+            return TaskOutput(
+                status=SampleStatus.TASK_ERROR,
+                result={"error": str(e)},
+                history=session.history
+            )
+        
         return TaskOutput(
-            status=SampleStatus.COMPLETED,
-            result={"result": "ok"},
+            status=SampleStatus.TASK_LIMIT_REACHED,
             history=session.history
         )
 
