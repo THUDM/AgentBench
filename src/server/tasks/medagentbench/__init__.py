@@ -30,12 +30,16 @@ class MedAgentBench(Task):
     def __init__(self, **configs):
         super().__init__(**configs)
         self.data_file = configs.pop("data_file")
+        with open(self.data_file, 'r') as f:
+            self.data = json.load(f)
+        
         self.func_file = configs.pop("func_file")
         with open(self.func_file, 'r') as f:
             self.funcs = json.load(f)
+        
         self.max_round = configs.pop("max_round", 5)
-        self.fhir_api_base = configs.pop("fhir_api_base")
 
+        self.fhir_api_base = configs.pop("fhir_api_base")
         if verify_fhir_server(self.fhir_api_base) is False:
             print('FHIR server connection error! Please check FHIR server status and fhir_api_base in configs/tasks/medagentbench.yaml')
         print(2, flush=True)
