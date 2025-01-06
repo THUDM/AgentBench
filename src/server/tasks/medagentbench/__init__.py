@@ -3,6 +3,7 @@ from typing import Callable, Dict, List, Any
 from src.server.task import Task, Session
 from src.typings import TaskOutput, SampleStatus, AgentOutputStatus
 from .utils import *
+from .eval import eval
 
 import json
 
@@ -104,4 +105,16 @@ class MedAgentBench(Task):
         )
 
     def calculate_overall(self, results: List[TaskOutput]) -> Dict[str, Any]:
-        return results #{"score": 0.4}
+        total_task = len(results)
+        assert len(self.get_indices()) == total_task
+        correct_count = 0
+        for i in range(total_task):
+            if getattr(results[i], "result") is not None:
+                index = results[i].index
+                if eval(self.data[index], results[i], self.fhir_api_base) is True:
+                    correct_count += 1
+                    results[i].status += 'Correct'
+                else:
+                    results[i].status += 'Incorrect'
+
+        return {'accuracy': correct_count/total_task, 'raw_results': results}
