@@ -16,7 +16,7 @@ POST url
 [your payload data in JSON format]
 
 3. If you have answered all the questions and finished all the requested tasks, you MUST put it in the format of
-FINISH(["answer1", "answer2", ...])
+FINISH([answer1, answer2, ...])
 
 Your response must be in the format of one of the three cases, and you SHOULD NOT include any other text in the response.
 
