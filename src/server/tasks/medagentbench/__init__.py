@@ -46,7 +46,7 @@ class MedAgentBench(Task):
         print(2, flush=True)
 
     def get_indices(self) -> List[Any]:
-        return list(range(2))
+        return list(range(len(self.data))) #list(range(3))
 
     async def start_sample(self, index, session: Session):
         print(f"task start {index}")
@@ -80,10 +80,10 @@ class MedAgentBench(Task):
                         session.inject({"role": "user", "content": "invalid POST request"})
                     else:
                         session.inject({"role": "user", "content": "POST request accepted"})
-                elif r.startswith('FINISH'):
+                elif r.startswith('FINISH('):
                     return TaskOutput(
                         status=SampleStatus.COMPLETED,
-                        result={"result": r},
+                        result=r[len('FINISH('):-1], #Trim to a list
                         history=session.history
                     )
                 else:
