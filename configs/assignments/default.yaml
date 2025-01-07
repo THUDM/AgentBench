@@ -2,7 +2,7 @@ import: definition.yaml
 
 concurrency:
   task:
-    medagentbench-std: 1
+    medagentbench-std: 5
   agent:
     gpt-4o-mini: 5
 
