@@ -79,7 +79,7 @@ class MedAgentBench(Task):
                     except Exception as e:
                         session.inject({"role": "user", "content": "invalid POST request"})
                     else:
-                        session.inject({"role": "user", "content": "POST request accepted"})
+                        session.inject({"role": "user", "content": "POST request accepted and executed successfully"})
                 elif r.startswith('FINISH('):
                     return TaskOutput(
                         status=SampleStatus.COMPLETED,
