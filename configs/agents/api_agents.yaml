@@ -30,3 +30,19 @@ gpt-4o-mini:
         body:
             model: "gpt-4o-mini"
             max_tokens: 512
+
+gpt-4o:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "gpt-4o-2024-11-20"
+        body:
+            model: "gpt-4o-2024-11-20"
+            max_tokens: 512
+
+o1-mini:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "o1-mini"
+        body:
+            model: "o1-mini"
+            max_tokens: 512
