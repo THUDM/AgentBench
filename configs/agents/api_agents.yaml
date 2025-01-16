@@ -57,3 +57,11 @@ gemini-2.0:
             max_tokens: 512
 
 
+llama-3.3:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "llama-3.3"
+        body:
+            model: "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+            max_tokens: 512
+
