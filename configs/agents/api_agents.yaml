@@ -46,3 +46,14 @@ o1-mini:
         body:
             model: "o1-mini"
             max_tokens: 512
+
+
+gemini-2.0:
+    import: "./gemini-chat.yaml"
+    parameters:
+        name: "gemini-2.0"
+        body:
+            model: "google/gemini-2.0-flash-exp"
+            max_tokens: 512
+
+
