@@ -2,14 +2,24 @@ import: definition.yaml
 
 concurrency:
   task:
-    medagentbench-std: 5
+    medagentbench-std: 20
   agent:
-    gpt-4o-mini: 5
+    gpt-4o-mini: 10
+    gpt-4o: 10
+    o1-mini: 10
+    gemini-2.0: 1
+    llama-3.3: 1
+    deepseekv3: 1
 
 assignments: # List[Assignment] | Assignment
   - agent: # "task": List[str] | str ,  "agent": List[str] | str
       - gpt-4o-mini
+      - gemini-2.0
+      - llama-3.3
+      - gpt-4o
+      - deepseekv3
+#      - o1-mini
     task:
       - medagentbench-std
 
-output: "outputs/{TIMESTAMP}"
+output: "outputs/Jan17v1" #-{TIMESTAMP}"
