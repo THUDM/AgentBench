@@ -18,3 +18,5 @@ src/server/tasks/card_game/result
 .dockerfile-cache
 analysis
 configs/agents/openai-chat.yaml
+configs/agents/together-chat.yaml
+configs/agents/gemini-chat.yaml
