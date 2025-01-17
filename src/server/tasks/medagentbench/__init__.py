@@ -4,7 +4,7 @@ from src.server.task import Task, Session
 from src.typings import TaskOutput, SampleStatus, AgentOutputStatus
 from .utils import *
 from .eval import eval
-
+import time
 import json
 
 MedAgentBench_prompt = """You are an expert in using FHIR functions to assist medical professionals. You are given a question and a set of possible functions. Based on the question, you will need to make one or more function/tool calls to achieve the purpose.
@@ -16,10 +16,10 @@ GET url?param_name1=param_value1&param_name2=param_value2...
 POST url
 [your payload data in JSON format]
 
-3. If you have answered all the questions and finished all the requested tasks, you MUST put it in the format of
+3. If you have got answers for all the questions and finished all the requested tasks, you MUST call to finish the conversation in the format of (make sure the list is JSON loadable.)
 FINISH([answer1, answer2, ...])
 
-Your response must be in the format of one of the three cases, and you SHOULD NOT include any other text in the response.
+Your response must be in the format of one of the three cases, and you can call only one function each time. You SHOULD NOT include any other text in the response.
 
 Here is a list of functions in JSON format that you can invoke. Note that you should use {api_base} as the api_base.
 {functions}
@@ -46,7 +46,7 @@ class MedAgentBench(Task):
         print(2, flush=True)
 
     def get_indices(self) -> List[Any]:
-        return list(range(len(self.data))) #list(range(3))
+        return list(range(len(self.data))) #[20]#[10*i for i in range(10)]
 
     async def start_sample(self, index, session: Session):
         print(f"task start {index}")
@@ -57,6 +57,8 @@ class MedAgentBench(Task):
                                                                                question=case['instruction'])})
         try:
             for round in range(self.max_round):
+                time.sleep(6)
+
                 res = (await session.action())
                 if res.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
                     return TaskOutput(
@@ -66,10 +68,10 @@ class MedAgentBench(Task):
                 r = res.content.strip()
                 if r.startswith('GET'):
                     url = r[3:].strip() + '&_format=json'
-                    print(f'GET {url}')
+                    #print(f'GET {url}')
                     get_res = send_get_request(url)
                     if "data" in get_res:
-                        session.inject({"role": "user", "content": f"Here is the response from the GET request:\n{get_res['data']}"})
+                        session.inject({"role": "user", "content": f"Here is the response from the GET request:\n{get_res['data']}. Please call FINISH if you have got answers for all the questions and finished all the requested tasks"})
                     else:
                         session.inject({"role": "user", "content": f"Error in sending the GET request: {get_res['error']}"})
 
@@ -77,9 +79,9 @@ class MedAgentBench(Task):
                     try:
                         payload = json.loads('\n'.join(r.split('\n')[1:]))
                     except Exception as e:
-                        session.inject({"role": "user", "content": "invalid POST request"})
+                        session.inject({"role": "user", "content": "Invalid POST request"})
                     else:
-                        session.inject({"role": "user", "content": "POST request accepted and executed successfully"})
+                        session.inject({"role": "user", "content": "POST request accepted and executed successfully. Please call FINISH if you have got answers for all the questions and finished all the requested tasks"})
                 elif r.startswith('FINISH('):
                     return TaskOutput(
                         status=SampleStatus.COMPLETED,
