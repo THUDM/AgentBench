@@ -29,15 +29,13 @@ gpt-4o-mini:
         name: "gpt-4o-mini"
         body:
             model: "gpt-4o-mini"
-            max_tokens: 512
-
+            
 gpt-4o:
     import: "./openai-chat.yaml"
     parameters:
         name: "gpt-4o-2024-11-20"
         body:
             model: "gpt-4o-2024-11-20"
-            max_tokens: 512
 
 o1-mini:
     import: "./openai-chat.yaml"
@@ -45,7 +43,6 @@ o1-mini:
         name: "o1-mini"
         body:
             model: "o1-mini"
-            max_tokens: 512
 
 
 gemini-2.0:
@@ -54,7 +51,7 @@ gemini-2.0:
         name: "gemini-2.0"
         body:
             model: "google/gemini-2.0-flash-exp"
-            max_tokens: 512
+            max_tokens: 2048
 
 
 llama-3.3:
@@ -63,5 +60,12 @@ llama-3.3:
         name: "llama-3.3"
         body:
             model: "meta-llama/Llama-3.3-70B-Instruct-Turbo"
-            max_tokens: 512
+            max_tokens: 2048
 
+deepseekv3:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "deepseekv3"
+        body:
+            model: "deepseek-ai/DeepSeek-V3"
+            max_tokens: 2048
