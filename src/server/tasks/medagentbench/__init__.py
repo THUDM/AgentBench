@@ -65,7 +65,8 @@ class MedAgentBench(Task):
                     status=SampleStatus.AGENT_CONTEXT_LIMIT,
                     history=session.history
                 )
-                r = res.content.strip()
+                r = res.content.strip().replace('```tool_code', '').replace('```', '').strip() #Remove separator for Gemini2.0Flash
+
                 if r.startswith('GET'):
                     url = r[3:].strip() + '&_format=json'
                     #print(f'GET {url}')
