@@ -57,7 +57,7 @@ class MedAgentBench(Task):
                                                                                question=case['instruction'])})
         try:
             for round in range(self.max_round):
-                time.sleep(6)
+                #time.sleep(5.0) Add for rate limit
 
                 res = (await session.action())
                 if res.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
