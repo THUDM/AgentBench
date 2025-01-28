@@ -6,6 +6,8 @@ from .utils import *
 from .eval import eval
 import time
 import json
+from collections import Counter
+import logging
 
 MedAgentBench_prompt = """You are an expert in using FHIR functions to assist medical professionals. You are given a question and a set of possible functions. Based on the question, you will need to make one or more function/tool calls to achieve the purpose.
 
@@ -51,49 +53,58 @@ class MedAgentBench(Task):
     async def start_sample(self, index, session: Session):
         print(f"task start {index}")
         case = self.data[index]
-        session.inject({"role": "user", "content": MedAgentBench_prompt.format(api_base=self.fhir_api_base,
+        # session.inject({"role": "user", "content": MedAgentBench_prompt.format(api_base=self.fhir_api_base,
+        #                                                                        functions=json.dumps(self.funcs),
+        #                                                                        context=case['context'],
+        #     
+        #                                                                    question=case['instruction'])})
+        solutions = []
+        try:
+            for _ in range(5):
+                session.inject({"role": "user", "content": MedAgentBench_prompt.format(api_base=self.fhir_api_base,
                                                                                functions=json.dumps(self.funcs),
                                                                                context=case['context'],
                                                                                question=case['instruction'])})
-        try:
-            for round in range(self.max_round):
-                #time.sleep(5.0) Add for rate limit
+                for round in range(self.max_round):
+                    #time.sleep(5.0) Add for rate limit
 
-                res = (await session.action())
-                if res.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
-                    return TaskOutput(
-                    status=SampleStatus.AGENT_CONTEXT_LIMIT,
-                    history=session.history
-                )
-                r = res.content.strip().replace('```tool_code', '').replace('```', '').strip() #Remove separator for Gemini2.0Flash
-
-                if r.startswith('GET'):
-                    url = r[3:].strip() + '&_format=json'
-                    #print(f'GET {url}')
-                    get_res = send_get_request(url)
-                    if "data" in get_res:
-                        session.inject({"role": "user", "content": f"Here is the response from the GET request:\n{get_res['data']}. Please call FINISH if you have got answers for all the questions and finished all the requested tasks"})
-                    else:
-                        session.inject({"role": "user", "content": f"Error in sending the GET request: {get_res['error']}"})
-
-                elif r.startswith('POST'):
-                    try:
-                        payload = json.loads('\n'.join(r.split('\n')[1:]))
-                    except Exception as e:
-                        session.inject({"role": "user", "content": "Invalid POST request"})
-                    else:
-                        session.inject({"role": "user", "content": "POST request accepted and executed successfully. Please call FINISH if you have got answers for all the questions and finished all the requested tasks"})
-                elif r.startswith('FINISH('):
-                    return TaskOutput(
-                        status=SampleStatus.COMPLETED,
-                        result=r[len('FINISH('):-1], #Trim to a list
+                    res = (await session.action())
+                    if res.status == AgentOutputStatus.AGENT_CONTEXT_LIMIT:
+                        return TaskOutput(
+                        status=SampleStatus.AGENT_CONTEXT_LIMIT,
                         history=session.history
                     )
-                else:
-                    return TaskOutput(
-                        status=SampleStatus.AGENT_INVALID_ACTION,
-                        history=session.history
-                    )
+                    r = res.content.strip().replace('```tool_code', '').replace('```', '').strip() #Remove separator for Gemini2.0Flash
+
+                    if r.startswith('GET'):
+                        url = r[3:].strip() + '&_format=json'
+                        #print(f'GET {url}')
+                        get_res = send_get_request(url)
+                        if "data" in get_res:
+                            session.inject({"role": "user", "content": f"Here is the response from the GET request:\n{get_res['data']}. Please call FINISH if you have got answers for all the questions and finished all the requested tasks"})
+                        else:
+                            session.inject({"role": "user", "content": f"Error in sending the GET request: {get_res['error']}"})
+
+                    elif r.startswith('POST'):
+                        try:
+                            payload = json.loads('\n'.join(r.split('\n')[1:]))
+                        except Exception as e:
+                            session.inject({"role": "user", "content": "Invalid POST request"})
+                        else:
+                            session.inject({"role": "user", "content": "POST request accepted and executed successfully. Please call FINISH if you have got answers for all the questions and finished all the requested tasks"})
+                    elif r.startswith('FINISH('):
+                        solutions.append(r[len('FINISH('):-1])
+                        break 
+                        # return TaskOutput(
+                        #     status=SampleStatus.COMPLETED,
+                        #     result=r[len('FINISH('):-1], #Trim to a list
+                        #     history=session.history
+                        # )
+                    else:
+                        return TaskOutput(
+                            status=SampleStatus.AGENT_INVALID_ACTION,
+                            history=session.history
+                        )
                 
         except Exception as e:
             return TaskOutput(
@@ -101,9 +112,13 @@ class MedAgentBench(Task):
                 result={"error": str(e)},
                 history=session.history
             )
+        print(f"SOLUTIONS: {solutions}\n\n")
+        solution_counts = Counter(solutions)
+        majority, _ = solution_counts.most_common(1)[0]
         
         return TaskOutput(
-            status=SampleStatus.TASK_LIMIT_REACHED,
+            status=SampleStatus.COMPLETED,
+            result=majority,
             history=session.history
         )
 
