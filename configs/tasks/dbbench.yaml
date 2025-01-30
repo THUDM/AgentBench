@@ -12,4 +12,4 @@ dbbench-dev:
 dbbench-std:
   parameters:
     name: dbbench-std
-    data_file: "data/dbbench/standard.jsonl"
+    data_file: "MedAgentBench/test_data_nov8.json"

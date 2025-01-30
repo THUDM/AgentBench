@@ -1,0 +1,46 @@
+{
+    "patient_id": "12345",
+    "name": "John Doe",
+    "dob": "1979-05-10",
+    "gender": "Male",
+    "address": "123 Main St",
+    "phone": "555-1234",
+    "email": "johndoe@example.com",
+    "medications": [
+        {
+            "medication_name": "Aspirin",
+            "dosage": "100mg",
+            "frequency": "Once daily",
+            "start_date": "2024-01-01"
+        }
+    ],
+    "lab_tests": {
+        "Hemoglobin": [
+            {
+                "result": 13.5,
+                "units": "g/dL",
+                "date": "2024-01-15"
+            }
+        ]
+    },
+    "conditions": [
+        {
+            "condition_name": "Hypertension",
+            "diagnosis_date": "2023-05-10",
+            "status": "Ongoing"
+        }
+    ],
+    "allergies": [
+        {
+            "allergen": "Peanuts",
+            "reaction": "Hives",
+            "severity": "Severe"
+        }
+    ],
+    "notes": [
+        {
+            "note": "Patient is responding well to treatment.",
+            "date": "2024-01-20"
+        }
+    ]
+}
