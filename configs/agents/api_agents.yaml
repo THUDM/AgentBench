@@ -21,3 +21,92 @@ text-davinci-002:
         body:
             model: "text-davinci-002"
             max_tokens: 512
+
+
+gpt-4o-mini:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "gpt-4o-mini"
+        body:
+            model: "gpt-4o-mini"
+            
+gpt-4o:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "gpt-4o-2024-11-20"
+        body:
+            model: "gpt-4o-2024-11-20"
+
+o1-mini:
+    import: "./openai-chat.yaml"
+    parameters:
+        name: "o1-mini"
+        body:
+            model: "o1-mini"
+
+
+gemini-2.0:
+    import: "./gemini-chat.yaml"
+    parameters:
+        name: "gemini-2.0"
+        body:
+            model: "google/gemini-2.0-flash-exp"
+            max_tokens: 2048
+
+
+llama-3.3:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "llama-3.3"
+        body:
+            model: "meta-llama/Llama-3.3-70B-Instruct-Turbo"
+            max_tokens: 2048
+
+deepseekv3:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "deepseekv3"
+        body:
+            model: "deepseek-ai/DeepSeek-V3"
+            max_tokens: 2048
+
+deepseekv3:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "deepseekv3"
+        body:
+            model: "deepseek-ai/DeepSeek-V3"
+            max_tokens: 2048
+
+qwen2.5:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "qwen2.5"
+        body:
+            model: "Qwen/Qwen2.5-72B-Instruct-Turbo"
+            max_tokens: 2048
+
+gemma2:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "gemma2"
+        body:
+            model: "google/gemma-2-27b-it"
+            max_tokens: 2048
+
+
+mistral:
+    import: "./together-chat.yaml"
+    parameters:
+        name: "mistral"
+        body:
+            model: "mistralai/Mistral-7B-Instruct-v0.3"
+            max_tokens: 2048
+
+
+claude3.5:
+    import: "./claude-chat.yaml"
+    parameters:
+        name: "claude3.5"
+        body:
+            max_tokens: 2048

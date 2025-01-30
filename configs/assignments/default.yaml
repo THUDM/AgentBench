@@ -2,16 +2,32 @@ import: definition.yaml
 
 concurrency:
   task:
-    dbbench-std: 5
-    os-std: 5
+    medagentbench-std: 20
   agent:
-    gpt-3.5-turbo-0613: 5
+    gpt-4o-mini: 10
+    gpt-4o: 10
+    o1-mini: 10
+    gemini-2.0: 1
+    llama-3.3: 1
+    deepseekv3: 1
+    qwen2.5: 5
+    gemma2: 5
+    mistral: 5
+    claude3.5: 1
 
 assignments: # List[Assignment] | Assignment
   - agent: # "task": List[str] | str ,  "agent": List[str] | str
-      - gpt-3.5-turbo-0613
+      - gpt-4o-mini
+      - gemini-2.0
+      - llama-3.3
+      - gpt-4o
+      - deepseekv3
+      - qwen2.5
+      - gemma2
+      - mistral
+      - claude3.5
+#      - o1-mini
     task:
-      - dbbench-std
-      - os-std
+      - medagentbench-std
 
-output: "outputs/{TIMESTAMP}"
+output: "outputs/Jan17v1" #-{TIMESTAMP}"
