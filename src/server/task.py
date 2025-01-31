@@ -120,8 +120,8 @@ class Session:
 
         for message in messages[:0:-1]:
             segments += self._calc_segments(message.content)
-            if segments >= threshold_segments:
-                break
+            #if segments >= threshold_segments:
+            #    break
             return_messages.append(message)
 
         if len(return_messages) > 0 and return_messages[-1].role == "user":

@@ -1,0 +1,12 @@
+default:
+  module: src.server.tasks.medagentbench.MedAgentBench
+  parameters:
+    concurrency: 1
+    max_round: 8
+    fhir_api_base: "http://34.170.56.151:8080/fhir/"
+
+medagentbench-std:
+  parameters:
+    name: medagentbench-std
+    data_file: "data/medagentbench/test_data_v1.json"
+    func_file: "data/medagentbench/funcs_v1.json"
