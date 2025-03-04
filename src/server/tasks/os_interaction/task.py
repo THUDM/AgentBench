@@ -163,9 +163,7 @@ ONE_SHOT = [
     {"role": "user", "content": 'tell me how many files are in the directory "/etc"?'},
     {
         "role": "agent",
-        "content": """Think: To count the files in /etc, I need to print all the files in it.
-
-Act: bash
+        "content": """Act: bash
 
 ```bash
 ls /etc
@@ -178,9 +176,7 @@ ls /etc
     },
     {
         "role": "agent",
-        "content": """Think: The output has been truncated because it is too long, so I need to count files by script directly.
-
-Act: bash
+        "content": """Act: bash
 
 ```bash
 ls -1 /etc | wc -l
@@ -189,9 +185,7 @@ ls -1 /etc | wc -l
     {"role": "user", "content": "The output of the OS:\n220"},
     {
         "role": "agent",
-        "content": """Think: Now I get the answer, it is 220.
-
-Act: answer(220)""",
+        "content": """Act: answer(220)""",
     },
 ]
 
@@ -336,13 +330,13 @@ class OSInteraction(Task):
         return list(self.problem_configs.keys())
 
     def extract_action(self, raw: str):
-        think_pattern = r"Think:\s*(.+)"
+        #think_pattern = r"Think:\s*(.+)"
         act_pattern = r"Act:\s*(.+)"
 
-        think = re.findall(think_pattern, raw)
+        #think = re.findall(think_pattern, raw)
         act = re.findall(act_pattern, raw)
 
-        ret = {"thought": "\n".join(think), "action": None, "content": None}
+        ret = {"action": None, "content": None}
 
         # reversly iterate over the action list
         for action in act[::-1]:
@@ -427,28 +421,19 @@ class OSInteraction(Task):
         session.inject(
             {
                 "role": "user",
-                "content": """You are an assistant that will act like a person, I'will play the role of linux(ubuntu) operating system. Your goal is to implement the operations required by me or answer to the question proposed by me. For each of your turn, you should first think what you should do, and then take exact one of the three actions: "bash", "finish" or "answer". 
+                "content": """You are an assistant that will act like a person, I'will play the role of linux(ubuntu) operating system. Your goal is to implement the operations required by me or answer to the question proposed by me. For each of your turn, you should take exact one of the three actions: "bash", "finish" or "answer". 
 
-1. If you think you should execute some bash code, take bash action, and you should print like this:
-
-Think: put your thought here.
-
+1. If you should execute some bash code, take bash action, and you should print like this:
 Act: bash
 
 ```bash
 # put your bash code here
 ```
 
-2. If you think you have finished the task, take finish action, and you should print like this:
-
-Think: put your thought here.
-
+2. If you have finished the task, take finish action, and you should print like this:
 Act: finish
 
-3. If you think you have got the answer to the question, take answer action, and you should print like this:
-
-Think: put your thought here.
-
+3. If you have got the answer to the question, take answer action, and you should print like this:
 Act: answer(Your answer to the question should be put in this pair of parentheses)
 
 If the output is too long, I will truncate it. The truncated output is not complete. You have to deal with the truncating problem by yourself. Attention, your bash code should not contain any input operation. Once again, you should take only exact one of the three actions in each turn.\n\n""",
