@@ -117,7 +117,7 @@ docker build -f data/os_interaction/res/dockerfiles/ubuntu data/os_interaction/r
 
 Fill in your OpenAI API Key at the correct location in `configs/agents/openai-chat.yaml`. (e.g. `gpt-3.5-turbo-0125`)
 
-You can try using `python -m src.client.agent_test` to check if your agent is configured correctly.
+You can try using `python -m src.client.agent_test` to check if your agent is configured correctlyy.
 
 By default, `gpt-3.5-turbo-0125` will be started. You can replace it with other agents by modifying the parameters:
 
