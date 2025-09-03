@@ -15,7 +15,7 @@ download
 .cache
 src/server/tasks/card_game/result
 agentbench_env
-configs/agents
+configs
 .dockerfile
 .dockerfile-cache
 analysis
