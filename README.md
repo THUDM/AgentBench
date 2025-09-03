@@ -81,7 +81,7 @@ usability are significant.
 
 ## Quick Start
 
-This section will guide you on how to quickly use gpt-3.5-turbo-0613 as an agent to launch the `dbbench-std` and `os-std` tasks.
+This section will guide you on how to quickly use gpt-3.5-turbo-0125 as an agent to launch the `dbbench-std` and `os-std` tasks.
 For the specific framework structure, please refer to [Framework Introduction](docs/Introduction_en.md).
 For more detailed configuration and launch methods, please check [Configuration Guide](docs/Config_en.md)
 and [Program Entrance Guide](docs/Entrance_en.md).
@@ -115,14 +115,14 @@ docker build -f data/os_interaction/res/dockerfiles/ubuntu data/os_interaction/r
 
 ### Step 2. Configure the Agent
 
-Fill in your OpenAI API Key at the correct location in `configs/agents/openai-chat.yaml`. (e.g. `gpt-3.5-turbo-0613`)
+Fill in your OpenAI API Key at the correct location in `configs/agents/openai-chat.yaml`. (e.g. `gpt-3.5-turbo-0125`)
 
 You can try using `python -m src.client.agent_test` to check if your agent is configured correctly.
 
-By default, `gpt-3.5-turbo-0613` will be started. You can replace it with other agents by modifying the parameters:
+By default, `gpt-3.5-turbo-0125` will be started. You can replace it with other agents by modifying the parameters:
 
 ```bash
-python -m src.client.agent_test --config configs/agents/api_agents.yaml --agent gpt-3.5-turbo-0613
+python -m src.client.agent_test --config configs/agents/api_agents.yaml --agent gpt-3.5-turbo-0125
 ```
 
 ### Step 3. Start the task server

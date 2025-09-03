@@ -13,7 +13,7 @@ from .utils import ColorMessage
 
 MODEL_MAP = {
     "gpt-4": "gpt-4",
-    "gpt-3.5-turbo-0613": "gpt-3.5-turbo",
+    "gpt-3.5-turbo-0125": "gpt-3.5-turbo",
     "llama-2-13b": "llama2-13b",
     "llama-2-7b": "llama2-7b",
     "chatglm-6b": "chatglm-6b",
