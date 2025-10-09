@@ -1,10 +1,8 @@
-from typing import List, Tuple, Union
-from SPARQLWrapper import SPARQLWrapper, JSON
-import json
 import urllib
 from pathlib import Path
-from tqdm import tqdm
+from typing import List, Tuple, Union
 
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 path = str(Path(__file__).parent.absolute())
 

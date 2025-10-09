@@ -1,9 +1,50 @@
-os-dev:
+default:
   module: "src.server.tasks.os_interaction.OSInteraction"
   parameters:
-    name: "os-dev"
-    concurrency: 24
+    concurrency: 32
     round_limit: 8
+    tools:
+      - type: "function"
+        function:
+          name: "bash_action"
+          description: "Execute bash code to perform an operation in the Linux environment."
+          parameters:
+            type: "object"
+            properties:
+              script:
+                type: "string"
+                description: "The bash script to be executed."
+            required:
+              - "script"
+            additionalProperties: False
+
+      - type: "function"
+        function:
+          name: "finish_action"
+          description: "Indicate that the task has been finished or need some additional information to be finished."
+          parameters:
+            type: "object"
+            properties:
+              thought:
+                type: "string"
+                description: "The thought or reason indicating the task is finished."
+            required:
+              - "thought"
+            additionalProperties: False
+
+      - type: "function"
+        function:
+          name: "answer_action"
+          description: "Provide the answer to the question."
+          parameters:
+            type: "object"
+            properties:
+              answer:
+                type: "string"
+                description: "The answer to the question."
+            required:
+              - "answer"
+            additionalProperties: False
 
     docker_config:
       localhost: local-os
@@ -12,29 +53,18 @@ os-dev:
     scripts:
       directory: data/os_interaction/res/scripts
 
-    data_config:
-      files:
-        - problem_file: data/os_interaction/data/dev.json
-          script_dir: data/os_interaction/scripts/dev/
-          index_prefix: "dev-001-"
-
-      bk: [ ]
-      ignore: [ ]
+    env_driver: docker
+    env_options:
+      network_name: os_interaction_default
+      state_driver: redis
+      state_options:
+        connection:
+          host: 172.17.0.1
 
 os-std:
   module: "src.server.tasks.os_interaction.OSInteraction"
   parameters:
     name: "os-std"
-    concurrency: 24
-    round_limit: 8
-
-    docker_config:
-      localhost: local-os
-      directory: data/os_interaction/res/dockerfiles
-
-    scripts:
-      directory: data/os_interaction/res/scripts
-
     data_config:
       files:
         - problem_file: data/os_interaction/data/1/*.json
@@ -59,5 +89,16 @@ os-std:
           script_dir: data/os_interaction/scripts/7/
           index_prefix: "std-007-"
 
+      bk: [ ]
+      ignore: [ ]
+
+os-env_train:
+  parameters:
+    name: "os-env_train"
+    data_config:
+      files:
+        - problem_file: data/os_interaction/train_0317/training.json
+          script_dir: data/os_interaction/scripts/7/
+          index_prefix: "train-0223-"
       bk: [ ]
       ignore: [ ]

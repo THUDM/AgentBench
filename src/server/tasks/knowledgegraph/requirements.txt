@@ -1,2 +1,2 @@
 SPARQLWrapper
-networkx
+networkx~=2.8.4

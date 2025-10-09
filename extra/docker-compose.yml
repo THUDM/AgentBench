@@ -1,0 +1,89 @@
+name: agentbench-fc
+
+services:
+
+  controller:
+    image: jingbh/agentrl-controller:latest
+    container_name: agentrl-controller
+    network_mode: host
+    command:
+      - controller
+
+  alfworld-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/alfworld/Dockerfile
+    command: --controller http://172.17.0.1:5020/api alfworld-std
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  dbbench-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/dbbench/Dockerfile
+    command: --controller http://172.17.0.1:5020/api dbbench-std
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DBBENCH_STD_PARAMETERS_ENV_OPTIONS_NETWORK_NAME=agentbench-fc_default
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  knowledgegraph-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/knowledgegraph/Dockerfile
+    command: --controller http://172.17.0.1:5020/api kg-std
+    environment:
+      - KG_STD_PARAMETERS_ENV_OPTIONS_URLS_KG=http://freebase:3001/sparql
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+      - freebase
+
+  os_interaction-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/os_interaction/Dockerfile
+    command: --controller http://172.17.0.1:5020/api os-std
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - OS_STD_PARAMETERS_ENV_OPTIONS_NETWORK_NAME=agentbench-fc_default
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  webshop-std:
+    build:
+      context: ..
+      dockerfile: src/server/tasks/webshop/Dockerfile
+    command: --controller http://172.17.0.1:5020/api webshop-std
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - controller
+
+  freebase:
+    build:
+      context: ..
+      dockerfile: extra/freebase.Dockerfile
+    volumes:
+      - ./virtuoso_db/virtuoso.db:/database/virtuoso.db
+    init: true
+
+  redis:
+    image: redis:7
+    container_name: redis
+    network_mode: host

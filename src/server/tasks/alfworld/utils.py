@@ -1,12 +1,9 @@
-from tqdm import tqdm
-from typing import List
-import re
-import threading
-import jsonlines
-import yaml
 import json
+
 import numpy as np
+import yaml
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+
 
 def bleu_score(reference, candidate):
     reference_tokens = reference.split()
@@ -24,12 +21,13 @@ def process_ob(ob):
 def process_action(action, choices, limit=0.01, to_print=False):
     if to_print:
         print("preprocess action: ", action)
+    '''
     match = re.search("ACTION:(.*)", action)
     if match:
         action = match.group(1)
     else:
         return False
-
+    '''
     action = action.strip().lower().split("\n")[0]
     if not choices:
         return action

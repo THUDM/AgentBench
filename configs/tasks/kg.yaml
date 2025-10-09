@@ -1,15 +1,35 @@
 default:
   module: "src.server.tasks.knowledgegraph.KnowledgeGraph"
   parameters:
-    round: 15
-    sparql_url: "http://164.107.116.56:3093/sparql"
+    concurrency: 32
+    max_rounds: 15
+    one_shot: false
+    database_file:
+    env_driver: manual
+    env_options:
+      urls:
+        kg: http://localhost:3001/sparql
 
-kg-dev:
-  parameters:
-    name: "KnowledgeGraph-dev"
-    data_file: "data/knowledgegraph/dev.json"
+# alternative configuration - automatically start a SPARQL server in a docker container
+# fill-in the database_file parameter with the absolute path to the freebase db file on the host
+# and replace the above parameters with the following:
+#
+#   database_file: /path/to/virtuoso_db/virtuoso.db
+#   env_driver: docker
+#   env_options:
+#     network_name: knowledgegraph_default
+#     state_driver: redis
+#     state_options:
+#       connection:
+#         host: 172.17.0.1
 
 kg-std:
   parameters:
-    name: "KnowledgeGraph-std"
+    name: "kg-std"
     data_file: "data/knowledgegraph/std.json"
+    one_shot: true
+
+kg-env_train:
+  parameters:
+    name: "kg-env_train"
+    data_file: "data/knowledgegraph/kg_rl_all.json"
