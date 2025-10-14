@@ -10,6 +10,74 @@
 👋 Join our <a href="https://join.slack.com/t/agentbenchcol-huw1944/shared_invite/zt-20ixabcuv-31cFLBAkqGQxQkJqrWVEVg" target="_blank">Slack</a>  for <i>Q & A</i> or <i><b>collaboration</b> on next version of AgentBench</i>!
 </p>
 
+## 🔥[2025.10.10] Introducing **AgentBench FC (Function Calling)** based on [AgentRL](https://github.com/THUDM/AgentRL)
+
+The current repository contains the function-calling version of AgentBench, integrated with [AgentRL](https://github.com/THUDM/AgentRL), an end-to-end multitask and mutliturn LLM Agent RL framework.
+If you wish to use the older version, you can revert to [v0.1](https://github.com/THUDM/AgentBench/tree/v0.1) and [v0.2](https://github.com/THUDM/AgentBench/tree/v0.2).
+
+Comparing to the original AgentBench, this version uses a function-calling style prompt,
+and adds fully-containerized deployment support for the following tasks:
+
+- `alfworld` (AF)
+- `dbbench` (DB)
+- `knowledgegraph` (KG)
+- `os_interaction` (OS)
+- `webshop` (WS)
+
+### Quick Start
+
+We support a quick one-command setup for all the above tasks using Docker Compose.
+
+Before starting, please download or build the following Docker images required by the tasks:
+
+```shell
+# dbbench
+docker pull mysql:8
+
+# os_interaction
+docker build -t local-os/default -f ./data/os_interaction/res/dockerfiles/default data/os_interaction/res/dockerfiles
+docker build -t local-os/packages -f ./data/os_interaction/res/dockerfiles/packages data/os_interaction/res/dockerfiles
+docker build -t local-os/ubuntu -f ./data/os_interaction/res/dockerfiles/ubuntu data/os_interaction/res/dockerfiles
+```
+
+To run the KG freebase server, you will also need a copy of the data found [here](https://github.com/dki-lab/Freebase-Setup).
+Download, extract and place the data at `./virtuoso_db/virtuoso.db` (or modify `extra/docker-compose.yml` and set the mount point to your data location).
+
+Then, you can bring up the stack with:
+
+```shell
+docker compose -f extra/docker-compose.yml up
+```
+
+This command will download or build the necessary Docker images and start the following services in Docker:
+
+- AgentRL Controller
+- `alfworld` task worker (x1, increase as needed)
+- `dbbench` task worker (x1, increase as needed)
+- `knowledgegraph` task worker (x1, increase as needed)
+- `os_interaction` task worker (x1, increase as needed)
+- `webshop` task worker (x1, increase as needed)
+- freebase server (for `knowledgegraph` task)
+- Redis server (for container allocation)
+
+If your machine already has Redis (version 7+) running, you can omit the Redis service from the `docker-compose.yml`.
+
+> [!WARNING]  
+> Please note that the `webshop` environment requires ~16GB of RAM to start,
+> and the current implementation of `alfworld` leaks memory and disk space until the task worker is restarted.
+> Make sure your machine has sufficient resources before running.
+
+### Benchmarking Results
+
+We report the results of various models on the test set of AgentBench FC.
+
+![img.png](assets/fc_leaderboard.png)
+
+Please see our [Leaderboard](https://docs.google.com/spreadsheets/d/e/2PACX-1vRR3Wl7wsCgHpwUw1_eUXW_fptAPLL3FkhnW_rua0O1Ji_GIVrpTjY5LaKAhwO-WeARjnY_KNw0SYNJ/pubhtml) for full results.
+Please contact [agentbench_fc&#64;googlegroups.com](mailto:agentbench_fc@googlegroups.com) if you have any questions or would like to contribute your results.
+
+---
+
 ## 🔥[2024.08.13] Introducing [VisualAgentBench](https://github.com/THUDM/VisualAgentBench)
 
 VisualAgentBench is designed for evaluating and training visual foundation agents based on large multimodel models (LMMs). We introduce 5 distinct environments spanning 
@@ -20,16 +88,9 @@ VisualAgentBench is designed for evaluating and training visual foundation agent
 
 to systematically benchmark 17 LMMs (proprietary & open LMMs). We also provide the trajectory dataset for behavior cloning training on open LMMs for you to develop your own visual foundation agents!
 
-## 📌Introducing AgentBench v0.2🎉
+---
 
-You are now browsing AgentBench v0.2. If you wish to use the older version, you can revert to [v0.1](https://github.com/THUDM/AgentBench/tree/v0.1).
-
-Based on [v0.1](https://github.com/THUDM/AgentBench/tree/v0.1), we:
-
--   Updated the framework architecture for easier use and extension
--   Adjusted some task settings
--   Added test results for more models
--   Released the full data for the Dev and Test sets
+The following is the introduction to the original AgentBench (v0.2).
 
 # AgentBench: Evaluating LLMs as Agents
 

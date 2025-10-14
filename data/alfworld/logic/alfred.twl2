@@ -1,0 +1,422 @@
+grammar :: """
+    {
+        "intro": [
+            {
+                "rhs": "-= Welcome to TextWorld, ALFRED! =-\n\n#look.feedback#\n\n#task#"
+            }
+        ],
+
+        "notImplemented": [
+            {
+                "rhs": "TODO"
+            }
+        ],
+
+        "task": [
+            {
+                "rhs": "Your task is to: UNKNOWN GOAL."
+            }
+        ],
+
+        "GotoLocation.feedback": [
+            {
+                "rhs": "You arrive at {lend.name}. #examineReceptacle.feedback#"
+            }
+        ],
+
+        "OpenObject.feedback": [
+            {
+                "rhs": "You open the {r.name}. #examineReceptacle.feedback#"
+            }
+        ],
+
+        "CloseObject.feedback": [
+            {
+                "rhs": "You close the {r.name}."
+            }
+        ],
+
+        "PickupObject.feedback": [
+            {
+                "rhs": "You pick up the {o.name} from the {r.name}."
+            }
+        ],
+
+        "PickupObjectFromReceptacleObject.feedback": [
+            {
+                "rhs": "PickupObjectFromReceptacleObject: You pick up the {o.name}."
+            }
+        ],
+
+        "PickupEmptyReceptacleObject.feedback": [
+            {
+                "rhs": "PickupEmptyReceptacleObject: You pick up the {o.name}."
+            }
+        ],
+
+        "PickupFullReceptacleObject.feedback": [
+            {
+                "rhs": "PickupFullReceptacleObject: You pick up the {outerr.name}."
+            }
+        ],
+
+        "PutObject.feedback": [
+            {
+                "rhs": "You put the {o.name} in/on the {r.name}."
+            }
+        ],
+
+        "PutObjectInReceptacleObject.feedback": [
+            {
+                "rhs": "PutObjectInReceptacleObject: You put the {o.name} in the {outero.name}."
+            }
+        ],
+
+        "PutEmptyReceptacleObjectinReceptacle.feedback": [
+            {
+                "rhs": "PutEmptyReceptacleObjectinReceptacle: You put the {o.name} in the {r.name}."
+            }
+        ],
+
+        "PutFullReceptacleObjectInReceptacle.feedback": [
+            {
+                "rhs": "PutFullReceptacleObjectInReceptacle: You put the {outero.name} in the {r.name}."
+            }
+        ],
+
+        "inventory.feedback": [
+            {
+                "condition": "holdsany(a:agent)",
+                "rhs": "You are carrying: [{o.indefinite + ' ' + o.name | holds(a:agent, o:object)}]."
+            },
+            {
+                "rhs": "You are not carrying anything."
+            }
+        ],
+
+        "examineReceptacle.feedback": [
+            {
+                "condition": "openable(r:receptacle) & opened(r:receptacle)",
+                "rhs": "The {r.name} is open. In it, you see [{o.indefinite + ' ' + o.name | inreceptacle(o:object, r:receptacle)}]."
+            },
+            {
+                "condition": "openable(r:receptacle)",
+                "rhs": "The {r.name} is closed."
+            },
+            {
+                "rhs": "On the {r.name}, you see [{o.indefinite + ' ' + o.name | inreceptacle(o:object, r:receptacle)}]."
+            }
+        ],
+
+        "examineObject.feedback": [
+            {
+                "condition": "isreceptacleobject(o:object)",
+                "rhs": "This is a normal {o.name}. In it, you see [{o2.indefinite + ' ' + o2.name | inreceptacleobject(o2:object, o:object)}]."
+            },
+            {
+                "condition": "isclean(o:object) & ishot(o:object) & issliced(o:object)",
+                "rhs": "This is a hot and clean sliced {o.name}."
+            },
+            {
+                "condition": "isclean(o:object) & iscool(o:object) & issliced(o:object)",
+                "rhs": "This is a cool and clean sliced {o.name}."
+            },
+            {
+                "condition": "isclean(o:object) & issliced(o:object)",
+                "rhs": "This is a clean sliced {o.name}."
+            },
+            {
+                "condition": "ishot(o:object) & issliced(o:object)",
+                "rhs": "This is a hot sliced {o.name}."
+            },
+            {
+                "condition": "iscool(o:object) & issliced(o:object)",
+                "rhs": "This is a cool sliced {o.name}."
+            },
+            {
+                "condition": "isclean(o:object) & ishot(o:object)",
+                "rhs": "This is a hot and clean {o.name}."
+            },
+            {
+                "condition": "isclean(o:object) & iscool(o:object)",
+                "rhs": "This is a cool and clean {o.name}."
+            },
+            {
+                "condition": "ishot(o:object)",
+                "rhs": "This is a hot {o.name}."
+            },
+            {
+                "condition": "isclean(o:object)",
+                "rhs": "This is a clean {o.name}."
+            },
+            {
+                "condition": "iscool(o:object)",
+                "rhs": "This is a cold {o.name}."
+            },
+            {
+                "condition": "toggleable(o:object) & istoggled(o:object)",
+                "rhs": "This {o.name} is on."
+            },
+            {
+                "condition": "toggleable(o:object) & not_istoggled(o:object)",
+                "rhs": "This {o.name} is off."
+            },
+            {
+                "condition": "sliceable(o:object) & issliced(o:object)",
+                "rhs": "This is a sliced {o.name}."
+            },
+            {
+                "rhs": "There's nothing special about {o.name}."
+            }
+        ]
+    }
+""";
+
+action GotoLocation {
+    template :: "go to [{r.name | receptacleatlocation(r:receptacle, lend:location)}]";
+    feedback :: "#GotoLocation.feedback#";
+}
+
+action OpenObject {
+    template :: "open {r}";
+    feedback :: "#OpenObject.feedback#";
+}
+
+action CloseObject {
+    template :: "close {r}";
+    feedback :: "#CloseObject.feedback#";
+}
+
+action PickupObject {
+    template :: "take {o} from {r}";
+    feedback :: "#PickupObject.feedback#";
+}
+
+action PickupObjectFromReceptacleObject {
+    template :: "take {o} from {r}";
+    feedback :: "#PickupObjectFromReceptacleObject.feedback#";
+}
+
+action PickupEmptyReceptacleObject {
+    template :: "take {o} from {r}";
+    feedback :: "#PickupEmptyReceptacleObject.feedback#";
+}
+
+action PickupFullReceptacleObject {
+    template :: "take {outerr} from {r}";
+    feedback :: "#PickupFullReceptacleObject.feedback#";
+}
+
+action PutObject {
+    template :: "put {o} in/on {r}";
+    feedback :: "#PutObject.feedback#";
+}
+
+action PutObjectInReceptacleObject {
+    template :: "put {o} into {outero}";
+    feedback :: "#PutObjectInReceptacleObject.feedback#";
+}
+
+action PutEmptyReceptacleObjectinReceptacle {
+    template :: "put {o} in/on {r}";
+    feedback :: "#PutEmptyReceptacleObjectinReceptacle.feedback#";
+}
+
+action PutFullReceptacleObjectInReceptacle {
+    template :: "put {outero} in {r}";
+    feedback :: "#PutFullReceptacleObjectInReceptacle.feedback#";
+}
+
+action inventory {
+    template :: "inventory";
+    feedback :: "#inventory.feedback#";
+}
+
+action examineReceptacle {
+    template :: "examine {r}";
+    feedback :: "#examineReceptacle.feedback#";
+}
+
+action examineObject {
+    template :: "examine {o}";
+    feedback :: "#examineObject.feedback#";
+}
+
+action ToggleObject {
+    template :: "use {o}";
+    feedback :: "#toggleObject.feedback#";
+
+    grammar :: """
+        {
+            "toggleObject.feedback": [
+                {
+                    "condition": "toggleable(o:object) & istoggled(o:object)",
+                    "rhs": "You turn on the {o.name}."
+                },
+                {
+                    "condition": "toggleable(o:object)",
+                    "rhs": "You turn off the {o.name}."
+                },
+                {
+                    "rhs": "You don't see any switch on the {o.name}."
+                }
+            ]
+        }
+    """;
+}
+
+action HeatObject {
+    template :: "heat {o} with {r}";
+    feedback :: "#heatObject.feedback#";
+
+    grammar :: """
+        {
+            "heatObject.feedback": [
+                {
+                    "rhs": "You heat the {o.name} using the {r.name}."
+                }
+            ]
+        }
+    """;
+}
+
+action CleanObject {
+    template :: "clean {o} with {r}";
+    feedback :: "#cleanObject.feedback#";
+
+    grammar :: """
+        {
+            "cleanObject.feedback": [
+                {
+                    "rhs": "You clean the {o.name} using the {r.name}."
+                }
+            ]
+        }
+    """;
+}
+
+action CoolObject {
+    template :: "cool {o} with {r}";
+    feedback :: "#coolObject.feedback#";
+
+    grammar :: """
+        {
+            "coolObject.feedback": [
+                {
+                    "rhs": "You cool the {o.name} using the {r.name}."
+                }
+            ]
+        }
+    """;
+}
+
+action SliceObject {
+    template :: "slice {co} with {ko}";
+    feedback :: "#sliceObject.feedback#";
+
+    grammar :: """
+        {
+            "sliceObject.feedback": [
+                {
+                    "rhs": "You sliced the {co.name} with the {ko.name}."
+                }
+            ]
+        }
+    """;
+}
+
+action look {
+    template :: "look";
+    feedback :: "#look.feedback#";
+
+    grammar :: """
+        {
+            "look.feedback": [
+                {
+                   "condition": "atlocation(a:agent, l:location) & receptacleatlocation(r:receptacle, l:location)",
+                   "rhs": "#look-variations#. Next to it, you see #list_objects_on_the_floor#."
+                },
+                {
+                    "rhs": "You are in the middle of a room. Looking quickly around you, you see #list_appliances#."
+                }
+            ],
+
+            "look-variations": [
+                {
+                    "rhs": "You are facing the [{r.name | atlocation(a:agent, l:location) & receptacleatlocation(r:receptacle, l:location)}]"
+                }
+            ],
+
+            "list_objects_on_the_floor": [
+                {
+                    "condition": "atlocation(a:agent, l:location) & objectatlocation(o:object, l:location) & receptacleatlocation(r:receptacle, l:location) & not_inreceptacle(o:object, r:receptacle)",
+                    "rhs": "[{#overview(o)# | atlocation(a:agent, l:location) & objectatlocation(o:object, l:location) & receptacleatlocation(r:receptacle, l:location) & not_inreceptacle(o:object, r:receptacle)}]"
+                },
+                {
+                    "rhs": "nothing"
+                }
+            ],
+
+            "list_appliances": [
+                {
+                    "condition": "receptacleatlocation(r:receptacle, l:location)",
+                    "rhs": "[{#overview(r)# | receptacleatlocation(r:receptacle, l:location)}]"
+                },
+                {
+                    "rhs": "nothing"
+                }
+            ],
+
+            "overview(o, r)": [
+                {
+                    "rhs": "{o.indefinite} {o.name} (in/on the {r.name})}"
+                }
+            ],
+
+            "overview(o)": [
+                {
+                    "rhs": "{o.indefinite} {o.name}"
+                }
+            ],
+            "overview(r)": [
+                {
+                    "rhs": "{r.indefinite} {r.name or r.id}"
+                }
+            ],
+            "overview_with_state(r)": [
+                {
+                    "rhs": "{r.indefinite} {r.name or r.id}#overview_state(r)#"
+                }
+            ],
+            "overview_state(r)": [
+                {
+                    "condition": "openable(r:receptacle) & opened(r:receptacle)",
+                    "rhs": " (it is open)"
+                },
+                {
+                    "condition": "openable(r:receptacle)",
+                    "rhs": " (it is closed)"
+                },
+                {
+                    "rhs": ""
+                }
+            ],
+
+            "list_empty": [
+                {
+                    "rhs": "nothing"
+                }
+            ],
+            "list_separator": [
+                {
+                    "rhs": ", "
+                }
+            ],
+            "list_last_separator": [
+                {
+                    "rhs": ", and "
+                }
+            ]
+        }
+    """;
+}

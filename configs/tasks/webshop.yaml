@@ -1,19 +1,44 @@
 default:
-  module: src.server.tasks.webshop_docker.WebShop
+  module: src.server.tasks.webshop.WebShop
   parameters:
-    concurrency: 1
-  docker:
-    image: longinyu/agentbench-webshop
-    command: ln -s /root/webshop /root/workspace/src/server/tasks/webshop_docker;cp /root/workspace/src/server/tasks/webshop/__init__.py /root/webshop/__init__.py;
-
-webshop-dev:
-  parameters:
-    name: webshop-dev
-    start: 200
-    end: 280
+    concurrency: 64
+    round: 20
+    tools:
+    - type: "function"
+      function:
+        name: "search_action"
+        description: "Use search functionality with specified keywords."
+        parameters:
+          type: "object"
+          properties:
+            keywords:
+              type: "string"
+              description: "The keywords to use in the search function."
+          required:
+            - "keywords"
+          additionalProperties: False
+    - type: "function"
+      function:
+        name: "click_action"
+        description: "Click a button or link with a specified value."
+        parameters:
+          type: "object"
+          properties:
+            value:
+              type: "string"
+              description: "The value to click from the list of available actions."
+          required:
+            - "value"
+          additionalProperties: False
 
 webshop-std:
   parameters:
     name: webshop-std
     start: 0
     end: 200
+
+webshop-env_train:
+  parameters:
+    name: webshop-env_train
+    start: 1000
+    end: 12000

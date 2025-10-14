@@ -1,10 +1,10 @@
-import networkx as nx
-from typing import List, Union
 from collections import defaultdict
 from pathlib import Path
-from tqdm import tqdm
+from typing import List, Union
+
+import networkx as nx
+
 from .semparse_util import lisp_to_nested_expression, expression_to_lisp
-import json
 
 REVERSE = True  # if REVERSE, then reverse relations are also taken into account for semantic EM
 

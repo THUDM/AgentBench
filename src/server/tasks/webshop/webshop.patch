@@ -1,0 +1,126 @@
+diff --git a/search_engine/convert_product_file_format.py b/search_engine/convert_product_file_format.py
+index 3985cd8..0904508 100644
+--- a/search_engine/convert_product_file_format.py
++++ b/search_engine/convert_product_file_format.py
+@@ -30,18 +30,18 @@ for p in tqdm(all_products, total=len(all_products)):
+     docs.append(doc)
+ 
+ 
+-with open('./resources_100/documents.jsonl', 'w+') as f:
+-    for doc in docs[:100]:
+-        f.write(json.dumps(doc) + '\n')
++# with open('./resources_100/documents.jsonl', 'w+') as f:
++#     for doc in docs[:100]:
++#         f.write(json.dumps(doc) + '\n')
+ 
+ with open('./resources/documents.jsonl', 'w+') as f:
+     for doc in docs:
+         f.write(json.dumps(doc) + '\n')
+ 
+-with open('./resources_1k/documents.jsonl', 'w+') as f:
+-    for doc in docs[:1000]:
+-        f.write(json.dumps(doc) + '\n')
++# with open('./resources_1k/documents.jsonl', 'w+') as f:
++#     for doc in docs[:1000]:
++#         f.write(json.dumps(doc) + '\n')
+ 
+-with open('./resources_100k/documents.jsonl', 'w+') as f:
+-    for doc in docs[:100000]:
+-        f.write(json.dumps(doc) + '\n')
++# with open('./resources_100k/documents.jsonl', 'w+') as f:
++#     for doc in docs[:100000]:
++#         f.write(json.dumps(doc) + '\n')
+diff --git a/search_engine/run_indexing.sh b/search_engine/run_indexing.sh
+old mode 100755
+new mode 100644
+index 9674da9..6551c80
+--- a/search_engine/run_indexing.sh
++++ b/search_engine/run_indexing.sh
+@@ -1,11 +1,3 @@
+-python -m pyserini.index.lucene \
+-  --collection JsonCollection \
+-  --input resources_100 \
+-  --index indexes_100 \
+-  --generator DefaultLuceneDocumentGenerator \
+-  --threads 1 \
+-  --storePositions --storeDocvectors --storeRaw
+-
+ python -m pyserini.index.lucene \
+   --collection JsonCollection \
+   --input resources \
+@@ -13,19 +5,3 @@ python -m pyserini.index.lucene \
+   --generator DefaultLuceneDocumentGenerator \
+   --threads 1 \
+   --storePositions --storeDocvectors --storeRaw
+-
+-python -m pyserini.index.lucene \
+-  --collection JsonCollection \
+-  --input resources_1k \
+-  --index indexes_1k \
+-  --generator DefaultLuceneDocumentGenerator \
+-  --threads 1 \
+-  --storePositions --storeDocvectors --storeRaw
+-
+-python -m pyserini.index.lucene \
+-  --collection JsonCollection \
+-  --input resources_100k \
+-  --index indexes_100k \
+-  --generator DefaultLuceneDocumentGenerator \
+-  --threads 1 \
+-  --storePositions --storeDocvectors --storeRaw
+diff --git a/web_agent_site/engine/goal.py b/web_agent_site/engine/goal.py
+index 09ad268..8e89ec4 100644
+--- a/web_agent_site/engine/goal.py
++++ b/web_agent_site/engine/goal.py
+@@ -9,7 +9,7 @@ from rich import print
+ from thefuzz import fuzz
+ from web_agent_site.engine.normalize import normalize_color
+ 
+-nlp = spacy.load("en_core_web_sm")
++nlp = spacy.load("en_core_web_lg")
+ 
+ PRICE_RANGE = [10.0 * i for i in range(1, 100)]
+ 
+diff --git a/web_agent_site/envs/web_agent_text_env.py b/web_agent_site/envs/web_agent_text_env.py
+index 9c8d27b..a1fec3a 100644
+--- a/web_agent_site/envs/web_agent_text_env.py
++++ b/web_agent_site/envs/web_agent_text_env.py
+@@ -316,7 +314,9 @@ class SimServer:
+         # Imposes `limit` on goals via random selection
+         if limit_goals != -1 and limit_goals < len(self.goals):
+             self.weights = [goal['weight'] for goal in self.goals]
+-            self.cum_weights = [0] + np.cumsum(self.weights).tolist()
++            self.cum_weights = [0]
++            for w in self.weights:
++                self.cum_weights.append(self.cum_weights[-1] + w)
+             idxs = []
+             while len(idxs) < limit_goals:
+                 idx = random_idx(self.cum_weights)
+@@ -327,7 +327,9 @@ class SimServer:
+ 
+         # Set extraneous housekeeping variables
+         self.weights = [goal['weight'] for goal in self.goals]
+-        self.cum_weights = [0] + np.cumsum(self.weights).tolist()
++        self.cum_weights = [0]
++        for w in self.weights:
++            self.cum_weights.append(self.cum_weights[-1] + w)
+         self.user_sessions = dict()
+         self.search_time = 0
+         self.render_time = 0
+diff --git a/web_agent_site/utils.py b/web_agent_site/utils.py
+index f1d7447..6a27feb 100644
+--- a/web_agent_site/utils.py
++++ b/web_agent_site/utils.py
+@@ -7,8 +7,10 @@ from os.path import dirname, abspath, join
+ BASE_DIR = dirname(abspath(__file__))
+ DEBUG_PROD_SIZE = None  # set to `None` to disable
+ 
+-DEFAULT_ATTR_PATH = join(BASE_DIR, '../data/items_ins_v2_1000.json')
+-DEFAULT_FILE_PATH = join(BASE_DIR, '../data/items_shuffle_1000.json')
++# DEFAULT_ATTR_PATH = join(BASE_DIR, '../data/items_ins_v2_1000.json')
++DEFAULT_ATTR_PATH = join(BASE_DIR, '../data/items_ins_v2.json')
++# DEFAULT_FILE_PATH = join(BASE_DIR, '../data/items_shuffle_1000.json')
++DEFAULT_FILE_PATH = join(BASE_DIR, '../data/items_shuffle.json')
+ DEFAULT_REVIEW_PATH = join(BASE_DIR, '../data/reviews.json')
+ 
+ FEAT_CONV = join(BASE_DIR, '../data/feat_conv.pt')
