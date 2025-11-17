@@ -4,7 +4,11 @@ parameters:
   url: https://api.openai.com/v1/completions
   headers:
     Content-Type: application/json
-    Authorization: Bearer <% PUT-YOUR-OPENAI-KEY-HERE %>
+    Authorization: 
+      - Bearer <% PUT-YOUR-OPENAI-KEY-HERE %>
+      - Bearer <% PUT-YOUR-OPENAI-KEY-HERE %>
+      - Bearer <% PUT-YOUR-OPENAI-KEY-HERE %>
+      # You can place any number of keys here, and they will be invoked equally.
   body:
     model: <% NAME %>
     temperature: 0
