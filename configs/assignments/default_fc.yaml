@@ -1,0 +1,25 @@
+# Default assignment preset for AgentBench FC (AgentRL controller on :5020).
+#
+# Bring up the stack:
+#   docker compose -f extra/docker-compose.yml up
+#
+# Run:
+#   python -m src.assigner --config configs/assignments/default_fc.yaml
+
+import: definition_fc.yaml
+
+concurrency:
+  task:
+    dbbench-std: 5
+    os-std: 5
+  agent:
+    gpt-3.5-turbo-0613: 5
+
+assignments:
+  - agent:
+      - gpt-3.5-turbo-0613
+    task:
+      - dbbench-std
+      - os-std
+
+output: "outputs/{TIMESTAMP}"

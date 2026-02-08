@@ -227,6 +227,12 @@ If you started the task server with the lite preset, you can also run the lite e
 python -m src.assigner --config configs/assignments/lite.yaml
 ```
 
+If you started the AgentBench FC stack via docker compose (`extra/docker-compose.yml`), use the FC assignment preset (controller on port 5020):
+
+```bash
+python -m src.assigner --config configs/assignments/default_fc.yaml
+```
+
 ## Next Steps
 
 If you wish to launch more tasks or use other models, you can refer to the content
