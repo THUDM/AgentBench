@@ -1,0 +1,22 @@
+# Definition preset for AgentBench FC (AgentRL controller).
+#
+# The docker-compose stack in extra/docker-compose.yml uses an AgentRL controller
+# that listens on port 5020 (host network mode). Use this definition when you
+# start the benchmark with:
+#
+#   docker compose -f extra/docker-compose.yml up
+#
+# Then run assigner with:
+#   python -m src.assigner --config configs/assignments/default_fc.yaml
+
+definition:
+  task:
+    overwrite:
+      module: src.client.TaskClient
+      parameters:
+        controller_address: "http://localhost:5020/api"
+    import: ../tasks/task_assembly.yaml
+  agent:
+    import:
+      - ../agents/api_agents.yaml
+      - ../agents/fs_agent.yaml

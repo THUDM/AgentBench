@@ -56,6 +56,7 @@ real-time to the specified output directory.
 Parameters for assigner:
 
 - `[--config CONFIG]`: Specifies the configuration file to read. Default is `configs/assignments/default.yaml`.
+  - If you started the AgentBench FC stack via `docker compose -f extra/docker-compose.yml up`, use `configs/assignments/default_fc.yaml` (controller on `http://localhost:5020/api`).
 - `[--auto-retry]`: Auto retry failed samples.
 
 If the `output` field in the configuration contains `{TIMESTAMP}`, it will be replaced with the current time for

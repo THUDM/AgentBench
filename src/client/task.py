@@ -37,7 +37,14 @@ class TaskClient:
                 self.controller_address + "/list_workers"
             )
         except Exception as e:
-            print(ColorMessage.yellow(f"Warning task {self.name} cannot connect to controller {e}"))
+            print(
+                ColorMessage.yellow(
+                    "Warning: task '{}' cannot connect to controller '{}': {}. "
+                    "If you started the AgentRL controller via `docker compose -f extra/docker-compose.yml up`, "
+                    "the controller is typically on http://localhost:5020/api; set `controller_address` in the assignment config accordingly."
+                    .format(self.name, self.controller_address, e)
+                )
+            )
             return 0
         if result.status_code != 200:
             raise AgentBenchException(result.text, result.status_code, self.name)
