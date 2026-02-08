@@ -5,7 +5,7 @@
 The main entry points of the framework are:
 
 - `src.server.task_controller`: For manually starting the task_controller.
-- `src.start_task`: For starting the task_worker.
+- `src.start_task`: For starting task_workers (reads `configs/start_task.yaml`).
 - `src.assigner`: For launching evaluations.
 - `src.server.task_worker`: For manually starting the task_worker.
 
