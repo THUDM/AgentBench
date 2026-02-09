@@ -179,13 +179,22 @@ class HTTPAgent(AgentClient):
         self.body = body or {}
         self.return_format = return_format
         self.prompter = Prompter.get_prompter(prompter)
+        self.key_list = self.headers["Authorization"] if type(self.headers["Authorization"]) == list else [self.headers["Authorization"]]
+        self.key_amount = len(self.key_list)
+        self.key_idx = 0
+
         if not self.url:
             raise Exception("Please set 'url' parameter")
 
     def _handle_history(self, history: List[dict]) -> Dict[str, Any]:
         return self.prompter(history)
 
+    def _authorization_scheduling(self):
+        self.headers["Authorization"] = self.key_list[self.key_idx]
+        self.key_idx = (self.key_idx + 1) % self.key_amount
+
     def inference(self, history: List[dict]) -> str:
+        self._authorization_scheduling()
         for _ in range(3):
             try:
                 body = self.body.copy()
