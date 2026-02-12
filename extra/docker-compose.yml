@@ -5,7 +5,8 @@ services:
   controller:
     image: jingbh/agentrl-controller:latest
     container_name: agentrl-controller
-    network_mode: host
+    ports:
+      - "5020:5020"
     command:
       - controller
 
@@ -13,7 +14,9 @@ services:
     build:
       context: ..
       dockerfile: src/server/tasks/alfworld/Dockerfile
-    command: --controller http://172.17.0.1:5020/api alfworld-std
+    command: --controller http://controller:5020/api alfworld-std
+    ports:
+      - "5021:5021"
     deploy:
       mode: replicated
       replicas: 1
@@ -24,7 +27,9 @@ services:
     build:
       context: ..
       dockerfile: src/server/tasks/dbbench/Dockerfile
-    command: --controller http://172.17.0.1:5020/api dbbench-std
+    command: --controller http://controller:5020/api dbbench-std
+    ports:
+      - "5022:5021"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -39,7 +44,9 @@ services:
     build:
       context: ..
       dockerfile: src/server/tasks/knowledgegraph/Dockerfile
-    command: --controller http://172.17.0.1:5020/api kg-std
+    command: --controller http://controller:5020/api kg-std
+    ports:
+      - "5024:5021"
     environment:
       - KG_STD_PARAMETERS_ENV_OPTIONS_URLS_KG=http://freebase:3001/sparql
     deploy:
@@ -53,7 +60,9 @@ services:
     build:
       context: ..
       dockerfile: src/server/tasks/os_interaction/Dockerfile
-    command: --controller http://172.17.0.1:5020/api os-std
+    command: --controller http://controller:5020/api os-std
+    ports:
+      - "5023:5021"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
@@ -68,7 +77,9 @@ services:
     build:
       context: ..
       dockerfile: src/server/tasks/webshop/Dockerfile
-    command: --controller http://172.17.0.1:5020/api webshop-std
+    command: --controller http://controller:5020/api webshop-std
+    ports:
+      - "5025:5021"
     deploy:
       mode: replicated
       replicas: 1
@@ -86,4 +97,5 @@ services:
   redis:
     image: redis:7
     container_name: redis
-    network_mode: host
+    ports:
+      - "6379:6379"

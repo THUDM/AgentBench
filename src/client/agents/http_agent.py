@@ -96,6 +96,24 @@ class Prompter:
         return prompter
 
     @staticmethod
+    def openai_passthrough():
+        """Pass through OpenAI-format messages and tools directly."""
+        def prompter(data):
+            # If it's already in OpenAI format (dict with messages/tools), pass through
+            if isinstance(data, dict) and "messages" in data:
+                result = {"messages": data["messages"]}
+                if "tools" in data:
+                    result["tools"] = data["tools"]
+                return result
+            # Otherwise, convert from old format
+            prompt = []
+            for item in data:
+                role = "assistant" if item.get("role") == "agent" else item.get("role", "user")
+                prompt.append({"role": role, "content": item.get("content", "")})
+            return {"messages": prompt}
+        return prompter
+
+    @staticmethod
     def prompt_string(
         prefix: str = "",
         suffix: str = "AGENT:",
@@ -185,7 +203,7 @@ class HTTPAgent(AgentClient):
     def _handle_history(self, history: List[dict]) -> Dict[str, Any]:
         return self.prompter(history)
 
-    def inference(self, history: List[dict]) -> str:
+    def inference(self, history) -> str:
         for _ in range(3):
             try:
                 body = self.body.copy()
@@ -210,6 +228,23 @@ class HTTPAgent(AgentClient):
                 pass
             else:
                 resp = resp.json()
+                # Handle OpenAI chat completion format
+                if self.return_format == "openai_chat":
+                    if "choices" in resp and resp["choices"]:
+                        message = resp["choices"][0].get("message", {})
+                        # Check for tool calls first
+                        if "tool_calls" in message and message["tool_calls"]:
+                            tool_call = message["tool_calls"][0]
+                            # Return the action from the tool call arguments
+                            import json
+                            try:
+                                args = json.loads(tool_call["function"]["arguments"])
+                                return args.get("action", "")
+                            except:
+                                return tool_call["function"]["arguments"]
+                        # Otherwise return content
+                        return message.get("content", "")
+                    return ""
                 return self.return_format.format(response=resp)
             time.sleep(_ + 2)
         raise Exception("Failed.")

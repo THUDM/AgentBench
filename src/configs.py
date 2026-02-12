@@ -1,9 +1,29 @@
 import json
 import os
+import re
 from copy import deepcopy
 from typing import Any, Dict, Set
 
 import yaml
+
+
+def substitute_env_vars(value):
+    """Substitute ${VAR_NAME} patterns with environment variables."""
+    if isinstance(value, str):
+        pattern = r'\$\{([^}]+)\}'
+        def replacer(match):
+            var_name = match.group(1)
+            env_value = os.environ.get(var_name)
+            if env_value is None:
+                print(f"Warning: Environment variable {var_name} not set")
+                return match.group(0)
+            return env_value
+        return re.sub(pattern, replacer, value)
+    elif isinstance(value, dict):
+        return {k: substitute_env_vars(v) for k, v in value.items()}
+    elif isinstance(value, list):
+        return [substitute_env_vars(v) for v in value]
+    return value
 
 
 def deep_merge(base_item, new_item):
@@ -51,7 +71,8 @@ class ConfigLoader:
             raise e
         self.loading.remove(path)
         self.loaded[path] = config
-        return self.parse_default_and_overwrite(deepcopy(config))
+        result = self.parse_default_and_overwrite(deepcopy(config))
+        return substitute_env_vars(result)
 
     def parse_imports(self, path, raw_config):
         raw_config = deepcopy(raw_config)
