@@ -1,0 +1,9 @@
+module: src.client.agents.AG2Agent
+
+parameters:
+  model: "gpt-4o-mini"
+  api_type: "openai"
+  system_message: "You are a helpful AI assistant that solves tasks step by step. Be precise and concise in your responses."
+  max_tokens: 512
+  temperature: 0
+  max_turns: 1
