@@ -1,0 +1,9 @@
+module: src.client.agents.AG2GroupChatAgent
+
+parameters:
+  model: "gpt-4o-mini"
+  api_key: <% PUT-YOUR-OPENAI-KEY-HERE %>
+  api_type: "openai"
+  max_tokens: 512
+  temperature: 0
+  max_rounds: 4
