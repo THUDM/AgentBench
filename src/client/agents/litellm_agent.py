@@ -1,9 +1,8 @@
-import os
 import time
-from copy import deepcopy
 from typing import Any, Dict, List
 
 from src.typings import AgentClientException, AgentContextLimitException
+from .http_agent import check_context_limit
 from ..agent import AgentClient
 
 
@@ -25,6 +24,7 @@ class LiteLLMAgent(AgentClient):
         if not model:
             raise ValueError("model is required (e.g. 'anthropic/claude-sonnet-4-20250514')")
         self.model = model
+        self.model_name = model
         self.api_key = api_key
         self.api_base = api_base
         self.api_args = api_args or {}
@@ -52,10 +52,11 @@ class LiteLLMAgent(AgentClient):
                     **self.api_args,
                     **extra,
                 )
-                return response.choices[0].message.content
+                return response.choices[0].message.content or ""
+            except AgentClientException as e:
+                raise e
             except Exception as e:
-                error_text = str(e).lower()
-                if any(kw in error_text for kw in ("context", "token", "limit", "exceed", "max")):
+                if check_context_limit(str(e)):
                     raise AgentContextLimitException(str(e))
                 qualname = f"{type(e).__module__}.{type(e).__name__}"
                 if qualname in (

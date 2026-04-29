@@ -17,6 +17,7 @@ if "fastchat" not in sys.modules:
     sys.modules.update({"fastchat": _fc, "fastchat.model": _fc_model, "fastchat.model.model_adapter": _fc_adapter})
 
 from src.client.agents.litellm_agent import LiteLLMAgent
+from src.typings import AgentContextLimitException
 
 
 def _mock_resp(content="Hello!"):
@@ -34,10 +35,23 @@ def _run_inference(agent, history, response):
     return result, fake.completion
 
 
+def _run_inference_error(agent, history, error):
+    fake = types.ModuleType("litellm")
+    fake.completion = MagicMock(side_effect=error)
+    with mock.patch.dict(sys.modules, {"litellm": fake}):
+        with mock.patch("src.client.agents.litellm_agent.time.sleep"):
+            try:
+                agent.inference(history)
+                return None, fake.completion
+            except Exception as e:
+                return e, fake.completion
+
+
 class TestInit:
     def test_default(self):
         a = LiteLLMAgent(model="openai/gpt-4o")
         assert a.model == "openai/gpt-4o"
+        assert a.model_name == "openai/gpt-4o"
         assert a.api_key is None
         assert a.api_args == {}
 
@@ -102,6 +116,55 @@ class TestInference:
         _, comp = _run_inference(a, [{"role": "user", "content": "hi"}], _mock_resp())
         assert comp.call_args.kwargs["model"] == "anthropic/claude-sonnet-4-20250514"
 
+    def test_none_content_returns_empty_string(self):
+        a = LiteLLMAgent(model="openai/gpt-4o")
+        result, _ = _run_inference(a, [{"role": "user", "content": "hi"}], _mock_resp(content=None))
+        assert result == ""
+
+    def test_empty_string_content(self):
+        a = LiteLLMAgent(model="openai/gpt-4o")
+        result, _ = _run_inference(a, [{"role": "user", "content": "hi"}], _mock_resp(content=""))
+        assert result == ""
+
+
+class TestRetryAndErrors:
+    def test_retries_3_times_then_raises(self):
+        a = LiteLLMAgent(model="openai/gpt-4o")
+        exc, comp = _run_inference_error(
+            a, [{"role": "user", "content": "hi"}], RuntimeError("transient")
+        )
+        assert comp.call_count == 3
+        assert "Failed after 3 attempts" in str(exc)
+
+    def test_context_limit_raises_immediately(self):
+        a = LiteLLMAgent(model="openai/gpt-4o")
+        exc, comp = _run_inference_error(
+            a, [{"role": "user", "content": "hi"}],
+            RuntimeError("prompt is too long, exceeds context token limit"),
+        )
+        assert isinstance(exc, AgentContextLimitException)
+        assert comp.call_count == 1
+
+    def test_auth_error_not_retried(self):
+        auth_exc = type("AuthenticationError", (Exception,), {})("bad key")
+        auth_exc.__class__.__module__ = "litellm.exceptions"
+        auth_exc.__class__.__qualname__ = "AuthenticationError"
+        a = LiteLLMAgent(model="openai/gpt-4o")
+        exc, comp = _run_inference_error(
+            a, [{"role": "user", "content": "hi"}], auth_exc,
+        )
+        assert comp.call_count == 1
+        assert "bad key" in str(exc)
+
+    def test_rate_limit_not_misclassified_as_context_limit(self):
+        a = LiteLLMAgent(model="openai/gpt-4o")
+        exc, comp = _run_inference_error(
+            a, [{"role": "user", "content": "hi"}],
+            RuntimeError("Rate limit exceeded, please retry"),
+        )
+        assert not isinstance(exc, AgentContextLimitException)
+        assert comp.call_count == 3
+
 
 class TestRegistration:
     def test_importable(self):
@@ -121,3 +184,7 @@ class TestRegistration:
         agent = factory.create()
         assert isinstance(agent, LiteLLMAgent)
         assert agent.model == "openai/gpt-4o"
+
+    def test_model_name_attribute(self):
+        a = LiteLLMAgent(model="openai/gpt-4o")
+        assert a.model_name == "openai/gpt-4o"
