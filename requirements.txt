@@ -13,6 +13,7 @@ docker==6.1.2
 SPARQLWrapper
 networkx~=2.8.4
 anthropic~=0.4.1
+litellm>=1.60.0,<2.0
 fschat~=0.2.31
 accelerate~=0.23.0
 transformers~=4.34.0
