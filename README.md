@@ -257,6 +257,7 @@ launching:
 | kg        | ~5s            | < 500M             |
 
 
+| [REFUTE](https://huggingface.co/datasets/BGPT-OFFICIAL/refute) | Scientific critique & epistemic calibration on recent science summaries | 2026 | BGPT | [dataset](https://huggingface.co/datasets/BGPT-OFFICIAL/refute) · [leaderboard](https://huggingface.co/spaces/BGPT-OFFICIAL/refute-leaderboard) |
 ### Deploy the KnowledgeGraph service loacally
 the KnowledgeGraph task depends on an online service which now is not stable, if you want to deploy the service locally, you can follow steps below:
 
