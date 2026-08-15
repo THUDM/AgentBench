@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
-"""Report pass rates with 95% Wilson CIs and paired McNemar comparisons.
+"""Report aggregate pass rates with 95% Wilson CIs and paired McNemar.
 
-Accepts a JSON file of per-instance results in one of two shapes:
+Accepts a per-instance results JSON in one of two shapes:
 
 * a mapping ``{task_id: true/false}``
 * a list of records ``[{"id": ..., "success": true/false}, ...]``
 
-and prints the aggregate pass rate with a 95% Wilson score interval, plus
-per-task rates. With ``--compare``, runs an exact paired McNemar test between
-two agents over their shared task set.
+and prints the aggregate pass rate with a 95% Wilson score interval. With
+``--compare``, runs an exact paired McNemar test between two agents over
+their shared task set.
+
+The input file is a convenience interface: it must be derived from
+AgentBench run outputs. This script does not parse native artifacts such
+as ``overall.json`` (task-level aggregate metrics, format varies per task)
+or the raw ``db_out_new.jsonl``/``dev.jsonl`` trajectory logs.
 
 Example::
 
