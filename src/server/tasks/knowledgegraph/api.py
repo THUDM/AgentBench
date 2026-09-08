@@ -57,7 +57,7 @@ class API:
         Returns (None, "Observation: [...]").
         """
         if not isinstance(variable, Variable):
-            if not re.match(r'^([mf])\.[\w_]+$', variable):
+            if not re.match(r'^[mg]\.[\w_]+$', variable):
                 raise ValueError("get_relations: variable must be a variable or an entity")
 
         cache_key = (self.task_id, variable if isinstance(variable, str) else hash(variable))
@@ -92,7 +92,7 @@ class API:
         Get neighbors via a relation. Returns (new_variable, "Observation: ...").
         """
         if not isinstance(variable, Variable):
-            if not re.match(r'^([mf])\.[\w_]+$', variable):
+            if not re.match(r'^[mg]\.[\w_]+$', variable):
                 raise ValueError("get_neighbors: variable must be a variable or an entity")
 
         cache_key = (self.task_id, variable if isinstance(variable, str) else hash(variable))
