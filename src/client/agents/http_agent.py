@@ -1,47 +1,10 @@
-import contextlib
 import time
-import warnings
 
 import requests
-from urllib3.exceptions import InsecureRequestWarning
 
 from src.typings import *
 from src.utils import *
 from ..agent import AgentClient
-
-old_merge_environment_settings = requests.Session.merge_environment_settings
-
-
-@contextlib.contextmanager
-def no_ssl_verification():
-    opened_adapters = set()
-
-    def merge_environment_settings(self, url, proxies, stream, verify, cert):
-        # Verification happens only once per connection so we need to close
-        # all the opened adapters once we're done. Otherwise, the effects of
-        # verify=False persist beyond the end of this context manager.
-        opened_adapters.add(self.get_adapter(url))
-
-        settings = old_merge_environment_settings(self, url, proxies, stream, verify, cert)
-        settings['verify'] = False
-
-        return settings
-
-    requests.Session.merge_environment_settings = merge_environment_settings
-
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore', InsecureRequestWarning)
-            yield
-    finally:
-        requests.Session.merge_environment_settings = old_merge_environment_settings
-
-        for adapter in opened_adapters:
-            try:
-                adapter.close()
-            except:
-                pass
-
 
 class Prompter:
     @staticmethod
@@ -170,11 +133,13 @@ class HTTPAgent(AgentClient):
         headers=None,
         return_format="{response}",
         prompter=None,
+        verify=True,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.url = url
         self.proxies = proxies or {}
+        self.verify = verify
         self.headers = headers or {}
         self.body = body or {}
         self.return_format = return_format
@@ -190,10 +155,10 @@ class HTTPAgent(AgentClient):
             try:
                 body = self.body.copy()
                 body.update(self._handle_history(history))
-                with no_ssl_verification():
-                    resp = requests.post(
-                        self.url, json=body, headers=self.headers, proxies=self.proxies, timeout=120
-                    )
+                resp = requests.post(
+                    self.url, json=body, headers=self.headers, proxies=self.proxies,
+                    timeout=120, verify=self.verify,
+                )
                 # print(resp.status_code, resp.text)
                 if resp.status_code != 200:
                     # print(resp.text)

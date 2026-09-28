@@ -132,6 +132,11 @@ value is the agent's configuration. A single agent configuration requires the fo
 - `module`: defines the corresponding agent client module.
 - `parameters`: defines the parameters to be passed to the corresponding module.
 
+`HTTPAgent` verifies HTTPS certificates by default. Its optional `verify` parameter
+accepts `true` (the default) or a path to a CA bundle for a private certificate
+authority. `verify: false` explicitly disables certificate verification for that
+agent's requests; it does not change other HTTP sessions.
+
 ### tasks
 
 The `tasks` directory contains all task configuration files. The `task_assembly.yaml` collects all task definitions. If
