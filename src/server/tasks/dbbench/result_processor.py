@@ -1,4 +1,25 @@
-from .interaction import Database
+from __future__ import annotations
+
+import ast
+from decimal import Decimal, InvalidOperation
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .interaction import Database
+
+
+class _DecimalLiteral(ast.NodeTransformer):
+    """Permit MySQL's Decimal repr without evaluating arbitrary code."""
+
+    def visit_Call(self, node):
+        if (not isinstance(node.func, ast.Name) or node.func.id != "Decimal"
+                or len(node.args) != 1 or node.keywords):
+            raise ValueError("Unsupported expression in a DBBench result")
+        value = ast.literal_eval(node.args[0])
+        if isinstance(value, bool) or not isinstance(value, (str, int, float)):
+            raise ValueError("Unsupported Decimal argument")
+        return ast.copy_location(ast.Constant(value=Decimal(value)), node)
+
 
 class DBResultProcessor:
     """
@@ -37,7 +58,7 @@ class DBResultProcessor:
                 ans_val = processed_answer[0]
                 gt_val = processed_ground_truth[0]
                 
-                # 如果两个值都是特殊值（0、undefined等），认为它们相等
+                # Zero answers only match zero ground truth.
                 if ans_val == "0" and gt_val == "0":
                     return True
                     
@@ -115,82 +136,60 @@ class DBResultProcessor:
     def _normalize_special_values(value):
         """处理特殊值、百分比和格式化数字"""
         if value is None:
-            return "0"  # 将 None 转换为 "0"
+            return "<NULL>"
         
         # 转换为字符串
         str_value = str(value).strip()
         
         # 处理百分比
         if str_value.endswith('%'):
-            try:
-                # 去掉百分号，转为数值
-                return str_value[:-1].strip()
-            except:
-                pass
+            return str_value[:-1].strip()
         
         # 处理千位分隔符
         if ',' in str_value and not str_value.startswith('[') and not str_value.endswith(']'):
-            try:
-                # 去掉逗号
-                str_value = str_value.replace(',', '')
-            except:
-                pass
+            str_value = str_value.replace(',', '')
         
         # 转换为小写进行特殊值比较
         lower_value = str_value.lower()
         
         # 处理特殊值映射
         special_values_map = {
-            "none": "0",
-            "null": "0",
-            "undefined": "0",
-            "nan": "0",
-            "inf": "0",
-            "infinity": "0",
-            "-inf": "0",
-            "-infinity": "0",
-            "": "0",  # 空字符串
+            "none": "<NULL>",
+            "null": "<NULL>",
+            "undefined": "<UNDEFINED>",
+            "nan": "<NAN>",
+            "inf": "<POSITIVE_INFINITY>",
+            "infinity": "<POSITIVE_INFINITY>",
+            "-inf": "<NEGATIVE_INFINITY>",
+            "-infinity": "<NEGATIVE_INFINITY>",
+            "": "<EMPTY>",
         }
         
         return special_values_map.get(lower_value, str_value)
     
     @staticmethod
+    def _parse_result_literal(result):
+        if len(result) > 100_000:
+            raise ValueError("DBBench result literal is too large")
+        tree = ast.parse(result, mode="eval")
+        return ast.literal_eval(_DecimalLiteral().visit(tree))
+
+    @staticmethod
+    def _format_mysql_row(row):
+        if len(row) == 1:
+            return DBResultProcessor._normalize_special_values(row[0])
+        return repr(row)
+
+    @staticmethod
     def _clean_mysql_result(result):
-        """处理MySQL执行结果的特殊格式 [(value,)] 或多元组情况 [(value1,), (value2,), ...]"""
+        """Parse MySQL's list-of-tuples repr, retaining every column."""
         if isinstance(result, str) and result.startswith("[") and result.endswith("]"):
             try:
-                # 尝试使用 eval 安全解析
-                parsed_result = eval(result)
-                
-                # 检查是否是元组列表
+                parsed_result = DBResultProcessor._parse_result_literal(result)
                 if isinstance(parsed_result, list) and all(isinstance(item, tuple) for item in parsed_result):
-                    # 处理每个元组
-                    cleaned_values = []
-                    for item in parsed_result:
-                        # 对于单值元组 (value,)
-                        if len(item) == 1:
-                            value = str(item[0]).strip().strip("'\"")
-                            cleaned_values.append(value)
-                        # 也可以添加对多值元组的处理逻辑，但根据您的需求似乎只需要处理单值元组
-                    
-                    return cleaned_values
-            except:
-                # 如果 eval 失败，继续尝试原来的方法
-                pass
-                
-            # 原来的方法 - 用于单个元组情况
-            try:
-                # 处理类似 "[(293.0,)]" 的格式
-                result_stripped = result.strip("[]")
-                # 检查是否只有一个元组
-                if result_stripped.count("(") == 1 and result_stripped.startswith("(") and result_stripped.endswith(",)"):
-                    # 提取括号中的值
-                    value = result_stripped[1:-2]  # 移除 ( 和 ,)
-                    # 去除可能存在的引号
-                    value = value.strip().strip("'\"")
-                    return [value]
-            except:
-                pass
+                    return [DBResultProcessor._format_mysql_row(row) for row in parsed_result]
+            except (SyntaxError, ValueError, TypeError, RecursionError, InvalidOperation):
+                return None
         return None
     
     
@@ -199,12 +198,12 @@ class DBResultProcessor:
         """清理和标准化答案"""
         # 处理 None 值
         if answer is None:
-            return ["0"]
+            return [DBResultProcessor._normalize_special_values(None)]
             
         # 首先检查是否是MySQL结果格式
         mysql_result = DBResultProcessor._clean_mysql_result(answer)
         if mysql_result is not None:
-            return [DBResultProcessor._normalize_special_values(x) for x in mysql_result]
+            return mysql_result
 
         if isinstance(answer, str):
             # 移除多余的空格
@@ -212,38 +211,12 @@ class DBResultProcessor:
             # 如果是字符串形式的列表
             if answer.startswith("[") and answer.endswith("]"):
                 try:
-                    # 先尝试用eval转换
-                    cleaned = eval(answer)
+                    cleaned = DBResultProcessor._parse_result_literal(answer)
                     if isinstance(cleaned, list):
-                        # 处理可能的元组结果
-                        result = []
-                        for item in cleaned:
-                            if isinstance(item, tuple) and len(item) == 1:
-                                # 处理元组的情况 (value,)
-                                value = str(item[0]).strip().strip("'\"")
-                                result.append(DBResultProcessor._normalize_special_values(value))
-                            else:
-                                value = str(item).strip().strip("'\"")
-                                result.append(DBResultProcessor._normalize_special_values(value))
-                        return result
-                except:
-                    # 如果eval失败，手动处理
-                    answer = answer[1:-1]
-                    items = []
-                    current = ""
-                    in_quotes = False
-                    for char in answer:
-                        if char in '"\'':
-                            in_quotes = not in_quotes
-                        elif char == ',' and not in_quotes:
-                            if current:
-                                items.append(DBResultProcessor._normalize_special_values(current.strip().strip("'\"")))
-                                current = ""
-                        else:
-                            current += char
-                    if current:
-                        items.append(DBResultProcessor._normalize_special_values(current.strip().strip("'\"")))
-                    return items
+                        return DBResultProcessor._clean_answer(cleaned)
+                except (SyntaxError, ValueError, TypeError, RecursionError, InvalidOperation):
+                    # An invalid or truncated result must not become an empty match.
+                    return [answer]
             else:
                 # 单个值
                 return [DBResultProcessor._normalize_special_values(answer.strip().strip("'\""))]
@@ -251,13 +224,26 @@ class DBResultProcessor:
             # 处理列表或元组
             result = []
             for item in answer:
-                if isinstance(item, tuple) and len(item) == 1:
-                    # 处理元组的情况 (value,)
-                    value = str(item[0]).strip().strip("'\"")
-                    result.append(DBResultProcessor._normalize_special_values(value))
-                else:
-                    value = str(item).strip().strip("'\"")
-                    result.append(DBResultProcessor._normalize_special_values(value))
+                if isinstance(item, tuple):
+                    result.append(DBResultProcessor._format_mysql_row(item))
+                    continue
+                if isinstance(item, str):
+                    mysql_rows = DBResultProcessor._clean_mysql_result(item)
+                    if mysql_rows is not None:
+                        result.extend(mysql_rows)
+                        continue
+                    if item.startswith("(") and item.endswith(")"):
+                        try:
+                            row = DBResultProcessor._parse_result_literal(item)
+                            if isinstance(row, tuple):
+                                result.append(DBResultProcessor._format_mysql_row(row))
+                                continue
+                        except (SyntaxError, ValueError, TypeError, RecursionError, InvalidOperation):
+                            pass
+                # Keep the existing tolerance for answers such as ["'value'"].
+                result.append(DBResultProcessor._normalize_special_values(
+                    str(item).strip().strip("'\"")
+                ))
             return result
         else:
             return [DBResultProcessor._normalize_special_values(str(answer).strip().strip("'\""))]
