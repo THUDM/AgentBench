@@ -227,6 +227,30 @@ If you started the task server with the lite preset, you can also run the lite e
 python -m src.assigner --config configs/assignments/lite.yaml
 ```
 
+### Inspect incomplete legacy runs
+
+The assigner above writes `sample_manifest.json` for each new agent and task pair,
+using the indices returned by its task client. To inspect both complete and partial
+legacy runs without changing their scores:
+
+```bash
+python -m src.run_coverage --output outputs --save analysis/coverage.json
+```
+
+This command needs only Python. It includes directories without `overall.json`
+and reports unique terminal samples, pending indices, infrastructure errors,
+duplicate records, and malformed log lines. A normal terminal model failure still
+counts as an evaluated sample. Coverage is not accuracy; no score is calculated
+and existing `overall.json` files are not changed.
+
+Older runs without a manifest have an unknown expected count. Recorded attempt
+counts are log-entry counts, not total executions: the legacy assigner does not
+log `NOT_AVAILABLE` callbacks. A resumed run with changed task indices must use a
+new output directory. Conflicting terminal records retain the first result for
+diagnosis and are not labelled complete.
+
+This reports the legacy assigner's JSONL format, not AgentRL FC evaluation logs.
+
 ## Next Steps
 
 If you wish to launch more tasks or use other models, you can refer to the content

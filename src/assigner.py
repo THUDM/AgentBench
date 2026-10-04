@@ -15,6 +15,7 @@ from tqdm import tqdm
 
 from src.client.task import TaskError
 from .client import TaskClient, AgentClient
+from .run_coverage import save_sample_manifest
 from .configs import ConfigLoader
 from .typings import AssignmentConfig, SampleIndex, TaskOutput, TaskClientOutput
 from .utils import ColorMessage
@@ -92,6 +93,7 @@ class Assigner:
                 print(ColorMessage.green(f"creating {task} client..."))
                 self.tasks[task] = self.config.definition.task[task].create()
                 self.task_indices[task] = self.tasks[task].get_indices()
+            save_sample_manifest(self.get_output_dir(agent, task), self.task_indices[task])
             self.remaining_tasks[agent][task] = self.task_indices[task].copy()
             if not os.path.exists(runs_file):
                 continue
