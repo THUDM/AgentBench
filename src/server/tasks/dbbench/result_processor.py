@@ -1,3 +1,5 @@
+import ast
+
 from .interaction import Database
 
 class DBResultProcessor:
@@ -159,8 +161,10 @@ class DBResultProcessor:
         """处理MySQL执行结果的特殊格式 [(value,)] 或多元组情况 [(value1,), (value2,), ...]"""
         if isinstance(result, str) and result.startswith("[") and result.endswith("]"):
             try:
-                # 尝试使用 eval 安全解析
-                parsed_result = eval(result)
+                # SQL results use Python's literal representation.  Do not use
+                # eval here because this value can contain model-controlled
+                # text when a query fails or an agent submits malformed output.
+                parsed_result = ast.literal_eval(result)
                 
                 # 检查是否是元组列表
                 if isinstance(parsed_result, list) and all(isinstance(item, tuple) for item in parsed_result):
@@ -212,8 +216,9 @@ class DBResultProcessor:
             # 如果是字符串形式的列表
             if answer.startswith("[") and answer.endswith("]"):
                 try:
-                    # 先尝试用eval转换
-                    cleaned = eval(answer)
+                    # The benchmark accepts Python-style list/tuple output.
+                    # Parse literals without executing model-controlled code.
+                    cleaned = ast.literal_eval(answer)
                     if isinstance(cleaned, list):
                         # 处理可能的元组结果
                         result = []
